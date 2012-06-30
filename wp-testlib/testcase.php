@@ -110,6 +110,17 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 		$GLOBALS['wp']->main($parts['query']);
 	}
 
+	// as it suggests: delete all posts and pages
+	function _delete_all_posts() {
+		global $wpdb;
+
+		$all_posts = $wpdb->get_col("SELECT ID from {$wpdb->posts}");
+		if ($all_posts) {
+			foreach ($all_posts as $id)
+				wp_delete_post( $id, true );
+		}
+	}
+
 	/**
 	 * Skips the current test if there is open WordPress ticket with id $ticket_id
 	 */
