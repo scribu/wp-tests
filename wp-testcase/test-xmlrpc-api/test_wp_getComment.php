@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getComment extends WP_XMLRPC_UnitTestCase {
 	var $post_id;
 	var $parent_comment_id;

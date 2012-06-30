@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getMediaItem extends WP_XMLRPC_UnitTestCase {
 	var $post_id;
 	var $attachment_data;

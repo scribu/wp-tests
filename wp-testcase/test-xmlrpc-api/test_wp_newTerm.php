@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_newTerm extends WP_XMLRPC_UnitTestCase {
 	var $parent_term;
 

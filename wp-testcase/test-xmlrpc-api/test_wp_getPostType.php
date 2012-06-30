@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getPostType extends WP_XMLRPC_UnitTestCase {
 	var $cpt_name;
 	var $cpt_args;

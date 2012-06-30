@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getPost extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;

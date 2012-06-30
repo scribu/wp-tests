@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getTaxonomy extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_uploadFile extends WP_XMLRPC_UnitTestCase {
 	function test_valid_attachment() {
 		$this->make_user_by_role( 'editor' );

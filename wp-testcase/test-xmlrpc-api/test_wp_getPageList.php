@@ -1,7 +1,10 @@
 <?php
 
-include_once(ABSPATH . WPINC . '/post-thumbnail-template.php'); 
+include_once(ABSPATH . WPINC . '/post-thumbnail-template.php');
 
+/**
+ * @group xmlrpc
+ */
 class TestXMLRPCServer_wp_getPageList extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;
