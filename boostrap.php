@@ -47,4 +47,6 @@ if(isset($GLOBALS['wp_tests_options'])) {
 require_once ABSPATH . '/wp-settings.php';
 
 require dirname( __FILE__ ) . '/wp-testlib/testcase.php';
+require dirname( __FILE__ ) . '/wp-testlib/testcase-xmlrpc.php';
 require dirname( __FILE__ ) . '/wp-testlib/exceptions.php';
+require dirname( __FILE__ ) . '/wp-testlib/utils.php';
