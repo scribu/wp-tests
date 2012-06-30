@@ -3,7 +3,7 @@
 /*
 From http://wordpress.svn.dragonu.net/unittest/wp-unittest/UnitTests/
 */
-class _WPFormattingTest extends WPTestCase {
+abstract class _WPFormattingTest extends WP_UnitTestCase {
     function file_test($name, $callback) {
         $input = $this->get_testdata($name . ".input.txt");
         $output = $this->get_testdata($name . ".output.txt");
