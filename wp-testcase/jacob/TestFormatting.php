@@ -34,10 +34,13 @@ abstract class _WPFormattingTest extends WP_UnitTestCase {
 	}
 }
 
-/*
-`seems_utf8` returns true for utf-8 strings, false otherwise.
-*/
+/**
+ * @group formatting
+ */
 class Test_Seems_UTF8 extends _WPFormattingTest {
+	/*
+	 * `seems_utf8` returns true for utf-8 strings, false otherwise.
+	 */
     function test_returns_true_for_utf8_strings() {
         // from http://www.i18nguy.com/unicode-example.html
         $utf8 = $this->get_testdata('utf-8.txt');
@@ -57,6 +60,9 @@ class Test_Seems_UTF8 extends _WPFormattingTest {
     }
 }
 
+/*
+ * @group formatting
+ */
 class Test_UTF8_URI_Encode extends _WPFormattingTest {
     /*
     Non-ASCII UTF-8 characters should be percent encoded. Spaces etc.
@@ -81,16 +87,21 @@ class Test_UTF8_URI_Encode extends _WPFormattingTest {
 }
 
 /*
-Decodes text in RFC2047 "Q"-encoding, e.g.
-
-    =?iso-8859-1?q?this=20is=20some=20text?=
-*/
+ * @group formatting
+ */
 class Test_WP_ISO_Descrambler extends _WPFormattingTest {
+	/*
+	 * Decodes text in RFC2047 "Q"-encoding, e.g.
+	 * =?iso-8859-1?q?this=20is=20some=20text?=
+	*/
     function test_decodes_iso_8859_1_rfc2047_q_encoding() {
         $this->assertEquals("this is some text", wp_iso_descrambler("=?iso-8859-1?q?this=20is=20some=20text?="));
     }
 }
 
+/*
+ * @group formatting
+ */
 class Test_Ent2NCR extends _WPFormattingTest {
     function test_converts_named_entities_to_numeric_character_references() {
         $data = $this->get_testdata("entities.txt");
