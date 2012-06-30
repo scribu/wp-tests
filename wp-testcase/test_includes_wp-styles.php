@@ -1,4 +1,8 @@
 <?php
+/**
+ * @group dependencies
+ * @group scripts
+ */
 class TestWP_Styles extends WP_UnitTestCase {
 	var $old_wp_styles;
 

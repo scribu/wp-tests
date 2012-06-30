@@ -1,4 +1,8 @@
 <?php
+/**
+ * @group dependencies
+ * @group scripts
+ */
 class TestWP_Dependencies extends WP_UnitTestCase {
 	function test_add() {
 		// Create a new object
