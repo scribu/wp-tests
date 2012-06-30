@@ -1,7 +1,7 @@
 <?php
 
 // tests for link-template.php and related URL functions
-class TestSSLLinks extends WPTestCase {
+class TestSSLLinks extends WP_UnitTestCase {
 	var $_old_server;
 	function setUp() {
 		$this->_old_server = $_SERVER;
