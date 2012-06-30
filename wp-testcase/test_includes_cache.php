@@ -1,6 +1,9 @@
 <?php
 
-class TestObjectCache extends WPTestCase {
+/**
+ * @group cache
+ */
+class TestObjectCache extends WP_UnitTestCase {
 	var $cache = NULL;
 
 	function setUp() {
@@ -12,7 +15,7 @@ class TestObjectCache extends WPTestCase {
 
 	function tearDown() {
 		parent::tearDown();
-		wp_cache_flush();
+		$this->flush_cache();
 	}
 
 	function &init_cache() {
