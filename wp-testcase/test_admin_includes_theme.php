@@ -1,9 +1,9 @@
 <?php
 // Test functions that fetch stuff from the theme directory
-class TestPageTemplates extends _WPEmptyBlog {
+class TestPageTemplates extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->theme_root = realpath(DIR_TESTROOT.'/'.DIR_TESTDATA.'/themedir1');
+		$this->theme_root = DIR_TESTDATA . '/themedir1';
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 		$GLOBALS['wp_theme_directories'] = array( WP_CONTENT_DIR . '/themes', $this->theme_root );
@@ -14,7 +14,6 @@ class TestPageTemplates extends _WPEmptyBlog {
 
 		// clear caches
 		wp_clean_themes_cache();
-		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
