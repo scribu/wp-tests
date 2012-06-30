@@ -4,7 +4,7 @@
 
 // need to include the importer as an external, so path may need to change...
 
-abstract class WP_ImportTestCase extends WP_UnitTestCase {
+abstract class WP_Import_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Import a WXR file.
 	 *
@@ -59,7 +59,7 @@ abstract class WP_ImportTestCase extends WP_UnitTestCase {
 /**
  * @group import
  */
-class WXRParserTest extends WP_ImportTestCase {
+class WXRParserTest extends WP_Import_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
@@ -250,7 +250,7 @@ class WXRParserTest extends WP_ImportTestCase {
 /**
  * @group import
  */
-class WPImportTest extends WP_ImportTestCase {
+class WPImportTest extends WP_Import_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
@@ -475,7 +475,7 @@ class WPImportTest extends WP_ImportTestCase {
 /**
  * @group import
  */
-class TestImportWP_PostMeta extends WP_ImportTestCase {
+class TestImportWP_PostMeta extends WP_Import_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
@@ -545,7 +545,7 @@ class TestImportWP_PostMeta extends WP_ImportTestCase {
 /**
  * @group import
  */
-class TestImportWP_PostMetaCDATA extends WP_ImportTestCase {
+class TestImportWP_PostMetaCDATA extends WP_Import_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
