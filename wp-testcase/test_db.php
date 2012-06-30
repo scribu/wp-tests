@@ -2,8 +2,10 @@
 
 /**
  * Test WPDB methods
+ *
+ * @group wpdb
  */
-class TestWPDB extends _WPEmptyBlog {
+class TestWPDB extends WP_UnitTestCase {
 
 	/**
 	 * Query log
