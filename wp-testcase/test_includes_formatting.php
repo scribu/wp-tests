@@ -164,6 +164,9 @@ class TestMakeClickable extends WPTestCase {
 			'blah blah (http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)) blah blah',
 			'blah blah http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software).) blah blah',
 			'blah blah http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software).)moreurl blah blah',
+			'In his famous speech “You and Your research” (here:
+			http://www.cs.virginia.edu/~robins/YouAndYourResearch.html)
+			Richard Hamming wrote about people getting more done with their doors closed, but', 
 		);
 		$urls_expected = array(
 			'<a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>',
@@ -175,6 +178,9 @@ class TestMakeClickable extends WPTestCase {
 			'blah blah (<a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>) blah blah',
 			'blah blah <a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>.) blah blah',
 			'blah blah <a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>.)moreurl blah blah',
+        	'In his famous speech “You and Your research” (here:
+			<a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html" rel="nofollow">http://www.cs.virginia.edu/~robins/YouAndYourResearch.html</a>)
+			Richard Hamming wrote about people getting more done with their doors closed, but', 
 		);
 		foreach ($urls_before as $key => $url) {
 			$this->assertEquals($urls_expected[$key], make_clickable($url));
