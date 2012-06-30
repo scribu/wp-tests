@@ -1,8 +1,11 @@
 <?php
 
-// test do_action and related functions
-
-class WPTestActions extends WPTestCase {
+/**
+ * Test do_action() and related functions
+ *
+ * @group hooks
+ */
+class WPTestActions extends WP_UnitTestCase {
 
 	function test_simple_action() {
 		$a = new MockAction();
