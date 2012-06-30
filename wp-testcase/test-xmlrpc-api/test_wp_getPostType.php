@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getPostType extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPostType extends WP_XMLRPC_UnitTestCase {
 	var $cpt_name;
 	var $cpt_args;
 
@@ -27,23 +27,31 @@ class TestXMLRPCServer_wp_getPostType extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_post_type_name() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPostType( array( 1, 'editor', 'editor', 'foobar' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
 	}
 
 	function test_valid_post_type_name() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPostType( array( 1, 'editor', 'editor', 'post' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getPostType( array( 1, 'subscriber', 'subscriber', 'post' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
 	}
 
 	function test_valid_type() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPostType( array( 1, 'editor', 'editor', $this->cpt_name, array( 'labels', 'cap', 'menu', 'taxonomies' ) ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 

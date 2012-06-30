@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getOptions extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getOptions extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'username', 'password' ) );
@@ -9,12 +9,16 @@ class TestXMLRPCServer_wp_getOptions extends WPXMLRPCServerTestCase {
 	}
 
 	function test_valid_username_password() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'subscriber', 'subscriber' ) );
 		$this->assertInternalType( 'array', $result );
 		$this->assertEquals( 'WordPress', $result['software_name']['value'] );
 	}
 
 	function test_option_value() {
+		$this->make_user_by_role( 'administrator' );
+
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'administrator', 'administrator', 'default_comment_status' ) );
 		$this->assertInternalType( 'array', $result );
 
@@ -26,6 +30,8 @@ class TestXMLRPCServer_wp_getOptions extends WPXMLRPCServerTestCase {
 		global $wp_version;
 
 		$this->knownWPBug( 20201 );
+
+		$this->make_user_by_role( 'subscriber' );
 
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'subscriber', 'subscriber' ) );
 		$this->assertInternalType( 'array', $result );
@@ -109,6 +115,8 @@ class TestXMLRPCServer_wp_getOptions extends WPXMLRPCServerTestCase {
 
 	function test_option_values_admin() {
 		global $wp_version;
+
+		$this->make_user_by_role( 'administrator' );
 
 		$result = $this->myxmlrpcserver->wp_getOptions( array( 1, 'administrator', 'administrator' ) );
 		$this->assertInternalType( 'array', $result );

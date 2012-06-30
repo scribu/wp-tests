@@ -1,7 +1,9 @@
 <?php
 
-class TestXMLRPCServer_wp_uploadFile extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_uploadFile extends WP_XMLRPC_UnitTestCase {
 	function test_valid_attachment() {
+		$this->make_user_by_role( 'editor' );
+
 		// create attachment
 		$filename = ( DIR_TESTDATA.'/images/a2-small.jpg' );
 		$contents = file_get_contents( $filename );

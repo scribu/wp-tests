@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_editPost extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'username', 'password', 0, array() ) );
@@ -9,7 +9,8 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_edit_own_post() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
@@ -24,7 +25,9 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_edit_others_post() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
@@ -39,7 +42,9 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_edit_others_post() {
-		$author_id = get_user_by( 'login', 'author' )->ID;
+		$this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$original_title = 'Post test';
 		$post = array( 'post_title' => $original_title, 'post_author' => $author_id );
 		$post_id = wp_insert_post( $post );
@@ -55,11 +60,13 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_reassign_author() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
 		$post2 = array( 'post_author' => $author_id );
 		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'editor', 'editor', $post_id, $post2 ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -70,11 +77,12 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_reassign_author() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
 		$post2 = array( 'post_author' => $author_id );
 		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'contributor', 'contributor', $post_id, $post2 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -87,7 +95,8 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	function test_post_thumbnail() {
 		add_theme_support( 'post-thumbnails' );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Post Thumbnail Test', 'post_author' => $author_id );
 		$post_id = wp_insert_post( $post );
 
@@ -152,7 +161,8 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_edit_custom_fields() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 		$mid_edit   = add_post_meta( $post_id, 'custom_field_key', '12345678' );
@@ -185,32 +195,27 @@ class TestXMLRPCServer_wp_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_unsticky() {
-		$this->author = get_user_by( 'login', 'editor' );
-		$this->_insert_quick_posts( 1 );
-		$post_id = array_pop( $this->post_ids );
+		$editor_id = $this->make_user_by_role( 'editor' );
+
+		$post_id = $this->factory->post->create( array( 'post_author' => $editor_id ) );
 		stick_post( $post_id );
 
 		$post2 = array( 'sticky' => false );
 		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'editor', 'editor', $post_id, $post2 ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertFalse( is_sticky( $post_id ) );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	function test_password_transition_unsticky() {
 		// when transitioning to private status or adding a post password, post should be un-stuck
-		$this->author = get_user_by( 'login', 'editor' );
-		$this->_insert_quick_posts( 1 );
-		$post_id = array_pop( $this->post_ids );
+		$editor_id = $this->make_user_by_role( 'editor' );
+		$post_id = $this->factory->post->create( array( 'post_author' => $editor_id ) );
 		stick_post( $post_id );
 
 		$post2 = array( 'post_password' => 'foobar',  'sticky' => false );
 		$result = $this->myxmlrpcserver->wp_editPost( array( 1, 'editor', 'editor', $post_id, $post2 ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertFalse( is_sticky( $post_id ) );
-
-		wp_delete_post( $post_id, true );
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getPost extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPost extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;
 	var $post_date_ts;
@@ -14,18 +14,12 @@ class TestXMLRPCServer_wp_getPost extends WPXMLRPCServerTestCase {
 			'post_title' => rand_str(),
 			'post_content' => rand_str( 2000 ),
 			'post_excerpt' => rand_str( 100 ),
-			'post_author' => get_user_by( 'login', 'author' )->ID,
+			'post_author' => $this->make_user_by_role( 'author' ),
 			'post_date'  => strftime( "%Y-%m-%d %H:%M:%S", $this->post_date_ts ),
 		);
 		$this->post_id = wp_insert_post( $this->post_data );
 		$this->post_custom_field = array( 'key' => 'test_custom_field', 'value' => 12345678);
 		$this->post_custom_field['id'] = add_post_meta( $this->post_id, $this->post_custom_field['key'], $this->post_custom_field['value'] );
-	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_post( $this->post_id );
 	}
 
 	function test_invalid_username_password() {

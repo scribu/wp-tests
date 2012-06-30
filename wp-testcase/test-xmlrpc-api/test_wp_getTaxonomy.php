@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getTaxonomy extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getTaxonomy extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'username', 'password', 'category' ) );
@@ -9,20 +9,26 @@ class TestXMLRPCServer_wp_getTaxonomy extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_taxonomy() {
-		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'subscriber', 'subscriber', '' ) );
+		$this->make_user_by_role( 'editor' );
+
+		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'editor', 'editor', '' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
 		$this->assertEquals( __( 'Invalid taxonomy' ), $result->message );
 	}
 
 	function test_invalid_taxonomy() {
-		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'subscriber', 'subscriber', 'not_existing' ) );
+		$this->make_user_by_role( 'editor' );
+
+		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'editor', 'editor', 'not_existing' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
 		$this->assertEquals( __( 'Invalid taxonomy' ), $result->message );
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'subscriber', 'subscriber', 'category' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
@@ -30,11 +36,15 @@ class TestXMLRPCServer_wp_getTaxonomy extends WPXMLRPCServerTestCase {
 	}
 
 	function test_taxonomy_validated() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'editor', 'editor', 'category' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_prepare_taxonomy() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTaxonomy( array( 1, 'editor', 'editor', 'category' ) );
 		$taxonomy = get_taxonomy( 'category' );
 		$this->assertEquals( 'category', $result['name'], 'name' );

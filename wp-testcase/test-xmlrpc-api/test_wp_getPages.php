@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getPages extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPages extends WP_XMLRPC_UnitTestCase {
     var $post_data;
     var $post_id;
     var $post_date_ts;
@@ -15,17 +15,11 @@ class TestXMLRPCServer_wp_getPages extends WPXMLRPCServerTestCase {
             'post_title' => rand_str(),
             'post_content' => rand_str( 2000 ),
             'post_excerpt' => rand_str( 100 ),
-            'post_author' => get_user_by( 'login', 'administrator' )->ID,
+            'post_author' => $this->make_user_by_role( 'administrator' ),
             'post_date'  => strftime( "%Y-%m-%d %H:%M:%S", $this->post_date_ts ),
         );
         $this->post_id = wp_insert_post( $this->post_data );
-        $this->editor_id = get_user_by( 'login', 'editor' )->ID;
-    }
-
-    function tearDown() {
-        parent::tearDown();
-
-        wp_delete_post( $this->post_id );
+        $this->editor_id = $this->make_user_by_role( 'editor' );
     }
 
     function test_invalid_username_password() {
@@ -35,6 +29,8 @@ class TestXMLRPCServer_wp_getPages extends WPXMLRPCServerTestCase {
     }
 
     function test_incapable_user() {
+		$this->make_user_by_role( 'contributor' );
+
         $result = $this->myxmlrpcserver->wp_getPages( array( 1, 'contributor', 'contributor' ) );
         $this->assertInstanceOf( 'IXR_Error', $result );
         $this->assertEquals( 401, $result->code );

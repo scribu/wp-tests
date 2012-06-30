@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getTaxonomies extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getTaxonomies extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getTaxonomies( array( 1, 'username', 'password' ) );
@@ -9,6 +9,8 @@ class TestXMLRPCServer_wp_getTaxonomies extends WPXMLRPCServerTestCase {
 	}
 
 	function test_taxonomy_validated() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTaxonomies( array( 1, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}

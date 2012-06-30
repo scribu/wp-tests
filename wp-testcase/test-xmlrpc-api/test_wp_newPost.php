@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_newPost extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'username', 'password', array() ) );
@@ -9,12 +9,16 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'subscriber', 'subscriber', array() ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
 	}
 
 	function test_no_content() {
+		$this->make_user_by_role( 'author' );
+
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', array() ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 500, $result->code );
@@ -22,6 +26,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_basic_content() {
+		$this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Test' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -29,6 +35,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_ignore_id() {
+		$this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Test', 'ID' => 103948 );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -36,12 +44,16 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_publish() {
+		$this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'publish' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_incapable_publish() {
+		$this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'publish' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'contributor', 'contributor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -49,12 +61,16 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_private() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'private' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_incapable_private() {
+		$this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'private' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'contributor', 'contributor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -62,14 +78,18 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_other_author() {
-		$other_author_id = get_user_by( 'login', 'author' )->ID;
+		$other_author_id = $this->make_user_by_role( 'author' );
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_author' => $other_author_id );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_incapable_other_author() {
-		$other_author_id = get_user_by( 'login', 'author' )->ID;
+		$other_author_id = $this->make_user_by_role( 'author' );
+		$this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Test', 'post_author' => $other_author_id );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'contributor', 'contributor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -77,6 +97,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_author() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_author' => 99999999 );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -84,7 +106,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_author() {
-		$my_author_id = get_user_by( 'login', 'author' )->ID;
+		$my_author_id = $this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Test' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -97,6 +120,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 
 	function test_post_thumbnail() {
 		add_theme_support( 'post-thumbnails' );
+
+		$this->make_user_by_role( 'author' );
 
 		// create attachment
 		$filename = ( DIR_TESTDATA.'/images/a2-small.jpg' );
@@ -121,6 +146,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_post_status() {
+		$this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'foobar_status' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'author', 'author', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -128,6 +155,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_sticky() {
+		$this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Test', 'sticky' => true );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'contributor', 'contributor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -135,6 +164,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_sticky() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'sticky' => true );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -142,6 +173,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_private_sticky() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_status' => 'private', 'sticky' => true );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -149,6 +182,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_post_format() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_format' => 'quote' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -156,6 +191,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_post_format() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Test', 'post_format' => 'tumblr' );
 		$result = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -163,6 +200,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_taxonomy() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array(
 			'post_title' => 'Test',
 			'terms' => array(
@@ -185,6 +224,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_term_id() {
+		$this->make_user_by_role( 'editor' );
+
 		$post = array(
 			'post_title' => 'Test',
 			'terms' => array(
@@ -197,6 +238,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_terms() {
+		$this->make_user_by_role( 'editor' );
+
 		$tag1 = wp_create_tag ( rand_str( 30 ) );
 		$tag2 = wp_create_tag ( rand_str( 30 ) );
 		$tag3 = wp_create_tag ( rand_str( 30 ) );
@@ -217,6 +260,8 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_terms_names() {
+		$this->make_user_by_role( 'editor' );
+
 		$ambiguous_name = rand_str( 30 );
 		$parent_cat = wp_create_category( $ambiguous_name );
 		$child_cat = wp_create_category( $ambiguous_name, $parent_cat );
@@ -252,12 +297,6 @@ class TestXMLRPCServer_wp_newPost extends WPXMLRPCServerTestCase {
 		$result2 = $this->myxmlrpcserver->wp_newPost( array( 1, 'editor', 'editor', $post2 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result2 );
 		$this->assertEquals( 401, $result2->code );
-
-		// cleanup
-		wp_delete_term( $child_cat, 'category' );
-		wp_delete_term( $cat1, 'category' );
-		wp_delete_term( $cat2->term_id, 'category' );
-		wp_delete_term( $parent_cat, 'category' );
 	}
 
 }

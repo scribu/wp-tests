@@ -1,21 +1,14 @@
 <?php
 
 
-class TestXMLRPCServer_wp_getComments extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getComments extends WP_XMLRPC_UnitTestCase {
 	var $post_id;
 
 	function setUp() {
 		parent::setUp();
 
-		$this->_insert_quick_posts( 1 );
-		$this->post_id = $this->post_ids[0];
-		$this->_insert_quick_comments( $this->post_id, 15 );
-	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_post( $this->post_id );
+		$this->post_id = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $this->post_id, 15 );
 	}
 
 	function test_invalid_username_password() {
@@ -25,12 +18,16 @@ class TestXMLRPCServer_wp_getComments extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'contributor' );
+
 		$result = $this->myxmlrpcserver->wp_getComments( array( 1, 'contributor', 'contributor', array() ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
 	}
 
 	function test_capable_user() {
+		$this->make_user_by_role( 'editor' );
+
 		$results = $this->myxmlrpcserver->wp_getComments( array( 1, 'editor', 'editor', array() ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $results );
 
@@ -41,6 +38,8 @@ class TestXMLRPCServer_wp_getComments extends WPXMLRPCServerTestCase {
 	}
 
 	function test_post_filter() {
+		$this->make_user_by_role( 'editor' );
+
 		$filter = array(
 			'post_id' => $this->post_id
 		);
@@ -53,6 +52,8 @@ class TestXMLRPCServer_wp_getComments extends WPXMLRPCServerTestCase {
 	}
 
 	function test_number_filter() {
+		$this->make_user_by_role( 'editor' );
+
 		$filter = array(
 			'post_id' => $this->post_id,
 		);

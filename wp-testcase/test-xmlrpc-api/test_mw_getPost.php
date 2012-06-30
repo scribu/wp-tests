@@ -2,7 +2,7 @@
 
 include_once(ABSPATH . WPINC . '/post-thumbnail-template.php'); 
 
-class TestXMLRPCServer_mw_getPost extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_mw_getPost extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;
 	var $post_date_ts;
@@ -10,23 +10,17 @@ class TestXMLRPCServer_mw_getPost extends WPXMLRPCServerTestCase {
 	function setUp() {
 		parent::setUp();
 
+		$author_id = $this->make_user_by_role( 'author' );
 		$this->post_date_ts = strtotime( '+1 day' );
 		$this->post_data = array(
 			'post_title' => rand_str(),
 			'post_content' => rand_str( 2000 ),
 			'post_excerpt' => rand_str( 100 ),
-			'post_author' => get_user_by( 'login', 'author' )->ID,
+			'post_author' => $author_id,
 			'post_date'  => strftime( "%Y-%m-%d %H:%M:%S", $this->post_date_ts ),
 		);
 		$this->post_id = wp_insert_post( $this->post_data );
 	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_post( $this->post_id );
-	}
-
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->mw_getPost( array( $this->post_id, 'username', 'password' ) );
@@ -35,6 +29,8 @@ class TestXMLRPCServer_mw_getPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->mw_getPost( array( $this->post_id, 'subscriber', 'subscriber' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
@@ -119,7 +115,6 @@ class TestXMLRPCServer_mw_getPost extends WPXMLRPCServerTestCase {
 		$this->assertStringMatchesFormat( '%d', $result['wp_post_thumbnail'] );
 		$this->assertEquals( $attachment_id, $result['wp_post_thumbnail'] );
 
-		delete_post_thumbnail( $this->post_id );
 		remove_theme_support( 'post-thumbnails' );
 	}
 

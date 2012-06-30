@@ -2,7 +2,7 @@
 
 include_once(ABSPATH . WPINC . '/post-thumbnail-template.php'); 
 
-class TestXMLRPCServer_wp_getPageList extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPageList extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;
 	var $post_date_ts;
@@ -16,16 +16,10 @@ class TestXMLRPCServer_wp_getPageList extends WPXMLRPCServerTestCase {
 			'post_title' => rand_str(),
 			'post_content' => rand_str( 2000 ),
 			'post_excerpt' => rand_str( 100 ),
-			'post_author' => get_user_by( 'login', 'author' )->ID,
+			'post_author' => $this->make_user_by_role( 'author' ),
 			'post_date'  => strftime( "%Y-%m-%d %H:%M:%S", $this->post_date_ts ),
 		);
 		$this->post_id = wp_insert_post( $this->post_data );
-	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_post( $this->post_id );
 	}
 
 	function test_invalid_username_password() {
@@ -35,13 +29,16 @@ class TestXMLRPCServer_wp_getPageList extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'contributor' );
+
 		$result = $this->myxmlrpcserver->wp_getPageList( array( 1, 'contributor', 'contributor' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
 	}
 
-
 	function test_date() {
+		$this->make_user_by_role( 'editor' );
+
 		$results = $this->myxmlrpcserver->wp_getPageList( array( 1, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $results );
 

@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPosts extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getPosts( array( 1, 'username', 'password' ) );
@@ -10,6 +10,8 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 
 	function test_incapable_user() {
 		$this->knownWPBug( 20991 );
+
+		$this->make_user_by_role( 'subscriber' );
 
 		$result = $this->myxmlrpcserver->wp_getPosts( array( 1, 'subscriber', 'subscriber' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -22,17 +24,23 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_user() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPosts( array( 1, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_invalid_post_type() {
+		$this->make_user_by_role( 'editor' );
+
 		$filter = array( 'post_type' => 'invalid_post_type_name' );
 		$result = $this->myxmlrpcserver->wp_getPosts( array( 1, 'editor', 'editor', $filter ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 	}
 
 	function test_filters() {
+		$this->make_user_by_role( 'editor' );
+
 		$cpt_name = 'test_wp_getposts_cpt';
 		register_post_type( $cpt_name, array(
 			'taxonomies' => array( 'post_tag', 'category' ),
@@ -40,7 +48,7 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 		));
 
 		$num_posts = 17;
-		$this->_insert_quick_posts( $num_posts, $cpt_name );
+		$post_ids = $this->factory->post->create_many( $num_posts, array( 'post_type' => $cpt_name ) );
 
 		// get them all
 		$filter = array( 'post_type' => $cpt_name, 'number' => $num_posts + 10 );
@@ -59,14 +67,14 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 			}
 			$filter['offset'] += $filter['number'];
 		} while ( count( $presults ) > 0 );
-		// verify that $post_ids (populated by _insert_quick_posts) matches $posts_found
-		$this->assertEquals( 0, count( array_diff( $this->post_ids, $posts_found ) ) );
+		// verify that $post_ids matches $posts_found
+		$this->assertEquals( 0, count( array_diff( $post_ids, $posts_found ) ) );
 
 		// add comments to some of the posts
-		$random_posts = array_rand( $this->post_ids, $num_posts / 2 );
+		$random_posts = array_rand( $post_ids, $num_posts / 2 );
 		foreach ( $random_posts as $i ) {
-			$post = $this->post_ids[$i];
-			$this->_insert_quick_comments( $post, rand( 1, 20 ) );
+			$post = $post_ids[$i];
+			$this->factory->comment->create_post_comments( $post, rand( 1, 20 ) );
 		}
 
 		// get results ordered by comment count
@@ -81,7 +89,7 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 		}
 
 		// set one of the posts to draft and get drafts
-		$post = get_post( $this->post_ids[$random_posts[0]] );
+		$post = get_post( $post_ids[$random_posts[0]] );
 		$post->post_status = 'draft';
 		wp_update_post( $post );
 		$filter3 = array( 'post_type' => $cpt_name, 'post_status' => 'draft' );
@@ -92,7 +100,8 @@ class TestXMLRPCServer_wp_getPosts extends WPXMLRPCServerTestCase {
 	}
 
 	function test_fields() {
-		$this->_insert_quick_posts( 1 );
+		$this->make_user_by_role( 'editor' );
+		$this->factory->post->create();
 
 		// check default fields
 		$results = $this->myxmlrpcserver->wp_getPosts( array( 1, 'editor', 'editor' ) );

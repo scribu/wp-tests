@@ -1,18 +1,12 @@
 <?php
 
-class TestXMLRPCServer_wp_getTerm extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getTerm extends WP_XMLRPC_UnitTestCase {
 	var $term;
 
 	function setUp() {
 		parent::setUp();
 
 		$this->term = wp_insert_term( 'term' . rand_str() , 'category' );
-	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_term( $this->term['term_id'], 'category' );
 	}
 
 	function test_invalid_username_password() {
@@ -22,20 +16,26 @@ class TestXMLRPCServer_wp_getTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_taxonomy() {
-		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'subscriber', 'subscriber', '', 0 ) );
+		$this->make_user_by_role( 'editor' );
+
+		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'editor', 'editor', '', 0 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
 		$this->assertEquals( __( 'Invalid taxonomy' ), $result->message );
 	}
 
 	function test_invalid_taxonomy() {
-		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'subscriber', 'subscriber', 'not_existing', 0 ) );
+		$this->make_user_by_role( 'editor' );
+
+		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'editor', 'editor', 'not_existing', 0 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
 		$this->assertEquals( __( 'Invalid taxonomy' ), $result->message );
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'subscriber', 'subscriber', 'category', $this->term['term_id'] ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
@@ -44,6 +44,8 @@ class TestXMLRPCServer_wp_getTerm extends WPXMLRPCServerTestCase {
 
 
 	function test_empty_term() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'editor', 'editor', 'category', '' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 500, $result->code );
@@ -51,6 +53,8 @@ class TestXMLRPCServer_wp_getTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_term() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'editor', 'editor', 'category', 9999 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 404, $result->code );
@@ -58,6 +62,8 @@ class TestXMLRPCServer_wp_getTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_valid_term() {
+		$this->make_user_by_role( 'editor' );
+
 		$term = get_term( $this->term['term_id'], 'category', ARRAY_A );
 
 		$result = $this->myxmlrpcserver->wp_getTerm( array( 1, 'editor', 'editor', 'category', $this->term['term_id'] ) );

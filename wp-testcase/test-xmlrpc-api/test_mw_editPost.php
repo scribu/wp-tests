@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_mw_editPost extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$post = array();
@@ -10,7 +10,7 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_edit_own_post() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
@@ -25,7 +25,9 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_edit_others_post() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$this->make_user_by_role( 'editor' );
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
@@ -40,7 +42,9 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_edit_others_post() {
-		$author_id = get_user_by( 'login', 'author' )->ID;
+		$this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$original_title = 'Post test';
 		$post = array( 'post_title' => $original_title, 'post_author' => $author_id );
 		$post_id = wp_insert_post( $post );
@@ -56,11 +60,13 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_reassign_author() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+		$this->make_user_by_role( 'editor' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
 		$post2 = array( 'wp_author_id' => $author_id );
 		$result = $this->myxmlrpcserver->mw_editPost( array( $post_id, 'editor', 'editor', $post2 ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
@@ -71,11 +77,12 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_reassign_author() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Post test', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
 		$post2 = array( 'wp_author_id' => $author_id );
 		$result = $this->myxmlrpcserver->mw_editPost( array( $post_id, 'contributor', 'contributor', $post2 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -88,7 +95,8 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	function test_post_thumbnail() {
 		add_theme_support( 'post-thumbnails' );
 
-		$author_id = get_user_by( 'login', 'author' )->ID;
+		$author_id = $this->make_user_by_role( 'author' );
+
 		$post = array( 'post_title' => 'Post Thumbnail Test', 'post_author' => $author_id );
 		$post_id = wp_insert_post( $post );
 
@@ -140,7 +148,8 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 	}
 
 	function test_edit_basic_post_info() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Title', 'post_content' => 'Content', 'post_excerpt' => 'Excerpt', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 
@@ -174,7 +183,8 @@ class TestXMLRPCServer_mw_editPost extends WPXMLRPCServerTestCase {
 
 	// Not allowed since [19914]
 	function test_change_post_type() {
-		$contributor_id = get_user_by( 'login', 'contributor' )->ID;
+		$contributor_id = $this->make_user_by_role( 'contributor' );
+
 		$post = array( 'post_title' => 'Title', 'post_author' => $contributor_id );
 		$post_id = wp_insert_post( $post );
 

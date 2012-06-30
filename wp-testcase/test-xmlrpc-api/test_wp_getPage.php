@@ -1,8 +1,6 @@
 <?php
 
-include_once(ABSPATH . WPINC . '/post-thumbnail-template.php'); 
-
-class TestXMLRPCServer_wp_getPage extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPage extends WP_XMLRPC_UnitTestCase {
 	var $post_data;
 	var $post_id;
 	var $post_date_ts;
@@ -16,7 +14,7 @@ class TestXMLRPCServer_wp_getPage extends WPXMLRPCServerTestCase {
 			'post_title' => rand_str(),
 			'post_content' => rand_str( 2000 ),
 			'post_excerpt' => rand_str( 100 ),
-			'post_author' => get_user_by( 'login', 'author' )->ID,
+			'post_author' => $this->make_user_by_role( 'author' ),
 			'post_date'  => strftime( "%Y-%m-%d %H:%M:%S", $this->post_date_ts ),
 		);
 		$this->post_id = wp_insert_post( $this->post_data );
@@ -37,12 +35,16 @@ class TestXMLRPCServer_wp_getPage extends WPXMLRPCServerTestCase {
 	function test_invalid_pageid() {
 		$this->knownWPBug(20336);
 
-		$result = $this->myxmlrpcserver->wp_getPage( array( 1, 9999, 'author', 'author' ) );
+		$this->make_user_by_role( 'editor' );
+
+		$result = $this->myxmlrpcserver->wp_getPage( array( 1, 9999, 'editor', 'editor' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 404, $result->code );
 	}
 
 	function test_valid_page() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPage( array( 1, $this->post_id, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 
@@ -80,6 +82,8 @@ class TestXMLRPCServer_wp_getPage extends WPXMLRPCServerTestCase {
 	}
 
 	function test_date() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPage( array( 1, $this->post_id, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 

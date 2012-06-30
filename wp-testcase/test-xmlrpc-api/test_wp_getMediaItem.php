@@ -1,5 +1,5 @@
 <?php
-class TestXMLRPCServer_wp_getMediaItem extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getMediaItem extends WP_XMLRPC_UnitTestCase {
 	var $post_id;
 	var $attachment_data;
 	var $attachment_id;
@@ -36,12 +36,9 @@ class TestXMLRPCServer_wp_getMediaItem extends WPXMLRPCServerTestCase {
 	}
 
 	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_attachment( $this->attachment_id );
-		wp_delete_post( $this->post_id );
-
 		remove_theme_support( 'post-thumbnails' );
+
+		parent::tearDown();
 	}
 
 	function test_invalid_username_password() {
@@ -51,6 +48,8 @@ class TestXMLRPCServer_wp_getMediaItem extends WPXMLRPCServerTestCase {
 	}
 
 	function test_valid_media_item() {
+		$this->make_user_by_role( 'author' );
+
 		$fields = array( 'post' );
 		$result = $this->myxmlrpcserver->wp_getMediaItem( array( 1, 'author', 'author', $this->attachment_id, $fields ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );

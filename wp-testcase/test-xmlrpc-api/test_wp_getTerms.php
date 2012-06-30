@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getTerms extends WP_XMLRPC_UnitTestCase {
 
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getTerms( array( 1, 'username', 'password', 'category' ) );
@@ -9,6 +9,8 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_taxonomy() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTerms( array( 1, 'editor', 'editor', '' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -16,6 +18,8 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_taxonomy() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getTerms( array( 1, 'editor', 'editor', 'not_existing' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -23,6 +27,8 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getTerms( array( 1, 'subscriber', 'subscriber', 'category' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
@@ -30,6 +36,8 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 	}
 
 	function test_valid_terms() {
+		$this->make_user_by_role( 'editor' );
+
 		// make sure there's at least one category
 		$cat = wp_insert_term( 'term' . rand_str() , 'category' );
 
@@ -45,11 +53,11 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 			$this->assertStringMatchesFormat( '%d', $term['term_taxonomy_id'] );
 			$this->assertStringMatchesFormat( '%d', $term['parent'] );
 		}
-
-		wp_delete_term( $cat['term_id'], 'category' );
 	}
 
 	function test_custom_taxonomy() {
+		$this->make_user_by_role( 'editor' );
+
 		// create a taxonomy and some terms for it
 		$tax_name = 'wp_getTerms_custom_taxonomy';
 		$num_terms = 12;
@@ -90,11 +98,13 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 	}
 
 	function test_term_ordering() {
+		$this->make_user_by_role( 'editor' );
+
 		$cat1 = wp_create_category( 'wp.getTerms_' . rand_str( 16 ) );
 		$cat2 = wp_create_category( 'wp.getTerms_' . rand_str( 16 ) );
 
-		$this->_insert_quick_posts( 5, 'post', array( 'post_category' => array( $cat1 ) ) );
-		$this->_insert_quick_posts( 3, 'post', array( 'post_category' => array( $cat2 ) ) );
+		$this->factory->post->create_many( 5, array( 'post_category' => array( $cat1 ) ) );
+		$this->factory->post->create_many( 3, array( 'post_category' => array( $cat2 ) ) );
 
 		$filter = array( 'orderby' => 'count', 'order' => 'DESC' );
 		$results = $this->myxmlrpcserver->wp_getTerms( array( 1, 'editor', 'editor', 'category', $filter ) );
@@ -109,12 +119,11 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 				$this->assertFalse( false, 'Incorrect category ordering.' );
 			}
 		}
-
-		wp_delete_category( $cat1 );
-		wp_delete_category( $cat2 );
 	}
 
 	function test_terms_search() {
+		$this->make_user_by_role( 'editor' );
+
 		$name = rand_str( 30 );
 		$name_id = wp_create_category( $name );
 
@@ -133,7 +142,5 @@ class TestXMLRPCServer_wp_getTerms extends WPXMLRPCServerTestCase {
 		$this->assertEquals( 1, count( $results2 ) );
 		$this->assertEquals( $name, $results2[0]['name'] );
 		$this->assertEquals( $name_id, $results2[0]['term_id'] );
-
-		wp_delete_category( $name_id );
 	}
 }

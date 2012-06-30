@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_getPostTypes extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_getPostTypes extends WP_XMLRPC_UnitTestCase {
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_getPostTypes( array( 1, 'username', 'password', 'post' ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -8,6 +8,8 @@ class TestXMLRPCServer_wp_getPostTypes extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_getPostTypes( array( 1, 'subscriber', 'subscriber' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertInternalType( 'array', $result );
@@ -15,6 +17,8 @@ class TestXMLRPCServer_wp_getPostTypes extends WPXMLRPCServerTestCase {
 	}
 
 	function test_capable_user() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPostTypes( array( 1, 'editor', 'editor' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertInternalType( 'array', $result );
@@ -22,6 +26,8 @@ class TestXMLRPCServer_wp_getPostTypes extends WPXMLRPCServerTestCase {
 	}
 
 	function test_simple_filter() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_getPostTypes( array( 1, 'editor', 'editor', array( 'hierarchical' => true ) ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertInternalType( 'array', $result );

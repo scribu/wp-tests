@@ -1,6 +1,6 @@
 <?php
 
-class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
+class TestXMLRPCServer_wp_editTerm extends WP_XMLRPC_UnitTestCase {
 	var $parent_term;
 	var $child_term;
 	var $post_tag;
@@ -13,14 +13,6 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 		$this->post_tag = wp_insert_term( 'test' . rand_str() , 'post_tag' );
 	}
 
-	function tearDown() {
-		parent::tearDown();
-
-		wp_delete_term( $this->parent_term['term_id'], 'category' );
-		wp_delete_term( $this->child_term['term_id'], 'category' );
-		wp_delete_term( $this->post_tag['term_id'], 'post_tag' );
-	}
-
 	function test_invalid_username_password() {
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'username', 'password', 'category', 1 ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -28,6 +20,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_taxonomy() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'subscriber', 'subscriber', '', array( 'taxonomy' => '' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -35,6 +29,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_invalid_taxonomy() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'subscriber', 'subscriber', $this->parent_term['term_id'], array( 'taxonomy' => 'not_existing' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -42,6 +38,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_incapable_user() {
+		$this->make_user_by_role( 'subscriber' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'subscriber', 'subscriber', $this->parent_term['term_id'], array( 'taxonomy' => 'category' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 401, $result->code );
@@ -49,6 +47,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_term_not_exists() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', 9999, array( 'taxonomy' => 'category' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 404, $result->code );
@@ -56,6 +56,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_term() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', '', array( 'taxonomy' => 'category' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 500, $result->code );
@@ -63,6 +65,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_empty_term_name() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->parent_term['term_id'], array( 'taxonomy' => 'category', 'name' => '' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -70,6 +74,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_parent_for_nonhierarchical() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->post_tag['term_id'], array( 'taxonomy' => 'post_tag', 'parent' => $this->parent_term['term_id'] ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -77,6 +83,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_parent_empty() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->child_term['term_id'], array( 'taxonomy' => 'category', 'parent' => '', 'name' => 'test' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 500, $result->code );
@@ -84,12 +92,16 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_parent_invalid() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->child_term['term_id'], array( 'taxonomy' => 'category', 'parent' => 'dasda', 'name' => 'test' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 500, $result->code );
 	}
 
 	function test_parent_not_existing() {
+		$this->make_user_by_role( 'editor' );
+
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->child_term['term_id'], array( 'taxonomy' => 'category', 'parent' => 9999, 'name' => 'test' ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
 		$this->assertEquals( 403, $result->code );
@@ -97,6 +109,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_parent_duplicate_slug() {
+		$this->make_user_by_role( 'editor' );
+
 		$parent_term = get_term_by( 'id', $this->parent_term['term_id'], 'category' );
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->child_term['term_id'], array( 'taxonomy' => 'category', 'slug' => $parent_term->slug ) ) );
 		$this->assertInstanceOf( 'IXR_Error', $result );
@@ -105,6 +119,8 @@ class TestXMLRPCServer_wp_editTerm extends WPXMLRPCServerTestCase {
 	}
 
 	function test_edit_all_fields() {
+		$this->make_user_by_role( 'editor' );
+
 		$fields = array( 'taxonomy' => 'category', 'name' => 'Child 2', 'parent' => $this->parent_term['term_id'], 'description' => 'Child term', 'slug' => 'child_2' );
 		$result = $this->myxmlrpcserver->wp_editTerm( array( 1, 'editor', 'editor', $this->child_term['term_id'], $fields ) );
 
