@@ -96,6 +96,9 @@ class TestTaxonomy extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group taxonomy
+ */
 class TestTermAPI extends WP_UnitTestCase {
 	var $taxonomy = 'category';
 
@@ -184,7 +187,7 @@ class TestTermAPI extends WP_UnitTestCase {
 		// each term should be associated with every post
 		foreach ($term_id as $term=>$id) {
 			$actual = get_objects_in_term($id, $this->taxonomy);
-			$this->assertEquals( $this->post_ids, array_map('intval', $actual) );
+			$this->assertEquals( $ids, array_map('intval', $actual) );
 		}
 
 		// each term should have a count of 5
