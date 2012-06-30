@@ -1,25 +1,18 @@
 <?php
 
 // test functions in wp-includes/user.php
+/**
+ * @group user
+ */
+class TestWPUser extends WP_UnitTestCase {
 
-class TestWPUser extends _WPEmptyBlog {
-
-	var $user_ids = array();
 	protected $_deprecated_errors = array();
 
 	function setUp() {
 		parent::setUp();
-		// keep track of users we create
-		$this->user_ids = array();
 		$this->_deprecated_errors = array();
 	}
 
-	function tearDown() {
-		parent::tearDown();
-		// delete any users that were created during tests
-		$this->_destroy_users();
-	}
-	
 	public function deprecated_handler( $function, $message, $version ) {
 		$this->_deprecated_errors[] = array(
 			'function' => $function,
@@ -32,7 +25,7 @@ class TestWPUser extends _WPEmptyBlog {
 		// add one of each user role
 		$user_role = array();
 		foreach ( array('administrator', 'editor', 'author', 'contributor', 'subscriber' ) as $role ) {
-			$id = $this->_make_user( $role );
+			$id = $this->factory->user->create( array( 'role' => $role ) );
 			$user_role[ $id ] = $role;
 		}
 
@@ -57,7 +50,7 @@ class TestWPUser extends _WPEmptyBlog {
 		$key = rand_str();
 		$val = rand_str();
 
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 
 		// get an option that doesn't exist
 		$this->assertFalse(get_user_option($key, $user_id));
@@ -79,7 +72,7 @@ class TestWPUser extends _WPEmptyBlog {
 		$key = rand_str();
 		$val = rand_str();
 
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 
 		// get a meta key that doesn't exist
 		$this->assertEquals( '', get_usermeta($user_id, $key) );
@@ -117,7 +110,7 @@ class TestWPUser extends _WPEmptyBlog {
 			rand_str() => 'val-'.rand_str(),
 		);
 
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 
 		// there is already some stuff in the array
 		$this->assertTrue(is_array(get_usermeta($user_id)));
@@ -148,7 +141,7 @@ class TestWPUser extends _WPEmptyBlog {
 
 	// Test property magic functions for property get/set/isset.
 	function test_user_properties() {
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		foreach ( $user->data as $key => $data ) {
@@ -175,7 +168,7 @@ class TestWPUser extends _WPEmptyBlog {
 		$this->knownWPBug( 20043 );
 		
 		// New user
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		// Test custom fields
@@ -202,7 +195,7 @@ class TestWPUser extends _WPEmptyBlog {
 	function test_user_meta_properties() {
 		global $wpdb;
 
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		update_user_option( $user_id, 'foo', 'foo', true );
@@ -213,7 +206,7 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_id_property_back_compat() {
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		$this->assertTrue( isset( $user->id ) );
@@ -235,7 +228,7 @@ class TestWPUser extends _WPEmptyBlog {
 		);
 
 		foreach ( $roles as $role => $level ) {
-			$user_id = $this->_make_user( $role );
+			$user_id = $this->factory->user->create( array( 'role' => $role ) );
 			$user = new WP_User( $user_id );
 
 			$this->assertTrue( isset( $user->user_level ) );
@@ -244,7 +237,7 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_construction() {
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 
 		$user = new WP_User( $user_id );
 		$this->assertInstanceOf( 'WP_User', $user );
@@ -275,7 +268,12 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_get() {
-		$user_id = $this->_make_user('author', 'test_wp_user_get', 'password', 'test@test.com');
+		$user_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => 'test_wp_user_get',
+			'user_pass' => 'password',
+			'user_email' => 'test@test.com',
+		) );
 
 		$user = new WP_User( $user_id );
 		$this->assertEquals( 'test_wp_user_get', $user->get( 'user_login' ) );
@@ -288,7 +286,12 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_has_prop() {
-		$user_id = $this->_make_user('author', 'test_wp_user_has_prop', 'password', 'test2@test.com');
+		$user_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => 'test_wp_user_has_prop',
+			'user_pass' => 'password',
+			'user_email' => 'test2@test.com',
+		) );
 
 		$user = new WP_User( $user_id );
 		$this->assertTrue( $user->has_prop( 'user_email') );
@@ -300,7 +303,12 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_update_user() {
-		$user_id = $this->_make_user('author', 'test_wp_update_user', 'password', 'test3@test.com');
+		$user_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => 'test_wp_update_user',
+			'user_pass' => 'password',
+			'user_email' => 'test3@test.com',
+		) );
 		$user = new WP_User( $user_id );
 
 		update_user_meta( $user_id, 'description', 'about me' );
@@ -334,12 +342,15 @@ class TestWPUser extends _WPEmptyBlog {
 		// Logged out users don't have blogs.
 		$this->assertEquals( array(), get_blogs_of_user( 0 ) );
 
-		$user_id = $this->_make_user( 'subscriber' );
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		$blogs = get_blogs_of_user( $user_id );
 		$this->assertEquals( array( 1 ), array_keys( $blogs ) );
 
 		// Non-existent users don't have blogs.
-		$this->_destroy_user( $user_id );
+		if ( is_multisite() )
+			wpmu_delete_user( $user_id );
+		else
+			wp_delete_user( $user_id );
 		$this->assertEquals( array(), get_blogs_of_user( $user_id ) );
 	}
 
@@ -349,7 +360,7 @@ class TestWPUser extends _WPEmptyBlog {
 
 		$old_current = get_current_user_id();
 
-		$user_id = $this->_make_user( 'subscriber' );
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $user_id );
 
 		$this->assertTrue( is_user_member_of_blog() );
@@ -374,7 +385,7 @@ class TestWPUser extends _WPEmptyBlog {
 	function test_global_userdata() {
 		global $userdata, $wpdb;
 
-		$user_id = $this->_make_user( 'subscriber' );
+		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $user_id );
 
 		$this->assertNotEmpty( $userdata );
@@ -395,7 +406,7 @@ class TestWPUser extends _WPEmptyBlog {
 	}
 
 	function test_exists() {
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		$this->assertTrue( $user->exists() );
@@ -414,7 +425,7 @@ class TestWPUser extends _WPEmptyBlog {
 
 		$old_post_id = $id;
 
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		$post = array(
@@ -436,12 +447,10 @@ class TestWPUser extends _WPEmptyBlog {
 		$this->assertEquals( $authordata->ID, $user_id );
 
 		setup_postdata( get_post( $old_post_id ) );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	function test_delete_user() {
-		$user_id = $this->_make_user('author');
+		$user_id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User( $user_id );
 
 		$post = array(
