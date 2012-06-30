@@ -1,6 +1,6 @@
 <?php
 
-class WPTestScreen extends WPTestCase {
+class WPTestScreen extends WP_UnitTestCase {
 	var $core_screens = array(
 		'index.php' => array( 'base' => 'dashboard', 'id' => 'dashboard' ),
 		'edit.php' => array( 'base' => 'edit', 'id' => 'edit-post', 'post_type' => 'post' ),
@@ -29,27 +29,9 @@ class WPTestScreen extends WPTestCase {
 		'options-writing.php' => array( 'base' => 'options-writing', 'id' => 'options-writing' ),
 	);
 
-	var $old_GET;
-	var $old_POST;
-	var $old_REQUEST;
-
-	function setUp() {
-		parent::setUp();
-
-		$this->old_GET = $_GET;
-		$this->old_POST = $_POST;
-		$this->old_REQUEST = $_REQUEST;
-	}
-
 	function tearDown() {
 		parent::tearDown();
-
-		$_GET = $this->old_GET;
-		$_POST = $this->old_POST;
-		$_REQUEST = $this->old_REQUEST;
-
-		global $wp_taxonomies;
-		unset( $wp_taxonomies[ 'old-or-new' ] );
+		unset( $GLOBALS['wp_taxonomies']['old-or-new'] );
 	}
 
 	function test_set_current_screen_with_hook_suffix() {
@@ -57,21 +39,21 @@ class WPTestScreen extends WPTestCase {
 
 		foreach ( $this->core_screens as $hook_name => $screen ) {
 			$_GET = $_POST = $_REQUEST = array();
-			$GLOBALS[ 'taxnow' ] = $GLOBALS[ 'typenow' ] = '';
+			$GLOBALS['taxnow'] = $GLOBALS['typenow'] = '';
 			$screen = (object) $screen;
 			$hook = parse_url( $hook_name );
 
-			if ( $hook[ 'query' ] ) {
-				$args = wp_parse_args( $hook[ 'query' ] );
-				if ( isset( $args[ 'taxonomy' ] ) )
-					$GLOBALS[ 'taxnow' ] = $_GET[ 'taxonomy' ] = $_POST[ 'taxonomy' ] = $_REQUEST['taxonomy'] = $args[ 'taxonomy' ];
-				if ( isset( $args[ 'post_type' ] ) )
-					$GLOBALS[ 'typenow' ] = $_GET[ 'post_type' ] = $_POST[ 'post_type' ] = $_REQUEST[ 'post_type' ] = $args[ 'post_type' ];
+			if ( $hook['query'] ) {
+				$args = wp_parse_args( $hook['query'] );
+				if ( isset( $args['taxonomy'] ) )
+					$GLOBALS['taxnow'] = $_GET['taxonomy'] = $_POST['taxonomy'] = $_REQUEST['taxonomy'] = $args['taxonomy'];
+				if ( isset( $args['post_type'] ) )
+					$GLOBALS['typenow'] = $_GET['post_type'] = $_POST['post_type'] = $_REQUEST['post_type'] = $args['post_type'];
 				else if ( isset( $screen->post_type ) )
-					$GLOBALS[ 'typenow' ] = $_GET[ 'post_type' ] = $_POST[ 'post_type' ] = $_REQUEST[ 'post_type' ] = $screen->post_type;
+					$GLOBALS['typenow'] = $_GET['post_type'] = $_POST['post_type'] = $_REQUEST['post_type'] = $screen->post_type;
 			}
 
-			$GLOBALS[ 'hook_suffix' ] = $hook['path'];
+			$GLOBALS['hook_suffix'] = $hook['path'];
 			set_current_screen();
 
 			$this->assertEquals( $screen->id, $current_screen->id, $hook_name );
