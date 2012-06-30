@@ -1,17 +1,20 @@
 <?php
 
-// test various functions used by the uploader
 
-class TestUploadFunctions extends WPTestCase {
+/**
+ * @group upload
+ * @group media
+ */
+class TestUploadFunctions extends WP_UnitTestCase {
 
-	var $siteurl = 'http://example.com/foo';
+	var $siteurl;
 
 	function setUp() {
 		if ( is_multisite() )
 			$this->knownUTBug(35);
 
 		parent::setUp();
-		update_option( 'siteurl', $this->siteurl );
+		return;
 		// system defaults
 		update_option( 'upload_path', 'wp-content/uploads' );
 		update_option( 'upload_url_path', '' );
@@ -22,22 +25,16 @@ class TestUploadFunctions extends WPTestCase {
 		parent::tearDown();
 
 		// Remove year/month folders created by wp_upload_dir().
-		$this->_destroy_uploads();
+		$uploads = wp_upload_dir(); 
+		foreach ( scandir( $uploads['basedir'] ) as $file )
+			_rmdir( $uploads['basedir'] . '/' . $file ); 
 		_rmdir( ABSPATH . 'foo/' );
-	}
-
-	// See #UT27
-	function _maybe_absolute_uploads_url( $url ) {
-		if ( '/wp-content' == WP_CONTENT_URL )
-			return $url;
-
-		return $this->siteurl . $url;
 	}
 
 	function test_upload_dir_default() {
 		// wp_upload_dir() with default parameters
 		$info = wp_upload_dir();
-		$this->assertEquals( $this->_maybe_absolute_uploads_url( '/wp-content/uploads/' ) . gmstrftime('%Y/%m'), $info['url'] );
+		$this->assertEquals( get_option( 'siteurl' ) . '/wp-content/uploads/' . gmstrftime('%Y/%m'), $info['url'] );
 		$this->assertEquals( ABSPATH . 'wp-content/uploads/' . gmstrftime('%Y/%m'), $info['path'] );
 		$this->assertEquals( gmstrftime('/%Y/%m'), $info['subdir'] );
 		$this->assertEquals( '', $info['error'] );
@@ -47,7 +44,7 @@ class TestUploadFunctions extends WPTestCase {
 		// wp_upload_dir() with a relative upload path that is not 'wp-content/uploads'
 		update_option( 'upload_path', 'foo/bar' );
 		$info = wp_upload_dir();
-		$this->assertEquals( $this->siteurl . '/foo/bar/' . gmstrftime('%Y/%m'), $info['url'] );
+		$this->assertEquals( get_option( 'siteurl' ) . '/foo/bar/' . gmstrftime('%Y/%m'), $info['url'] );
 		$this->assertEquals( ABSPATH . 'foo/bar/' . gmstrftime('%Y/%m'), $info['path'] );
 		$this->assertEquals( gmstrftime('/%Y/%m'), $info['subdir'] );
 		$this->assertEquals( '', $info['error'] );
@@ -69,7 +66,7 @@ class TestUploadFunctions extends WPTestCase {
 	function test_upload_dir_no_yearnum() {
 		update_option( 'uploads_use_yearmonth_folders', 0 );
 		$info = wp_upload_dir();
-		$this->assertEquals( $this->_maybe_absolute_uploads_url( '/wp-content/uploads' ), $info['url'] );
+		$this->assertEquals( get_option( 'siteurl' ) . '/wp-content/uploads', $info['url'] );
 		$this->assertEquals( ABSPATH . 'wp-content/uploads', $info['path'] );
 		$this->assertEquals( '', $info['subdir'] );
 		$this->assertEquals( '', $info['error'] );
@@ -88,7 +85,7 @@ class TestUploadFunctions extends WPTestCase {
 		// upload path setting is empty - it should default to 'wp-content/uploads'
 		update_option('upload_path', '');
 		$info = wp_upload_dir();
-		$this->assertEquals( $this->_maybe_absolute_uploads_url( '/wp-content/uploads/' ) . gmstrftime('%Y/%m'), $info['url'] );
+		$this->assertEquals( get_option( 'siteurl' ) . '/wp-content/uploads/' . gmstrftime('%Y/%m'), $info['url'] );
 		$this->assertEquals( ABSPATH . 'wp-content/uploads/' . gmstrftime('%Y/%m'), $info['path'] );
 		$this->assertEquals( gmstrftime('/%Y/%m'), $info['subdir'] );
 		$this->assertEquals( '', $info['error'] );
