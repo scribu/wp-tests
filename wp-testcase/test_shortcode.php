@@ -1,56 +1,65 @@
 <?php
+/**
+ * @group shortcodes
+ */
+class TestShortcode extends WP_UnitTestCase {
 
-// [footag foo="bar"]
-function footag_func($atts) {
-	return @"foo = {$atts['foo']}";
-}
-add_shortcode('footag', 'footag_func');
-
-// [bartag foo="bar"]
-function bartag_func($atts) {
-	extract(shortcode_atts(array(
-		'foo' => 'no foo',
-		'baz' => 'default baz',
-	), $atts));
-
-	return "foo = {$foo}";
-}
-add_shortcode('bartag', 'bartag_func');
-
-// [baztag]content[/baztag]
-function baztag_func($atts, $content='') {
-	return 'content = '.do_shortcode($content);
-}
-add_shortcode('baztag', 'baztag_func');
-
-function dumptag_func($atts) {
-	$out = '';
-	foreach ($atts as $k=>$v)
-		$out .= "$k = $v\n";
-	return $out;
-}
-add_shortcode('dumptag', 'dumptag_func');
-
-// suggested by markj for testing p-wrapping of shortcode output
-function paragraph_func($atts, $content='') {
-	extract(shortcode_atts(array(
-		'class' => 'graf',
-	), $atts));
-	return "<p class='$class'>$content</p>\n";
-}
-add_shortcode('paragraph', 'paragraph_func');
-
-class TestShortcode extends WPTestCase {
+	protected $shortcodes = array( 'footag', 'bartag', 'baztag', 'dumptag', 'paragraph' );
 
 	function setUp() {
 		parent::setUp();
 		add_shortcode('test-shortcode-tag', array(&$this, '_shortcode_tag'));
-#error_reporting(E_ALL);
-#ini_set('display_errors', '1');
+
+		foreach ( $this->shortcodes as $shortcode )
+			add_shortcode( $shortcode, array( $this, '_shortcode_' . $shortcode ) );
+
 		$this->atts = null;
 		$this->content = null;
 		$this->tagname = null;
 
+	}
+
+	function tearDown() {
+		global $shortcode_tags;
+		parent::tearDown();
+		foreach ( $this->shortcodes as $shortcode )
+			unset( $shortcode_tags[ $shortcode ] );
+		unset( $shortcode_tags['test-shortcode-tag'] );
+	}
+
+	// [footag foo="bar"]
+	function _shortcode_footag( $atts ) {
+		return @"foo = {$atts['foo']}";
+	}
+
+	// [bartag foo="bar"]
+	function _shortcode_bartag( $atts ) {
+		extract(shortcode_atts(array(
+			'foo' => 'no foo',
+			'baz' => 'default baz',
+		), $atts));
+	
+		return "foo = {$foo}";
+	}
+
+	// [baztag]content[/baztag]
+	function _shortcode_baztag( $atts, $content = '' ) {
+		return 'content = '.do_shortcode($content);
+	}
+
+	function _shortcode_dumptag( $atts ) {
+		$out = '';
+		foreach ($atts as $k=>$v)
+			$out .= "$k = $v\n";
+		return $out;
+	}
+
+	// testing p-wrapping of shortcode output
+	function _shortcode_paragraph( $atts ) {
+		extract(shortcode_atts(array(
+			'class' => 'graf',
+		), $atts));
+		return "<p class='$class'>$content</p>\n";
 	}
 
 	function _shortcode_tag($atts, $content=NULL, $tagname=NULL) {
@@ -319,13 +328,11 @@ EOF;
 		$this->assertEquals( $test_string, $actual );
 	}
 
-}
-//http://core.trac.wordpress.org/ticket/10326
-class TestShortcodeStripping extends WPTestCase {
 	function test_strip_shortcodes() {
-		$this->assertEquals('before',strip_shortcodes('before[gallery]'));
-		$this->assertEquals('after',strip_shortcodes('[gallery]after'));
-		$this->assertEquals('beforeafter',strip_shortcodes('before[gallery]after'));
+		$this->knownWPBug( 10326 );
+		$this->assertEquals('before', strip_shortcodes('before[gallery]'));
+		$this->assertEquals('after', strip_shortcodes('[gallery]after'));
+		$this->assertEquals('beforeafter', strip_shortcodes('before[gallery]after'));
 	}
 }
 
