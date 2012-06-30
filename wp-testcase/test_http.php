@@ -143,7 +143,7 @@ class _WPHTTP extends WPTestCase {
 	}
 
 	function test_file_stream() {
-		$url = 'http://unit-tests.svn.wordpress.org/wp-testdata/images/2004-07-22-DSC_0007.jpg'; // we'll test against a file in the unit test data
+		$url = 'http://unit-tests.svn.wordpress.org/trunk/wp-testdata/images/2004-07-22-DSC_0007.jpg'; // we'll test against a file in the unit test data
 		$size = 87348;
 		$res = wp_remote_request( $url, array( 'stream' => true, 'timeout' => 30 ) ); //Auto generate the filename.
 
