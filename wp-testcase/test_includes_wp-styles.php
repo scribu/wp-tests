@@ -1,5 +1,5 @@
 <?php
-class TestWP_Styles extends WPTestCase {
+class TestWP_Styles extends WP_UnitTestCase {
 	var $old_wp_styles;
 
 	function setUp() {
@@ -59,10 +59,10 @@ class TestWP_Styles extends WPTestCase {
 		// Try with an automatic protocol reference (//)
 		wp_enqueue_style( 'reset-css-doubleslash', '//yui.yahooapis.com/2.8.1/build/reset/reset-min.css' );
 		$expected  .= "<link rel='stylesheet' id='reset-css-doubleslash-css'  href='//yui.yahooapis.com/2.8.1/build/reset/reset-min.css?ver=$ver' type='text/css' media='all' />\n";
-		
+
 		// Try with a local resource and an automatic protocol reference (//)
-		$url = '/' . plugins_url( '/my_plugin/style.css');
-		wp_enqueue_style( 'plugin-style', $url  );
+		$url = '//my_plugin/style.css';
+		wp_enqueue_style( 'plugin-style', $url );
 		$expected  .= "<link rel='stylesheet' id='plugin-style-css'  href='$url?ver=$ver' type='text/css' media='all' />\n";
 
 		// Try with a bad protocol

@@ -1,5 +1,5 @@
 <?php
-class TestWP_Scripts extends WPTestCase {
+class TestWP_Scripts extends WP_UnitTestCase {
 	var $old_wp_scripts;
 
 	function setUp() {
@@ -63,8 +63,8 @@ class TestWP_Scripts extends WPTestCase {
 		$expected  .= "<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=$ver'></script>\n";
 
 		// Try with a local resource and an automatic protocol reference (//)
-		$url = '/' . plugins_url( '/my_plugin/script.js');
-		wp_enqueue_script( 'plugin-script', $url  );
+		$url = '//my_plugin/script.js';
+		wp_enqueue_script( 'plugin-script', $url );
 		$expected  .= "<script type='text/javascript' src='$url?ver=$ver'></script>\n";
 
 		// Try with a bad protocol

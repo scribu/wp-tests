@@ -1,5 +1,5 @@
 <?php
-class TestWP_Dependencies extends WPTestCase {
+class TestWP_Dependencies extends WP_UnitTestCase {
 	function test_add() {
 		// Create a new object
 		$dep = new WP_Dependencies;
