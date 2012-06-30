@@ -214,5 +214,3 @@ class TestBalanceTags extends WP_UnitTestCase {
 	}
 
 }
-
-?>

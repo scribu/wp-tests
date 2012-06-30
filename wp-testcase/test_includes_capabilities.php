@@ -231,5 +231,3 @@ class TestMapMetaCap extends WP_UnitTestCase {
 		$this->assertEquals( array( 'edit_plugins' ), map_meta_cap( 'edit_plugins', $this->user_id ) );
 	}
 }
-
-?>

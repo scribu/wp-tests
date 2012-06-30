@@ -503,5 +503,3 @@ class TestWPUser extends WP_UnitTestCase {
 		$this->assertNull( get_post( $post_id ) );
 	}
 }
-
-?>

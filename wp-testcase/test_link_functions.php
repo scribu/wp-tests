@@ -155,5 +155,3 @@ class TestSSLLinks extends WP_UnitTestCase {
 		force_ssl_login( $forced_login );
 	}
 }
-
-?>

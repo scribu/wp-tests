@@ -103,6 +103,3 @@ class TestIncludesFile extends WP_UnitTestCase {
 	}
 
 }
-
-
-?>

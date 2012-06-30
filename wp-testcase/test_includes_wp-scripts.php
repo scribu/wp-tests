@@ -85,4 +85,3 @@ class TestWP_Scripts extends WP_UnitTestCase {
 		$wp_scripts->base_url = $base_url_backup;
 	}
 }
-?>

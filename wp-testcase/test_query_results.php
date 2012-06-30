@@ -257,5 +257,3 @@ class TestWPQueryPosts extends _WPDataset1 {
 	}
 
 }
-
-?>

@@ -237,5 +237,3 @@ class WPTestFilters extends WP_UnitTestCase {
 
 	}
 }
-
-?>

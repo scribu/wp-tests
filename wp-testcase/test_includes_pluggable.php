@@ -275,4 +275,3 @@ class TestUserFunction extends WP_UnitTestCase {
 		$this->assertFalse( get_userdata( array( 'array' ) ) );
 	}
 }
-?>

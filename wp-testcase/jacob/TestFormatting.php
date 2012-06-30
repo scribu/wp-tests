@@ -113,5 +113,3 @@ class Test_Ent2NCR extends _WPFormattingTest {
         }
     }
 }
-
-?>

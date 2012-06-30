@@ -83,4 +83,3 @@ class TestWP_Styles extends WP_UnitTestCase {
 		$wp_styles->base_url = $base_url_backup;
 	}
 }
-?>

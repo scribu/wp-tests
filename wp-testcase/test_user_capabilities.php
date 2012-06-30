@@ -581,5 +581,3 @@ class WPTestUserCapabilities extends WP_UnitTestCase {
 		}
 	}
 }
-
-?>

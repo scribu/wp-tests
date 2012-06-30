@@ -140,5 +140,3 @@ class TestFeedRss2 extends _WPMediumBlog {
 
 	}
 }
-
-?>

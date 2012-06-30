@@ -32,5 +32,3 @@ class TestHashHMAC extends WP_UnitTestCase {
 	}
 
 }
-
-?>

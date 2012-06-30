@@ -388,5 +388,3 @@ function helper_deactivate_hook($plugin, $network_wide) {
 }
 
 endif;
-
-?>

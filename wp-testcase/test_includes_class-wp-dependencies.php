@@ -115,4 +115,3 @@ class TestWP_Dependencies extends WP_UnitTestCase {
 	}
 
 }
-?>

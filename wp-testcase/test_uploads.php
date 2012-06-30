@@ -92,5 +92,3 @@ class TestUploadFunctions extends WP_UnitTestCase {
 	}
 
 }
-
-?>

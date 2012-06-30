@@ -568,5 +568,3 @@ class TestWPQueryVerbosePageRules extends TestWPQueryVars {
 		$wp_rewrite->flush_rules();
 	}
 }
-
-?>

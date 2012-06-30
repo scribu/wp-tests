@@ -44,14 +44,14 @@ class TestDefaultThemes extends WP_UnitTestCase {
 		$this->assertEquals( $this->theme_name, $themes[ $this->theme_name ]->name );
 	}
 
-	function test_get_theme() {	
+	function test_get_theme() {
 		$themes = get_themes();
 		foreach (array_keys($themes) as $name) {
-				$theme = get_theme($name);
-				// WP_Theme implements ArrayAccess. Even ArrayObject returns false for is_array().
-				$this->assertFalse( is_array( $theme ) );
-				$this->assertInstanceOf( 'WP_Theme', $theme );
-				$this->assertEquals($theme, $themes[$name]);
+			$theme = get_theme($name);
+			// WP_Theme implements ArrayAccess. Even ArrayObject returns false for is_array().
+			$this->assertFalse( is_array( $theme ) );
+			$this->assertInstanceOf( 'WP_Theme', $theme );
+			$this->assertEquals($theme, $themes[$name]);
 		}
 	}
 
@@ -191,9 +191,9 @@ class TestDefaultThemes extends WP_UnitTestCase {
 
 				// template files that do exist
 				//foreach ($theme['Template Files'] as $path) {
-					//$file = basename($path, '.php');
-					// FIXME: untestable because get_query_template uses TEMPLATEPATH
-					//$this->assertEquals('', get_query_template($file));
+				//$file = basename($path, '.php');
+				// FIXME: untestable because get_query_template uses TEMPLATEPATH
+				//$this->assertEquals('', get_query_template($file));
 				//}
 
 				// these are kind of tautologies but at least exercise the code
@@ -614,4 +614,3 @@ class TestThemeSupport extends WP_UnitTestCase {
 		$this->assertFalse( current_theme_supports( 'foobar', 'bar' ) );
 	}
 }
-?>

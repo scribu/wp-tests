@@ -358,5 +358,3 @@ function _unregister_post_type( $cpt_name ) {
 		}
 	}
 }
-
-?>

@@ -267,5 +267,3 @@ class WPTestActions extends WP_UnitTestCase {
 	}
 
 }
-
-?>

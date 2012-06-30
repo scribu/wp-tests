@@ -302,4 +302,3 @@ class WPTestCronRunning extends _WPEmptyBlog {
 	}
 }
 */
-?>

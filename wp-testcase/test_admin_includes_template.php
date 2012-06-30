@@ -43,4 +43,3 @@ class WPTestCheckedSelected extends WP_UnitTestCase {
 		$this->assertEquals('', checked(0,false,false));
 	}
 }
-?>

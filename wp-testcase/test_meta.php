@@ -88,5 +88,3 @@ EOF;
 		$this->assertEquals($expected, mask_input_value($in));
 	}
 }
-
-?>

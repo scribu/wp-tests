@@ -74,4 +74,3 @@ class TestPluginMenus extends WP_UnitTestCase {
 		}
 	}
 }
-?>

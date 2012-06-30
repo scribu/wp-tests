@@ -637,10 +637,4 @@ class TestIsImageFunctions extends WP_UnitTestCase {
 		}
 	}
 
-
-
 }
-
-
-
-?>

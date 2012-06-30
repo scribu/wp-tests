@@ -149,5 +149,3 @@ class TestObjectCache extends WP_UnitTestCase {
 		$this->assertEquals( 0, $this->cache->get( $key ) );
 	}
 }
-
-?>

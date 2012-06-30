@@ -1557,6 +1557,3 @@ class TestStripSlashesDeep extends WP_UnitTestCase {
 		$this->assertEquals( $txt, stripslashes_deep( "I can\'t see, isn\\\\\'t that it?" ) );
 	}
 }
-
-
-?>

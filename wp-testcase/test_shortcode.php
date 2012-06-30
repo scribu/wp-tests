@@ -335,5 +335,3 @@ EOF;
 		$this->assertEquals('beforeafter', strip_shortcodes('before[gallery]after'));
 	}
 }
-
-?>

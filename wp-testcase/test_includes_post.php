@@ -968,5 +968,3 @@ class WPTestPostTypes extends WP_UnitTestCase {
 		$this->assertFalse( post_type_supports( 'notaposttype', 'notafeature' ) );
 	}
 }
-
-?>

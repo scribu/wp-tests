@@ -76,4 +76,3 @@ class TestXMLRPCServer_wp_getMediaItem extends WP_XMLRPC_UnitTestCase {
 		$this->assertEquals( wp_get_attachment_thumb_url( $this->attachment_id ), $result['thumbnail'] );
 	}
 }
-?>

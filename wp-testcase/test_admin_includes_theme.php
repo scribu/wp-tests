@@ -50,4 +50,3 @@ class TestPageTemplates extends WP_UnitTestCase {
 		$this->assertEquals("template-header.php", $templates['This Template Header Is On One Line']);
 	}
 }
-?>

@@ -204,6 +204,3 @@ EOF;
 		$this->assertEquals( $content, $post->post_content );
 	}
 }
-
-
-?>

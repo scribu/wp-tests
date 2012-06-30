@@ -394,5 +394,3 @@ class TestTermAPI extends WP_UnitTestCase {
 			$this->assertTrue( wp_delete_term( $t['term_id'], $this->taxonomy ) );
 	}
 }
-
-?>
