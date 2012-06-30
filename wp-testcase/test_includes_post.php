@@ -2,10 +2,10 @@
 
 // test wp-includes/post.php
 
-class WPTestIncludesPost extends WPTestCase {
+class WPTestIncludesPost extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->author_id = $this->_make_user('editor');
+		$this->author_id = $this->factory->user->create( array( 'role' => 'editor' ) );
 		$this->old_current_user = get_current_user_id();
 		wp_set_current_user( $this->author_id );
 		_set_cron_array(array());
@@ -13,11 +13,8 @@ class WPTestIncludesPost extends WPTestCase {
 	}
 
 	function tearDown() {
-		parent::tearDown();
-		foreach ($this->post_ids as $id)
-			wp_delete_post($id);
-		$this->_destroy_user( $this->author_id );
 		wp_set_current_user( $this->old_current_user );
+		parent::tearDown();
 	}
 
 	// helper function: return the timestamp(s) of cron jobs for the specified hook and post
@@ -469,7 +466,7 @@ class WPTestIncludesPost extends WPTestCase {
 	}
 }
 
-class WPTestAttachments extends _WPEmptyBlog {
+class WPTestAttachments extends WP_UnitTestCase {
 
 	function tearDown() {
 		parent::tearDown();
@@ -479,7 +476,10 @@ class WPTestAttachments extends _WPEmptyBlog {
 		update_option('thumbnail_size_w', 150);
 		update_option('thumbnail_size_h', 150);
 
-		$this->_destroy_uploads();
+		// Remove all uploads.
+		$uploads = wp_upload_dir(); 
+		foreach ( scandir( $uploads['basedir'] ) as $file )
+			_rmdir( $uploads['basedir'] . '/' . $file ); 
 	}
 
 	function _make_attachment($upload, $parent_post_id=-1) {
@@ -673,11 +673,11 @@ class WPTestAttachments extends _WPEmptyBlog {
 
 }
 
-class WPTestPostMeta extends WPTestCase {
+class WPTestPostMeta extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
-		$this->author = new WP_User( $this->_make_user('editor') );
+		$this->author = new WP_User( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 
 		$post = array(
 			'post_author' => $this->author->ID,
@@ -913,7 +913,7 @@ class WPTestPostMeta extends WPTestCase {
 	}
 }
 
-class WPTestPostTypes extends WPTestCase {
+class WPTestPostTypes extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
