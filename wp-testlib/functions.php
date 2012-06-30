@@ -58,3 +58,13 @@ function _test_filter_build_unique_id($tag, $function, $priority) {
 	}
 }
 
+function _delete_all_posts() {
+	global $wpdb;
+
+	$all_posts = $wpdb->get_col("SELECT ID from {$wpdb->posts}");
+	if ($all_posts) {
+		foreach ($all_posts as $id)
+			wp_delete_post( $id, true );
+	}
+}
+

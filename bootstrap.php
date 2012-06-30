@@ -48,6 +48,9 @@ if(isset($GLOBALS['wp_tests_options'])) {
 // Load WordPress
 require_once ABSPATH . '/wp-settings.php';
 
+// Delete any default posts & related data
+_delete_all_posts();
+
 require dirname( __FILE__ ) . '/wp-testlib/testcase.php';
 require dirname( __FILE__ ) . '/wp-testlib/testcase-xmlrpc.php';
 require dirname( __FILE__ ) . '/wp-testlib/exceptions.php';
