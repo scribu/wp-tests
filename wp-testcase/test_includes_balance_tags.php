@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group formatting
+ */
 class TestBalanceTags extends WP_UnitTestCase {
 
 	// These are single/self-closing tags that WP has traditionally recognized.
