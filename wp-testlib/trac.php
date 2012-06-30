@@ -1,6 +1,6 @@
 <?php
 
-class TrackTickets {
+class TracTickets {
 	/**
 	 * Whenever a track ticket is checked to see if it's closed or not
 	 * the results are stored here
