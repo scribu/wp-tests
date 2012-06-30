@@ -14,12 +14,14 @@ class TestDefaultThemes extends WP_UnitTestCase {
 		parent::setUp();
 		add_filter( 'extra_theme_headers', array( $this, '_theme_data_extra_headers' ) );
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
-		parent::tearDown();
 		remove_filter( 'extra_theme_headers', array( $this, '_theme_data_extra_headers' ) );
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
+		parent::tearDown();
 	}
 
 	function test_wp_get_themes_default() {
@@ -259,6 +261,7 @@ class TestThemeDir extends WP_UnitTestCase {
 		add_filter( 'template_root', array(&$this, '_theme_root') );
 		// clear caches
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
@@ -267,6 +270,7 @@ class TestThemeDir extends WP_UnitTestCase {
 		remove_filter( 'stylesheet_root', array(&$this, '_theme_root') );
 		remove_filter( 'template_root', array(&$this, '_theme_root') );
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 		parent::tearDown();
 	}
 
@@ -453,12 +457,14 @@ class TestLargeThemeDir extends WP_UnitTestCase {
 
 		// clear caches
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
 		$GLOBALS['wp_theme_directories'] = $this->orig_theme_dir;
 		remove_filter('theme_root', array(&$this, '_theme_root'));
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 		parent::tearDown();
 	}
 
