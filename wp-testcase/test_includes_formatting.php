@@ -1,6 +1,9 @@
 <?php
 
-class TestMakeClickable extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestMakeClickable extends WP_UnitTestCase {
 	function test_mailto_xss() {
 		$in = 'testzzz@"STYLE="behavior:url(\'#default#time2\')"onBegin="alert(\'refresh-XSS\')"';
 		$this->assertEquals($in, make_clickable($in));
@@ -339,7 +342,10 @@ class TestMakeClickable extends WPTestCase {
 	}
 }
 
-class TestJSEscape extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestJSEscape extends WP_UnitTestCase {
 	function test_js_escape_simple() {
 		$out = esc_js('foo bar baz();');
 		$this->assertEquals('foo bar baz();', $out);
@@ -381,7 +387,10 @@ class TestJSEscape extends WPTestCase {
 	}
 }
 
-class TestHtmlExcerpt extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestHtmlExcerpt extends WP_UnitTestCase {
 	function test_simple() {
 		$this->assertEquals("Baba", wp_html_excerpt("Baba told me not to come", 4));
 	}
@@ -397,7 +406,7 @@ class TestHtmlExcerpt extends WPTestCase {
 }
 
 /* // @todo These tests need to be rewritten for sanitize_sql_orderby
-class TestSanitizeOrderby extends WPTestCase {
+class TestSanitizeOrderby extends WP_UnitTestCase {
 	function test_empty() {
 		$cols = array('a' => 'a');
 		$this->assertEquals( '', sanitize_sql_orderby('', $cols) );
@@ -433,7 +442,10 @@ class TestSanitizeOrderby extends WPTestCase {
 }
 */
 
-class TestWPTexturize extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestWPTexturize extends WP_UnitTestCase {
 	function test_dashes() {
 		$this->assertEquals('Hey &#8212; boo?', wptexturize('Hey -- boo?'));
 		$this->assertEquals('<a href="http://xx--xx">Hey &#8212; boo?</a>', wptexturize('<a href="http://xx--xx">Hey -- boo?</a>'));
@@ -590,7 +602,10 @@ class TestWPTexturize extends WPTestCase {
 	}
 }
 
-class TestEscUrl extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestEscUrl extends WP_UnitTestCase {
 	function test_spaces() {
 		$this->assertEquals('http://example.com/MrWordPress', esc_url('http://example.com/Mr WordPress'));
 		$this->assertEquals('http://example.com/Mr%20WordPress', esc_url('http://example.com/Mr%20WordPress'));
@@ -652,7 +667,10 @@ class TestEscUrl extends WPTestCase {
 	}
 }
 
-class TestAutop extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestAutop extends WP_UnitTestCase {
 	//From ticket http://core.trac.wordpress.org/ticket/11008
 	function test_first_post() {
 		$expected = '<p>Welcome to WordPress!  This post contains important information.  After you read it, you can make it private to hide it from visitors but still have the information handy for future reference.</p>
@@ -751,7 +769,10 @@ PS.  Not yet subscribed for update notifications?  <a href="%1$s" title="Subscri
 	}
 }
 
-class TestLikeEscape extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestLikeEscape extends WP_UnitTestCase {
 	function test_like_escape() {
 		$this->knownWPBug(10041);
 
@@ -774,7 +795,10 @@ class TestLikeEscape extends WPTestCase {
 	}
 }
 
-class TestSanitizeTextField extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeTextField extends WP_UnitTestCase {
 	// #11528
 	function test_sanitize_text_field() {
 		$inputs = array(
@@ -817,7 +841,10 @@ class TestSanitizeTextField extends WPTestCase {
 	}
 }
 
-class TestSanitizeMimeType extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeMimeType extends WP_UnitTestCase {
 	// 17855
 	function test_sanitize_valid_mime_type() {
 		$inputs = array(
@@ -851,7 +878,10 @@ class TestSanitizeMimeType extends WPTestCase {
 	}
 }
 
-class TestSanitizeFileName extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeFileName extends WP_UnitTestCase {
 	function test_munges_extensions() {
 		# r17990
 		$file_name = sanitize_file_name( 'test.phtml.txt' );
@@ -881,7 +911,10 @@ class TestSanitizeFileName extends WPTestCase {
 	}
 }
 
-class TestWPSpecialchars extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestWPSpecialchars extends WP_UnitTestCase {
 	function test_wp_specialchars_basics() {
 		$html =  "&amp;&lt;hello world&gt;";
 		$this->assertEquals( $html, _wp_specialchars( $html ) );
@@ -919,7 +952,10 @@ class TestWPSpecialchars extends WPTestCase {
 	}
 }
 
-class TestEscAttr extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestEscAttr extends WP_UnitTestCase {
 	function test_esc_attr_quotes() {
 		$attr = '"double quotes"';
 		$this->assertEquals( '&quot;double quotes&quot;', esc_attr( $attr ) );
@@ -947,7 +983,10 @@ class TestEscAttr extends WPTestCase {
 	}
 }
 
-class TestEscHtml extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestEscHtml extends WP_UnitTestCase {
 	function test_esc_html_basics() {
 		// Simple string
 		$html = "The quick brown fox.";
@@ -983,7 +1022,10 @@ class TestEscHtml extends WPTestCase {
 	}
 }
 
-class TestSanitizeUser extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeUser extends WP_UnitTestCase {
 	function test_strips_html() {
 		$input = "Captain <strong>Awesome</strong>";
 		$expected = is_multisite() ? 'captain awesome' : 'Captain Awesome';
@@ -1004,7 +1046,10 @@ class TestSanitizeUser extends WPTestCase {
 	}
 }
 
-class TestIsEmail extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestIsEmail extends WP_UnitTestCase {
 	function test_returns_true_if_given_a_valid_email_address() {
 		$data = array(
 			"bob@example.com",
@@ -1031,7 +1076,10 @@ class TestIsEmail extends WPTestCase {
 	}
 }
 
-class TestSanitizeTitle extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeTitle extends WP_UnitTestCase {
 	function test_strips_html() {
 		$input = "Captain <strong>Awesome</strong>";
 		$expected = "captain-awesome";
@@ -1045,7 +1093,10 @@ class TestSanitizeTitle extends WPTestCase {
 	}
 }
 
-class TestSanitizeTitleWithDashes extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSanitizeTitleWithDashes extends WP_UnitTestCase {
 	function test_strips_html() {
 		$input = "Captain <strong>Awesome</strong>";
 		$expected = "captain-awesome";
@@ -1135,7 +1186,10 @@ class TestSanitizeTitleWithDashes extends WPTestCase {
 
 }
 
-class TestConvertChars extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestConvertChars extends WP_UnitTestCase {
 	function test_replaces_windows1252_entities_with_unicode_ones() {
 		$input = "&#130;&#131;&#132;&#133;&#134;&#135;&#136;&#137;&#138;&#139;&#140;&#145;&#146;&#147;&#148;&#149;&#150;&#151;&#152;&#153;&#154;&#155;&#156;&#159;";
 		$output = "&#8218;&#402;&#8222;&#8230;&#8224;&#8225;&#710;&#8240;&#352;&#8249;&#338;&#8216;&#8217;&#8220;&#8221;&#8226;&#8211;&#8212;&#732;&#8482;&#353;&#8250;&#339;&#376;";
@@ -1169,7 +1223,10 @@ class TestConvertChars extends WPTestCase {
 	}
 }
 
-class TestZeroise extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestZeroise extends WP_UnitTestCase {
 	function test_pads_with_leading_zeroes() {
 		$this->assertEquals("00005", zeroise(5, 5));
 	}
@@ -1179,7 +1236,10 @@ class TestZeroise extends WPTestCase {
 	}
 }
 
-class TestBackslashit extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestBackslashit extends WP_UnitTestCase {
 	function test_backslashes_alphas() {
 		$this->assertEquals("\\a943\\b\\c", backslashit("a943bc"));
 	}
@@ -1189,14 +1249,20 @@ class TestBackslashit extends WPTestCase {
 	}
 }
 
-class TestUntrailingslashit extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestUntrailingslashit extends WP_UnitTestCase {
 	function test_removes_trailing_slashes() {
 		$this->assertEquals("a", untrailingslashit("a/"));
 		$this->assertEquals("a", untrailingslashit("a////"));
 	}
 }
 
-class TestTrailingslashit extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestTrailingslashit extends WP_UnitTestCase {
 	function test_adds_trailing_slash() {
 		$this->assertEquals("a/", trailingslashit("a"));
 	}
@@ -1206,9 +1272,13 @@ class TestTrailingslashit extends WPTestCase {
 	}
 }
 
-/* The `clean_pre` function removes pararaph and line break
-   tags within `<pre>` elements as part of `wpautop`. */
-class TestCleanPre extends WPTestCase {
+/**
+ * The clean_pre() removes pararaph and line break
+ * tags within `<pre>` elements as part of wpautop().
+ *
+ * @group formatting
+ */
+class TestCleanPre extends WP_UnitTestCase {
 	function test_removes_self_closing_br_with_space() {
 		$source = 'a b c\n<br />sldfj<br />';
 		$res = 'a b c\nsldfj';
@@ -1239,7 +1309,10 @@ class TestCleanPre extends WPTestCase {
 	}
 }
 
-class TestSmilies extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestSmilies extends WP_UnitTestCase {
 
 	function test_convert_smilies() {
 		global $wpsmiliestrans;
@@ -1319,7 +1392,10 @@ class TestSmilies extends WPTestCase {
 	}
 }
 
-class TestWPTrimWords extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestWPTrimWords extends WP_UnitTestCase {
 	private $long_text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce varius lacinia vehicula. Etiam sapien risus, ultricies ac posuere eu, convallis sit amet augue. Pellentesque urna massa, lacinia vel iaculis eget, bibendum in mauris. Aenean eleifend pulvinar ligula, a convallis eros gravida non. Suspendisse potenti. Pellentesque et odio tortor. In vulputate pellentesque libero, sed dapibus velit mollis viverra. Pellentesque id urna euismod dolor cursus sagittis.';
 
 	function test_trims_to_55_by_default() {
@@ -1360,7 +1436,10 @@ class TestWPTrimWords extends WPTestCase {
 	}
 }
 
-class TestRemoveAccents extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestRemoveAccents extends WP_UnitTestCase {
 	public function test_remove_accents_simple() {
 		$this->assertEquals( 'abcdefghijkl', remove_accents( 'abcdefghijkl' ) );
 	}
@@ -1435,7 +1514,10 @@ class TestRemoveAccents extends WPTestCase {
 	}
 }
 
-class TestStripSlashesDeep extends WPTestCase {
+/**
+ * @group formatting
+ */
+class TestStripSlashesDeep extends WP_UnitTestCase {
 	function test_preserves_original_datatype() {
 		$this->knownWPBug(18026);
 
