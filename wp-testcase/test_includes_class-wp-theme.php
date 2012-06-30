@@ -1,4 +1,7 @@
 <?php
+/**
+ * @group themes
+ */
 class Test_WP_Theme extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();

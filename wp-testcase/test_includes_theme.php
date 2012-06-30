@@ -1,6 +1,10 @@
 <?php
 
-// test wp-includes/theme.php
+/**
+ * test wp-includes/theme.php
+ *
+ * @group themes
+ */
 class TestDefaultThemes extends WP_UnitTestCase {
 
 	var $theme_slug = 'twentyeleven';
@@ -235,7 +239,11 @@ class TestDefaultThemes extends WP_UnitTestCase {
 	}
 }
 
-// Test functions that fetch stuff from the theme directory
+/**
+ * Test functions that fetch stuff from the theme directory
+ *
+ * @group themes
+ */
 class TestThemeDir extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
@@ -430,6 +438,9 @@ class TestThemeDir extends WP_UnitTestCase {
 
 }
 
+/**
+ * @group themes
+ */
 class TestLargeThemeDir extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
@@ -491,6 +502,9 @@ class TestLargeThemeDir extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group themes
+ */
 class TestThemeSupport extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
@@ -501,19 +515,21 @@ class TestThemeSupport extends WP_UnitTestCase {
 	}
 
 	function test_the_basics() {
-		$this->assertFalse( current_theme_supports( 'automatic-feed-links' ) );
 		add_theme_support( 'automatic-feed-links' );
 		$this->assertTrue( current_theme_supports( 'automatic-feed-links' ) );
 		remove_theme_support( 'automatic-feed-links' );
 		$this->assertFalse( current_theme_supports( 'automatic-feed-links' ) );
+		add_theme_support( 'automatic-feed-links' );
+		$this->assertTrue( current_theme_supports( 'automatic-feed-links' ) );
 	}
 
 	function test_admin_bar() {
-		$this->assertFalse( current_theme_supports( 'admin-bar' ) );
 		add_theme_support( 'admin-bar' );
 		$this->assertTrue( current_theme_supports( 'admin-bar' ) );
 		remove_theme_support( 'admin-bar' );
 		$this->assertFalse( current_theme_supports( 'admin-bar' ) );
+		add_theme_support( 'admin-bar' );
+		$this->assertTrue( current_theme_supports( 'admin-bar' ) );
 
 		add_theme_support( 'admin-bar', array( 'callback' => '__return_false' ) );
 		$this->assertTrue( current_theme_supports( 'admin-bar' ) );
@@ -528,11 +544,12 @@ class TestThemeSupport extends WP_UnitTestCase {
 	}
 
 	function test_post_thumbnails() {
-		$this->assertFalse( current_theme_supports( 'post-thumbnails' ) );
 		add_theme_support( 'post-thumbnails' );
 		$this->assertTrue( current_theme_supports( 'post-thumbnails' ) );
 		remove_theme_support( 'post-thumbnails' );
 		$this->assertFalse( current_theme_supports( 'post-thumbnails' ) );
+		add_theme_support( 'post-thumbnails' );
+		$this->assertTrue( current_theme_supports( 'post-thumbnails' ) );
 
 		// simple array of post types.
 		add_theme_support( 'post-thumbnails', array( 'post', 'page' ) );

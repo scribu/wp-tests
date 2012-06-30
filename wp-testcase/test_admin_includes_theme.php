@@ -1,5 +1,7 @@
 <?php
-// Test functions that fetch stuff from the theme directory
+/**
+ * @group themes
+ */
 class TestPageTemplates extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
