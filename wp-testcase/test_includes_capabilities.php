@@ -1,6 +1,10 @@
 <?php
 
-class TestMapMetaCap extends WPTestCase {
+/**
+ * @group user
+ * @group capabilities
+ */
+class TestMapMetaCap extends WP_UnitTestCase {
 	var $super_admins = null;
 
 	function setUp() {
@@ -8,8 +12,8 @@ class TestMapMetaCap extends WPTestCase {
 
 		$this->user_ids = array();
 
-		$this->user_id = $this->_make_user( 'administrator' );
-		$this->author_id = $this->_make_user( 'administrator' );
+		$this->user_id   = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$this->author_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		if ( isset( $GLOBALS['super_admins'] ) )
 			$this->super_admins = $GLOBALS['super_admins'];
@@ -29,11 +33,9 @@ class TestMapMetaCap extends WPTestCase {
 
 	function tearDown() {
 		parent::tearDown();
-		wp_delete_post( $this->post_id, true );
 
 		$GLOBALS['super_admins'] = $this->super_admins;
-
-		$this->_destroy_users();
+		unset( $GLOBALS['wp_post_types'][ $this->post_type ] );
 	}
 
 	function test_capability_type_post_with_no_extra_caps() {
