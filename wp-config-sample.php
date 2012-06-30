@@ -1,4 +1,8 @@
 <?php
+
+/* Path to the WordPress codebase you'd like to test. Add a backslash in the end. */
+define( 'ABSPATH', dirname( __FILE__ ) . '/wordpress/' );
+
 // ** MySQL settings ** //
 
 // these will be used by the copy of wordpress being tested.
@@ -8,12 +12,12 @@
 // wp-test will DROP ALL TABLES in the database named below.
 // DO NOT use a production database or one that is shared with something else.
 
-define('DB_NAME', 'putyourdbnamehere');    // The name of the database
-define('DB_USER', 'usernamehere');     // Your MySQL username
-define('DB_PASSWORD', 'yourpasswordhere'); // ...and password
-define('DB_HOST', 'localhost');    // 99% chance you won't need to change this value
-define('DB_CHARSET', 'utf8');
-define('DB_COLLATE', '');
+define( 'DB_NAME', 'putyourdbnamehere' );    // The name of the database
+define( 'DB_USER', 'usernamehere' );     // Your MySQL username
+define( 'DB_PASSWORD', 'yourpasswordhere' ); // ...and password
+define( 'DB_HOST', 'localhost' );    // 99% chance you won't need to change this value
+define( 'DB_CHARSET', 'utf8' );
+define( 'DB_COLLATE', '' );
 
 // You can have multiple installations in one database if you give each a unique prefix
 $table_prefix  = 'wp_';   // Only numbers, letters, and underscores please!
@@ -22,8 +26,32 @@ $table_prefix  = 'wp_';   // Only numbers, letters, and underscores please!
 // chosen language must be installed to wp-content/languages.
 // For example, install de.mo to wp-content/languages and set WPLANG to 'de'
 // to enable German language support.
-define ('WPLANG', '');
+define ( 'WPLANG', '' );
 
-// uncomment and change this if you'd like to load plugins from a particular directory prior to testing
-#define('DIR_TESTPLUGINS', './wp-plugins');
-?>
+define( 'WP_TESTS_DOMAIN', 'example.org' );
+define( 'WP_TESTS_EMAIL', 'admin@example.org' );
+define( 'WP_TESTS_TITLE', 'Test Blog' );
+define( 'WP_TESTS_NETWORK_TITLE', 'Test Network' );
+define( 'WP_TESTS_SUBDOMAIN_INSTALL', true );
+$base = '/';
+
+/* Cron tries to make an HTTP request to the blog, which always fails, because tests are run in CLI mode only */
+define( 'DISABLE_WP_CRON', true );
+
+define( 'WP_ALLOW_MULTISITE', false );
+if ( WP_ALLOW_MULTISITE ) {
+	define( 'WP_TESTS_BLOGS', 'first,second,third,fourth' );
+}
+if ( WP_ALLOW_MULTISITE && ! defined('WP_INSTALLING') ) {
+	define( 'SUBDOMAIN_INSTALL', WP_TESTS_SUBDOMAIN_INSTALL );
+	define( 'MULTISITE', true );
+	define( 'DOMAIN_CURRENT_SITE', WP_TESTS_DOMAIN );
+	define( 'PATH_CURRENT_SITE', '/' );
+	define( 'SITE_ID_CURRENT_SITE', 1 );
+	define( 'BLOG_ID_CURRENT_SITE', 1 );
+	//define( 'SUNRISE', TRUE );
+}
+
+$table_prefix  = 'wp_';
+
+define( 'WP_PHP_BINARY', 'php' );
