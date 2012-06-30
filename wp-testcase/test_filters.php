@@ -1,8 +1,11 @@
 <?php
 
-// test do_action and related functions
-
-class WPTestFilters extends WPTestCase {
+/**
+ * Test apply_filters() and related functions
+ *
+ * @group hooks
+ */
+class WPTestFilters extends WP_UnitTestCase {
 
 	function test_simple_filter() {
 		$a = new MockAction();
