@@ -1,5 +1,5 @@
 <?php
-class WPTestCheckedSelected extends WPTestCase {
+class WPTestCheckedSelected extends WP_UnitTestCase {
 	function test_equal() {
 		$this->assertEquals(' selected=\'selected\'', selected('foo','foo',false));
 		$this->assertEquals(' checked=\'checked\'', checked('foo','foo',false));
