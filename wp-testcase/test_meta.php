@@ -1,7 +1,7 @@
 <?php
 
 // just make sure the test framework is working
-class WPTestMeta extends WPTestCase {
+class WPTestMeta extends WP_UnitTestCase {
 	var $val;
 
 	function setUp() {
@@ -42,7 +42,7 @@ class WPTestMeta extends WPTestCase {
 }
 
 // test helper utility functions
-class WPTestUtils extends WPTestCase {
+class WPTestUtils extends WP_UnitTestCase {
 
 	function test_strip_ws() {
 		$this->assertEquals('', strip_ws(''));
