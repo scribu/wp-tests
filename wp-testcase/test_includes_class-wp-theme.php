@@ -24,6 +24,7 @@ class Test_WP_Theme extends WP_UnitTestCase {
 		remove_filter( 'stylesheet_root', array(&$this, '_theme_root') );
 		remove_filter( 'template_root', array(&$this, '_theme_root') );
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 		parent::tearDown();
 	}
 

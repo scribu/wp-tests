@@ -16,6 +16,7 @@ class TestPageTemplates extends WP_UnitTestCase {
 
 		// clear caches
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
@@ -25,6 +26,7 @@ class TestPageTemplates extends WP_UnitTestCase {
 		remove_filter( 'template_root', array(&$this, '_theme_root') );
 
 		wp_clean_themes_cache();
+		unset( $GLOBALS['wp_themes'] );
 		parent::tearDown();
 	}
 
