@@ -1,6 +1,9 @@
 <?php
 
-class TestShortenUrl extends WPTestCase {
+/**
+ * @group admin
+ */
+class TestShortenUrl extends WP_UnitTestCase {
 	function test_shorten_url() {
 		$tests = array(
 			// strip slashes
