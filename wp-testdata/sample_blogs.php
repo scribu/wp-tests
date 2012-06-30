@@ -67,7 +67,7 @@ class _WPDataset1 extends _WPEmptyBlog {
 	function setUp() {
 		parent::setUp();
 		$this->_nuke_main_tables();
-		$this->_load_sql_dump(DIR_TESTDATA.'/export/asdftestblog1.2007-11-23.fixed.sql');
+		$this->_load_sql_dump(DIR_TESTDATA.'/export/asdftestblog1.2007-11-23.sql');
 	}
 	
 	function tearDown() {
