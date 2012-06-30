@@ -164,6 +164,9 @@ class TestMakeClickable extends WPTestCase {
 			'blah blah (http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)) blah blah',
 			'blah blah http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software).) blah blah',
 			'blah blah http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software).)moreurl blah blah',
+			'In his famous speech “You and Your research” (here:
+			http://www.cs.virginia.edu/~robins/YouAndYourResearch.html)
+			Richard Hamming wrote about people getting more done with their doors closed, but', 
 		);
 		$urls_expected = array(
 			'<a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>',
@@ -175,6 +178,9 @@ class TestMakeClickable extends WPTestCase {
 			'blah blah (<a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>) blah blah',
 			'blah blah <a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>.) blah blah',
 			'blah blah <a href="http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)" rel="nofollow">http://en.wikipedia.org/wiki/PC_Tools_(Central_Point_Software)</a>.)moreurl blah blah',
+        	'In his famous speech “You and Your research” (here:
+			<a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html" rel="nofollow">http://www.cs.virginia.edu/~robins/YouAndYourResearch.html</a>)
+			Richard Hamming wrote about people getting more done with their doors closed, but', 
 		);
 		foreach ($urls_before as $key => $url) {
 			$this->assertEquals($urls_expected[$key], make_clickable($url));
@@ -559,6 +565,21 @@ class TestWPTexturize extends WPTestCase {
 
 		$this->assertEquals('&#8220;a 9&#8242; b&#8221;', wptexturize('"a 9\' b"'));
 		$this->assertEquals('&#8216;a 9&#8243; b&#8217;', wptexturize("'a 9\" b'"));
+	}
+
+	function test_wptexturize_quotes_around_numbers() {
+		$this->knownWPBug(8775);
+		$this->assertEquals('&#8220;12345&#8221;', wptexturize('"12345"'));
+		$this->assertEquals('&#8216;12345&#8217;', wptexturize('\'12345\''));
+		$this->assertEquals('&#8220;a 9&#8242; plus a &#8216;9&#8217;, maybe a 9&#8242; &#8216;9&#8217; &#8221;', wptexturize('"a 9\' plus a \'9\', maybe a 9\' \'9\' "'));
+		$this->assertEquals('<p>&#8216;99<br />&#8216;123&#8217;<br />&#8217;tis<br />&#8216;s&#8217;</p>', wptexturize('<p>\'99<br />\'123\'<br />\'tis<br />\'s\'</p>'));
+	}
+
+	function test_wptexturize_html_comments() {
+		$this->knownWPBug(8912);
+		$this->assertEquals('<!--[if !IE]>--><!--<![endif]-->', wptexturize('<!--[if !IE]>--><!--<![endif]-->'));
+		$this->assertEquals('<!--[if !IE]>"a 9\' plus a \'9\', maybe a 9\' \'9\' "<![endif]-->', wptexturize('<!--[if !IE]>"a 9\' plus a \'9\', maybe a 9\' \'9\' "<![endif]-->'));
+		$this->assertEquals('<ul><li>Hello.</li><!--<li>Goodbye.</li>--></ul>', wptexturize('<ul><li>Hello.</li><!--<li>Goodbye.</li>--></ul>'));
 	}
 
 	//WP Ticket #15241 and #4539
@@ -1454,5 +1475,6 @@ class TestStripSlashesDeep extends WPTestCase {
 		$this->assertEquals( $txt, stripslashes_deep( "I can\'t see, isn\\\\\'t that it?" ) );
 	}
 }
+
 
 ?>
