@@ -2,22 +2,19 @@
 
 // Test roles and capabilities via the WP_User class
 
-class WPTestUserCapabilities extends _WPEmptyBlog {
+/**
+ * @group user
+ * @group capabilities
+ */
+class WPTestUserCapabilities extends WP_UnitTestCase {
 	var $user_ids = array();
 
 	function setUp() {
 		parent::setUp();
 		// keep track of users we create
-		$this->user_ids = array();
 		$this->_flush_roles();
 
 		$this->orig_users = get_users_of_blog();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-		// delete any users that were created during tests
-		$this->_destroy_users();
 	}
 
 	function _flush_roles() {
@@ -25,7 +22,8 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// this will flush everything and reload it from the db
 		unset($GLOBALS['wp_user_roles']);
 		global $wp_roles;
-		$wp_roles->_init();
+		if ( is_object( $wp_roles ) )
+			$wp_roles->_init();
 	}
 
 	function _meta_yes_you_can( $can, $key, $post_id, $user_id, $cap, $caps ) {
@@ -43,7 +41,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	// test the default roles
 
 	function test_user_administrator() {
-		$id = $this->_make_user('administrator');
+		$id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -58,7 +56,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	}
 
 	function test_user_editor() {
-		$id = $this->_make_user('editor');
+		$id = $this->factory->user->create( array( 'role' => 'editor' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -78,7 +76,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	}
 
 	function test_user_author() {
-		$id = $this->_make_user('author');
+		$id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -98,7 +96,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	}
 
 	function test_user_contributor() {
-		$id = $this->_make_user('contributor');
+		$id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -118,7 +116,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	}
 
 	function test_user_subscriber() {
-		$id = $this->_make_user('subscriber');
+		$id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -138,7 +136,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	// a role that doesn't exist
 	function test_bogus_role() {
 		_disable_wp_die();
-		$id = $this->_make_user(rand_str());
+		$id = $this->factory->user->create( array( 'role' => rand_str() ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -150,7 +148,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 
 	// a user with multiple roles
 	function test_user_subscriber_contributor() {
-		$id = $this->_make_user('subscriber');
+		$id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 		$user->add_role('contributor');
@@ -184,7 +182,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		$this->_flush_roles();
 		$this->assertTrue($wp_roles->is_role($role_name));
 
-		$id = $this->_make_user($role_name);
+		$id = $this->factory->user->create( array( 'role' => $role_name ) );
 
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
@@ -213,7 +211,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		$this->_flush_roles();
 		$this->assertTrue($wp_roles->is_role($role_name));
 
-		$id = $this->_make_user($role_name);
+		$id = $this->factory->user->create( array( 'role' => $role_name ) );
 
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
@@ -250,7 +248,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		$this->assertTrue( $wp_roles->is_role($role_name) );
 
 		// assign a user to that role
-		$id = $this->_make_user($role_name);
+		$id = $this->factory->user->create( array( 'role' => $role_name ) );
 
 		// now add a cap to the role
 		$wp_roles->add_cap($role_name, 'sweep_floor');
@@ -288,7 +286,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		$this->assertTrue( $wp_roles->is_role($role_name) );
 
 		// assign a user to that role
-		$id = $this->_make_user($role_name);
+		$id = $this->factory->user->create( array( 'role' => $role_name ) );
 
 		// now remove a cap from the role
 		$wp_roles->remove_cap($role_name, 'polish_doorknobs');
@@ -317,8 +315,8 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// add an extra capability to a user
 
 		// there are two contributors
-		$id_1 = $this->_make_user('contributor');
-		$id_2 = $this->_make_user('contributor');
+		$id_1 = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$id_2 = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		// user 1 has an extra capability
 		$user_1 = new WP_User($id_1);
@@ -354,8 +352,8 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// add an extra capability to a user then remove it
 
 		// there are two contributors
-		$id_1 = $this->_make_user('contributor');
-		$id_2 = $this->_make_user('contributor');
+		$id_1 = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$id_2 = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		// user 1 has an extra capability
 		$user_1 = new WP_User($id_1);
@@ -385,7 +383,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// make sure the user_level is correctly set and changed with the user's role
 
 		// user starts as an author
-		$id = $this->_make_user('author');
+		$id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -408,7 +406,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 
 	function test_user_remove_all_caps() {
 		// user starts as an author
-		$id = $this->_make_user('author');
+		$id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -450,20 +448,19 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// simple tests for some common meta capabilities
 
 		// Make our author
-		$author = new WP_User($this->_make_user('author'));		
+		$author = new WP_User( $this->factory->user->create( array( 'role' => 'author' ) ) );
 
-		// make a [pst
-		$this->_insert_quick_posts(1, 'post', array( 'post_author' => $author->ID ) );
-		$post = end($this->post_ids);
+		// make a post
+		$post = $this->factory->post->create( array( 'post_author' => $author->ID, 'post_type' => 'post' ) );
 
 		// the author of the post
 		$this->assertTrue($author->exists(), "Problem getting user $author->ID");
 
 		// add some other users
-		$admin = new WP_User($this->_make_user('administrator'));
-		$author_2 = new WP_User($this->_make_user('author'));
-		$editor = new WP_User($this->_make_user('editor'));
-		$contributor = new WP_User($this->_make_user('contributor'));
+		$admin = new WP_User( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$author_2 = new WP_User( $this->factory->user->create( array( 'role' => 'author' ) ) );
+		$editor = new WP_User( $this->factory->user->create( array( 'role' => 'editor' ) ) );
+		$contributor = new WP_User( $this->factory->user->create( array( 'role' => 'contributor' ) ) );
 
 		// administrators, editors and the post owner can edit it
 		$this->assertTrue($admin->has_cap('edit_post', $post));
@@ -511,20 +508,19 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// simple tests for some common meta capabilities
 
 		// Make our author
-		$author = new WP_User($this->_make_user('author'));		
+		$author = new WP_User( $this->factory->user->create( array( 'role' => 'author' ) ) );
 
 		// make a page
-		$this->_insert_quick_pages(1, array( 'post_author' => $author->ID ) );
-		$page = end($this->post_ids);
+		$page = $this->factory->post->create( array( 'post_author' => $author->ID, 'post_type' => 'page' ) );
 
 		// the author of the page
 		$this->assertTrue($author->exists(), "Problem getting user " . $author->ID);
 
 		// add some other users
-		$admin = new WP_User($this->_make_user('administrator'));
-		$author_2 = new WP_User($this->_make_user('author'));
-		$editor = new WP_User($this->_make_user('editor'));
-		$contributor = new WP_User($this->_make_user('contributor'));
+		$admin = new WP_User( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$author_2 = new WP_User( $this->factory->user->create( array( 'role' => 'author' ) ) );
+		$editor = new WP_User( $this->factory->user->create( array( 'role' => 'editor' ) ) );
+		$contributor = new WP_User( $this->factory->user->create( array( 'role' => 'contributor' ) ) );
 
 		// administrators, editors and the post owner can edit it
 		$this->assertTrue($admin->has_cap('edit_page', $page));
@@ -549,7 +545,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 
 		// make sure an old style usermeta capabilities entry is still recognized by the new code
 
-		$id = $this->_make_user('author');
+		$id = $this->factory->user->create( array( 'role' => 'author' ) );
 		$user = new WP_User($id);
 		$this->assertTrue($user->exists(), "Problem getting user $id");
 
@@ -576,7 +572,6 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 	}
 
 	function test_upgrade() {
-
 		// only relevant with this patch
 		$this->knownWPBug(5540);
 
@@ -588,7 +583,7 @@ class WPTestUserCapabilities extends _WPEmptyBlog {
 		// make some users with old style usermeta roles and caps
 		$id = array();
 		for ($i=0; $i<5; $i++) {
-			$id[$i] = $this->_make_user('');
+			$id[$i] = $this->factory->user->create( array( 'role' => '' ) );
 			$wpdb->query("DELETE FROM {$wpdb->user_role} WHERE user_id = {$id[$i]}");
 		}
 
