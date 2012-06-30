@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group compat
+ */
 class TestMbSubStr extends WP_UnitTestCase {
 	function test_mb_strcut() {
 		$this->assertEquals('баб', _mb_substr('баба', 0, 3));
@@ -9,6 +12,9 @@ class TestMbSubStr extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group compat
+ */
 class TestHashHMAC extends WP_UnitTestCase {
 	function test_simple() {
 		$this->assertEquals('140d1cb79fa12e2a31f32d35ad0a2723', _hash_hmac('md5', 'simple', 'key'));
