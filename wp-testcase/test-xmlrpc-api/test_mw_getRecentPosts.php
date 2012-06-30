@@ -1,7 +1,5 @@
 <?php
 
-include_once(ABSPATH . WPINC . '/post-thumbnail-template.php');
-
 /**
  * @group xmlrpc
  */
