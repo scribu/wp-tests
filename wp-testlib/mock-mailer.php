@@ -1,12 +1,7 @@
 <?php
 
-if ( version_compare( $GLOBALS['wp_version'], '3.1.9', '>' ) && version_compare( $GLOBALS['wp_version'], '3.3.9', '<' ) ) {
-	echo "Using custom build of PHPMailer for 3.2 and 3.3 testing\n\n";
-	require_once(DIR_TESTROOT . '/wp-testlib/class-phpmailer.php');
-} else {
-	require_once(ABSPATH . '/wp-includes/class-phpmailer.php');
-}
-
+require_once(ABSPATH . '/wp-includes/class-phpmailer.php');
+	
 class MockPHPMailer extends PHPMailer {
 	var $mock_sent = array();
 
