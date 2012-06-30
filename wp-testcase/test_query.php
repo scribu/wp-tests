@@ -305,6 +305,11 @@ class TestWPQueryVars extends _WPDataset1 {
 		$this->assertQueryTrue('is_search');
 	}
 
+	function test_search_encoded_chars() {
+		$this->http('/search/F%C3%BCnf%2Bbar/');
+		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
+	}
+
 	// 'category/(.+?)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	// 'category/(.+?)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
