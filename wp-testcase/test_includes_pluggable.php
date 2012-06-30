@@ -1,16 +1,14 @@
 <?php
 
-class TestAuthFunctions extends WPTestCase {
+/**
+ * @group pluggable
+ */
+class TestAuthFunctions extends WP_UnitTestCase {
 	var $user_id;
 
 	function setUp() {
 		parent::setUp();
-		$this->user_id = $this->_make_user();
-	}
-
-	function tearDown() {
-		$this->_destroy_user( $this->user_id );
-		parent::tearDown();
+		$this->user_id = $this->factory->user->create();
 	}
 
 	function test_auth_cookie_valid() {
@@ -45,7 +43,16 @@ class TestAuthFunctions extends WPTestCase {
 	}
 }
 
-class TestMailFunctions extends WPTestCase {
+/**
+ * @group pluggable
+ * @group mail
+ */
+class TestMailFunctions extends WP_UnitTestCase {
+	function setUp() {
+		parent::setUp();
+		$this->knownUTBug( 47 );
+	}
+
 	function test_wp_mail_custom_boundaries() {
 		$to = 'user@example.com';
 		$subject = 'Test email with custom boundaries';
@@ -240,7 +247,10 @@ Content-Transfer-Encoding: 8bit
 	}
 }
 
-class TestRedirectFunctions extends WPTestCase {
+/**
+ * @group pluggable
+ */
+class TestRedirectFunctions extends WP_UnitTestCase {
 	function test_wp_sanitize_redirect() {
 		$this->assertEquals('http://example.com/watchthelinefeedgo', wp_sanitize_redirect('http://example.com/watchthelinefeed%0Ago'));
 		$this->assertEquals('http://example.com/watchthelinefeedgo', wp_sanitize_redirect('http://example.com/watchthelinefeed%0ago'));
@@ -252,24 +262,14 @@ class TestRedirectFunctions extends WPTestCase {
 	}
 }
 
-class TestUserFunction extends _WPEmptyBlog {
-	var $user_ids = array();
-
-	function setUp() {
-		parent::setUp();
-		// keep track of users we create
-		$this->user_ids = array();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-		// delete any users that were created during tests
-		$this->_destroy_users();
-	}
-
+/**
+ * @group pluggable
+ * @group user
+ */
+class TestUserFunction extends WP_UnitTestCase {
 	// #13317
 	function test_get_userdata() {
-		$id = $this->_make_user('administrator');
+		$id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$this->assertFalse( get_userdata( 0 ) );
 		$this->assertFalse( get_userdata( 'string' ) );
 		$this->assertFalse( get_userdata( array( 'array' ) ) );
