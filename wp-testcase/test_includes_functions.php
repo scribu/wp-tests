@@ -1,14 +1,6 @@
 <?php
 
-class TestFunctions extends WPTestCase {
-	function setUp() {
-		parent::setUp();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-	}
-
+class TestFunctions extends WP_UnitTestCase {
 	function test_wp_parse_args_object() {
 		$x = new MockClass;
 		$x->_baba = 5;
@@ -251,7 +243,7 @@ class TestFunctions extends WPTestCase {
 /**
  * Test wp_filter_object_list(), wp_list_filter(), wp_list_pluck()
  */
-class TestListFilter extends WPTestCase {
+class TestListFilter extends WP_UnitTestCase {
 	var $object_list = array();
 	var $array_list = array();
 
@@ -357,7 +349,10 @@ class TestListFilter extends WPTestCase {
 	}
 }
 
-class TestHTTPFunctions extends WPTestCase {
+/**
+ * @group http
+ */
+class TestHTTPFunctions extends WP_UnitTestCase {
 	function test_head_request() {
 		// this url give a direct 200 response
 		$url = 'http://asdftestblog1.files.wordpress.com/2007/09/2007-06-30-dsc_4700-1.jpg';
@@ -430,15 +425,7 @@ class TestHTTPFunctions extends WPTestCase {
 	}
 }
 
-class Test_WP_File_Headers extends WPTestCase {
-	function setUp() {
-		parent::setUp();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-	}
-
+class Test_WP_File_Headers extends WP_UnitTestCase {
 	function test_get_file_data() {
 		$theme_headers = array(
 			'Name' => 'Theme Name',
