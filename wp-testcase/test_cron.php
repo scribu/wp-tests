@@ -1,7 +1,11 @@
 <?php
-// test the cron scheduling functions
 
-class WPTestCronScheduling extends _WPEmptyBlog {
+/**
+ * Test the cron scheduling functions
+ *
+ * @group cron
+ */
+class WPTestCronScheduling extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		// make sure the schedule is clear
