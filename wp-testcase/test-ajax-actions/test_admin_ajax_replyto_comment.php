@@ -206,9 +206,11 @@ class TestAjaxCommentsReply extends WPAjaxTestCase {
 	/**
 	 * Reply to a post with a simulated database failure
 	 * Expects test to fail
+	 * @global $wpdb
 	 * @return void
 	 */
 	public function test_blocked_comment() {
+		global $wpdb;
 
 		// Become an administrator
 		$this->_setRole( 'administrator' );
@@ -222,8 +224,15 @@ class TestAjaxCommentsReply extends WPAjaxTestCase {
 		add_filter( 'query', array( $this, '_block_comments' ) );
 
 		// Make the request
-		$this->setExpectedException( 'WPAjaxDieStopException', '1' );
-		$this->_handleAjax( 'replyto-comment' );
+		try {
+			$wpdb->suppress_errors( true );
+			$this->_handleAjax( 'replyto-comment' );
+			$wpdb->suppress_errors( false );
+			$this->fail();
+		} catch ( WPAjaxDieStopException $e )  {
+			$wpdb->suppress_errors( false );
+			$this->assertContains( '1', $e->getMessage() );
+		}
 	}
 	
 	/**
