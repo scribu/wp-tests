@@ -1,7 +1,7 @@
 <?php
 
 // test wp-includes/theme.php
-class TestDefaultThemes extends WPTestCase {
+class TestDefaultThemes extends WP_UnitTestCase {
 
 	var $theme_slug = 'twentyeleven';
 	var $theme_name = 'Twenty Eleven';
@@ -10,7 +10,6 @@ class TestDefaultThemes extends WPTestCase {
 		parent::setUp();
 		add_filter( 'extra_theme_headers', array( $this, '_theme_data_extra_headers' ) );
 		wp_clean_themes_cache();
-		unset($GLOBALS['wp_themes']);
 	}
 
 	function tearDown() {
@@ -236,13 +235,11 @@ class TestDefaultThemes extends WPTestCase {
 	}
 }
 
-include_once(DIR_TESTDATA . '/sample_blogs.php');
-
 // Test functions that fetch stuff from the theme directory
-class TestThemeDir extends _WPEmptyBlog {
+class TestThemeDir extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->theme_root = realpath(DIR_TESTROOT.'/'.DIR_TESTDATA.'/themedir1');
+		$this->theme_root = DIR_TESTDATA . '/themedir1';
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 
@@ -254,7 +251,6 @@ class TestThemeDir extends _WPEmptyBlog {
 		add_filter( 'template_root', array(&$this, '_theme_root') );
 		// clear caches
 		wp_clean_themes_cache();
-		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
@@ -401,7 +397,7 @@ class TestThemeDir extends _WPEmptyBlog {
 	}
 
 	function test_get_theme_data_top_level() {
-		$theme_data = get_theme_data( realpath( DIR_TESTROOT . '/' . DIR_TESTDATA . '/themedir1/theme1/style.css' ) );
+		$theme_data = get_theme_data( DIR_TESTDATA . '/themedir1/theme1/style.css' );
 
 		$this->assertEquals( 'My Theme', $theme_data['Name'] );
 		$this->assertEquals( 'http://example.org/', $theme_data['URI'] );
@@ -434,10 +430,10 @@ class TestThemeDir extends _WPEmptyBlog {
 
 }
 
-class TestLargeThemeDir extends _WPEmptyBlog {
+class TestLargeThemeDir extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->theme_root = realpath(DIR_TESTROOT.'/'.DIR_TESTDATA.'/wpcom-themes');
+		$this->theme_root = DIR_TESTDATA . '/wpcom-themes';
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 		$GLOBALS['wp_theme_directories'] = array( WP_CONTENT_DIR . '/themes', $this->theme_root );
@@ -446,7 +442,6 @@ class TestLargeThemeDir extends _WPEmptyBlog {
 
 		// clear caches
 		wp_clean_themes_cache();
-		unset( $GLOBALS['wp_themes'] );
 	}
 
 	function tearDown() {
@@ -496,7 +491,7 @@ class TestLargeThemeDir extends _WPEmptyBlog {
 	}
 }
 
-class TestThemeSupport extends WPTestCase {
+class TestThemeSupport extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
