@@ -1,22 +1,24 @@
 <?php
 
-// test functions in wp-includes/author.php, author-template.php
-
-class TestWPAuthor extends _WPEmptyBlog {
-
-	var $user_ids = array();
-	protected $_deprecated_errors = array();
+/**
+ * Test functions in wp-includes/author.php, author-template.php
+ *
+ * @group author
+ * @group user
+ */
+class TestWPAuthor extends WP_UnitTestCase {
 	protected $old_post_id = 0;
 	protected $author_id = 0;
 	protected $post_id = 0;
 
 	function setUp() {
 		parent::setUp();
-		// keep track of users we create
-		$this->user_ids = array();
-		$this->_deprecated_errors = array();
 
-		$this->author_id = $this->_make_user( 'author', 'test_author' );	
+		$this->author_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => 'test_author',
+			'description' => 'test_author',
+		) );
 		$user = new WP_User( $this->author_id );
 
 		$post = array(
@@ -28,26 +30,14 @@ class TestWPAuthor extends _WPEmptyBlog {
 		);
 
 		// insert a post and make sure the ID is ok
-		$this->post_id = wp_insert_post( $post );
+		$this->post_id = $this->factory->post->create( $post );
 
 		setup_postdata( get_post( $this->post_id ) );
 	}
 
 	function tearDown() {
-		parent::tearDown();
-
-		// delete any users that were created during tests
-		$this->_destroy_users();
-
 		wp_reset_postdata();
-	}
-
-	public function deprecated_handler( $function, $message, $version ) {
-		$this->_deprecated_errors[] = array(
-			'function' => $function,
-			'message'  => $message,
-			'version'  => $version
-		);
+		parent::tearDown();
 	}
 
 	function test_get_the_author() {
