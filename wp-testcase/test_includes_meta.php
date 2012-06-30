@@ -1,21 +1,11 @@
 <?php
 
-class WPTestIncludesMeta extends WPTestCase {
+class WPTestIncludesMeta extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->author = new WP_User($this->_make_user('author'));
-		$this->post_ids = array();
+		$this->author = new WP_User( $this->factory->user->create( array( 'role' => 'author' ) ) );
 		$this->meta_id = add_metadata( 'user', $this->author->ID, 'meta_key', 'meta_value' );
 		$this->delete_meta_id = add_metadata( 'user', $this->author->ID, 'delete_meta_key', 'delete_meta_value' );
-	}
-
-	function tearDown() {
-		parent::tearDown();
-		foreach ($this->post_ids as $id)
-			wp_delete_post($id);
-
-		delete_metadata( 'user', $this->author->ID, 'meta_key', '', true );
-		delete_metadata( 'user', $this->author->ID, 'delete_meta_key', '', true );
 	}
 
 	function _meta_sanitize_cb ( $meta_value, $meta_key, $meta_type ) {
@@ -23,9 +13,6 @@ class WPTestIncludesMeta extends WPTestCase {
 	}
 
 	function test_sanitize_meta() {
-		if ( ! function_exists( 'register_meta' ) )
-			return;
-
 		$meta = sanitize_meta( 'some_meta', 'unsanitized', 'post' );
 		$this->assertEquals( 'unsanitized', $meta );
 
@@ -35,9 +22,6 @@ class WPTestIncludesMeta extends WPTestCase {
 	}
 
 	function test_delete_metadata_by_mid() {
-		if ( ! function_exists( 'delete_metadata_by_mid' ) || ! function_exists( 'get_metadata_by_mid' ) )
-			return;
-
 		// Let's try and delete a non-existing ID, non existing meta
 		$this->assertFalse( delete_metadata_by_mid( 'user', 0 ) );
 		$this->assertFalse( delete_metadata_by_mid( 'non_existing_meta', $this->delete_meta_id ) );
@@ -53,9 +37,6 @@ class WPTestIncludesMeta extends WPTestCase {
 	}
 
 	function test_update_metadata_by_mid() {
-		if ( ! function_exists( 'update_metadata_by_mid' ) || ! function_exists( 'get_metadata_by_mid') )
-			return;
-
 		// Setup
 		$meta = get_metadata_by_mid( 'user', $this->meta_id );
 
@@ -93,9 +74,6 @@ class WPTestIncludesMeta extends WPTestCase {
 	}
 
 	function test_metadata_exists() {
-		if ( ! function_exists( 'metadata_exists' ) )
-			return;
-
 		$this->assertFalse( metadata_exists( 'user',  $this->author->ID, 'foobarbaz' ) );
 		$this->assertTrue( metadata_exists( 'user',  $this->author->ID, 'meta_key' ) );
 		$this->assertFalse( metadata_exists( 'user',  1234567890, 'foobarbaz' ) );
