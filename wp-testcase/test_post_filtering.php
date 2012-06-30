@@ -3,8 +3,10 @@
 // save and fetch posts to make sure content is properly filtered.
 // these tests don't care what code is responsible for filtering or how it is called, just that it happens when a post is saved.
 
-
-class TestPostFiltering extends WPTestCase {
+/**
+ * @group posts
+ */
+class TestPostFiltering extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		update_option('use_balanceTags', 1);
@@ -13,17 +15,8 @@ class TestPostFiltering extends WPTestCase {
 	}
 
 	function tearDown() {
-		parent::tearDown();
 		kses_remove_filters();
-	}
-
-	function _insert_quick_post($title, $content, $more=array()) {
-		return $this->post_ids[] = wp_insert_post(array_merge(array(
-			'post_author' => $this->author->ID,
-			'post_status' => 'publish',
-			'post_title' => $title,
-			'post_content' => $content,
-			), $more));
+		parent::tearDown();
 	}
 
 	// a simple test to make sure unclosed tags are fixed
@@ -37,7 +30,7 @@ EOF;
 no such tag
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -54,7 +47,7 @@ EOF;
 <i>italics</i>
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -71,7 +64,7 @@ EOF;
 <img src='foo' width='500' />
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -89,7 +82,7 @@ EOF;
 <img src='foo' width='500' height='300' />
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -109,7 +102,7 @@ EOF;
 that's continued after the jump
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -129,7 +122,7 @@ EOF;
 that's continued after the jump
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -157,7 +150,7 @@ that's continued after the jump
 breaks the graf
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -185,7 +178,7 @@ that's continued after the jump
 breaks the graf
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $expected, $post->post_content );
@@ -205,7 +198,7 @@ that's continued after the jump</em>
 breaks the graf</p>
 EOF;
 
-		$id = $this->_insert_quick_post(__FUNCTION__, $content);
+		$id = $this->factory->post->create( array( 'post_content' => $content ) );
 		$post = get_post($id);
 
 		$this->assertEquals( $content, $post->post_content );
