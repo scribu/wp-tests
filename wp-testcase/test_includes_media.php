@@ -1,6 +1,6 @@
 <?php
 
-class TestIncludesMedia extends WPTestCase {
+class TestIncludesMedia extends WP_UnitTestCase {
 
   function setUp() {
     $this->caption = 'A simple caption.';
