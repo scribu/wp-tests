@@ -1,5 +1,9 @@
 <?php
-class TestPluginData extends WPTestCase {
+/**
+ * @group plugins
+ * @group admin
+ */
+class TestPluginData extends WP_UnitTestCase {
 	function test_get_plugin_data() {
 		$data = get_plugin_data( DIR_TESTDATA . '/plugins/hello.php' );
 
@@ -24,14 +28,29 @@ class TestPluginData extends WPTestCase {
 	}
 }
 
-class TestPluginMenus extends _WPEmptyBlog {
-	function test_menu_page_url() {
-		$old_id = get_current_user_id();
+/**
+ * @group plugins
+ * @group admin
+ */
+class TestPluginMenus extends WP_UnitTestCase {
 
+	protected $current_user;
+
+	function setUp() {
+		parent::setUp();
+		$this->current_user = get_current_user_id();
 		// pages require manage_options, ensure we're an administrator
-		$user_id = $this->_make_user( 'administrator' );
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
+		update_option( 'siteurl', 'http://example.com' );
+	}
 
+	function tearDown() {
+		parent::tearDown();
+		wp_set_current_user( $this->current_user );
+	}
+
+	function test_menu_page_url() {
 		// add some pages
 		add_options_page( 'Test Settings', 'Test Settings', 'manage_options', 'testsettings', 'mt_settings_page' );
 		add_management_page( 'Test Tools', 'Test Tools', 'manage_options', 'testtools', 'mt_tools_page' );
@@ -53,8 +72,6 @@ class TestPluginMenus extends _WPEmptyBlog {
 		foreach ($expected as $name => $value) {
 			$this->assertEquals( $value, menu_page_url( $name, false ) );
 		}
-
-		wp_set_current_user( $old_id );
 	}
 }
 ?>
