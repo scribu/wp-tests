@@ -1,7 +1,9 @@
 <?php
 
-// test the functions for fetching taxonomy meta data
-class TestTaxonomyMeta extends _WPEmptyBlog {
+/**
+ * @group taxonomy
+ */
+class TestTaxonomy extends WP_UnitTestCase {
 	function test_get_post_taxonomies() {
 		$this->assertEquals(array('category', 'post_tag', 'post_format'), get_object_taxonomies('post'));
 	}
@@ -94,7 +96,7 @@ class TestTaxonomyMeta extends _WPEmptyBlog {
 	}
 }
 
-class TestTermAPI extends _WPEmptyBlog {
+class TestTermAPI extends WP_UnitTestCase {
 	var $taxonomy = 'category';
 
 	function setUp() {
@@ -164,7 +166,7 @@ class TestTermAPI extends _WPEmptyBlog {
 	}
 
 	function test_set_object_terms_by_id() {
-		$this->_insert_quick_posts(5);
+		$ids = $this->factory->post->create_many(5);
 
 		$terms = array();
 		for ($i=0; $i<3; $i++ ) {
@@ -173,7 +175,7 @@ class TestTermAPI extends _WPEmptyBlog {
 			$term_id[$term] = $result['term_id'];
 		}
 
-		foreach ($this->post_ids as $id) {
+		foreach ($ids as $id) {
 				$tt = wp_set_object_terms( $id, array_values($term_id), $this->taxonomy );
 				// should return three term taxonomy ids
 				$this->assertEquals( 3, count($tt) );
@@ -193,14 +195,14 @@ class TestTermAPI extends _WPEmptyBlog {
 	}
 
 	function test_set_object_terms_by_name() {
-		$this->_insert_quick_posts(5);
+		$ids = $this->factory->post->create_many(5);
 
 		$terms = array(
 				rand_str(),
 				rand_str(),
 				rand_str());
 
-		foreach ($this->post_ids as $id) {
+		foreach ($ids as $id) {
 				$tt = wp_set_object_terms( $id, $terms, $this->taxonomy );
 				// should return three term taxonomy ids
 				$this->assertEquals( 3, count($tt) );
@@ -214,7 +216,7 @@ class TestTermAPI extends _WPEmptyBlog {
 		// each term should be associated with every post
 		foreach ($term_id as $term=>$id) {
 			$actual = get_objects_in_term($id, $this->taxonomy);
-			$this->assertEquals( $this->post_ids, array_map('intval', $actual) );
+			$this->assertEquals( $ids, array_map('intval', $actual) );
 		}
 
 		// each term should have a count of 5
@@ -227,8 +229,7 @@ class TestTermAPI extends _WPEmptyBlog {
 	function test_change_object_terms_by_name() {
 		// set some terms on an object; then change them while leaving one intact
 
-		$this->_insert_quick_posts(1);
-		$post_id = end($this->post_ids);
+		$post_id = $this->factory->post->create();
 
 		$terms_1 = array('foo', 'bar', 'baz');
 		$terms_2 = array('bar', 'bing');
@@ -257,8 +258,7 @@ class TestTermAPI extends _WPEmptyBlog {
 	function test_change_object_terms_by_id() {
 		// set some terms on an object; then change them while leaving one intact
 
-		$this->_insert_quick_posts(1);
-		$post_id = end($this->post_ids);
+		$post_id = $this->factory->post->create();
 
 		// first set: 3 terms
 		$terms_1 = array();
@@ -299,8 +299,7 @@ class TestTermAPI extends _WPEmptyBlog {
 	}
 
 	function test_get_object_terms_by_slug() {
-		$this->_insert_quick_posts(1);
-		$post_id = end($this->post_ids);
+		$post_id = $this->factory->post->create();
 
 		$terms_1 = array('Foo', 'Bar', 'Baz');
 		$terms_1_slugs = array('foo', 'bar', 'baz');
@@ -315,8 +314,7 @@ class TestTermAPI extends _WPEmptyBlog {
 	}
 
 	function test_set_object_terms_invalid() {
-		$this->_insert_quick_posts(1);
-		$post_id = end($this->post_ids);
+		$post_id = $this->factory->post->create();
 
 		// bogus taxonomy
 		$result = wp_set_object_terms( $post_id, array(rand_str()), rand_str() );
