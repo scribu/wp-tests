@@ -1,11 +1,23 @@
 <?php
-// Note, When running these tests, remember that some things are done differently based on safe_mode
-// You can run the test in safe_mode like such: php -d safe_mode=on wp-test.php - you may also need `-d safe_mode_gid=1` to relax the safe_mode checks to allow inclusion of PEAR.
-// The WP_HTTP tests require a class-http.php file of r17550 or later.
-class _WPHTTP extends WPTestCase {
+/**
+ * Note, When running these tests, remember that some things are done differently
+ * based on safe_mode. You can run the test in safe_mode like such:
+ *
+ *   phpunit -d safe_mode=on --group http
+ *
+ * You may also need `-d safe_mode_gid=1` to relax the safe_mode checks to allow
+ * inclusion of PEAR.
+ *
+ * The WP_HTTP tests require a class-http.php file of r17550 or later.
+ */
+
+/**
+ * @group http
+ */
+abstract class WP_HTTP_UnitTestCase extends WP_UnitTestCase {
 	var $redirection_script = 'http://tools.dd32.id.au/redirect/'; // You can use your own version here, You can find it in wp-testdata/WPHTTP-testcase-redirection-script.php
 
-	function SetUp() {
+	function setUp() {
 
 		if ( is_callable( array('WP_HTTP', '_getTransport') ) ) {
 			$this->markTestSkipped('The WP_HTTP tests require a class-http.php file of r17550 or later.');
@@ -157,19 +169,31 @@ class _WPHTTP extends WPTestCase {
 }
 
 // Stubs to test each transport
-class WPHTTP_curl extends _WPHTTP {
+/**
+ * @group http
+ */
+class WPHTTP_curl extends WP_HTTP_UnitTestCase {
 	var $transport = 'curl';
 }
-class WPHTTP_streams extends _WPHTTP {
+/**
+ * @group http
+ */
+class WPHTTP_streams extends WP_HTTP_UnitTestCase {
 	var $transport = 'streams';
 }
-class WPHTTP_fsockopen extends _WPHTTP {
+/**
+ * @group http
+ */
+class WPHTTP_fsockopen extends WP_HTTP_UnitTestCase {
 	var $transport = 'fsockopen';
 }
 
-
-// non-transport-specific WP_HTTP Tests
-class WPHTTP extends WPTestCase {
+/**
+ * Non-transport-specific WP_HTTP Tests
+ *
+ * @group http
+ */
+class WPHTTP extends WP_UnitTestCase {
 
 	/**
 	 * @dataProvider make_absolute_url_testcases
