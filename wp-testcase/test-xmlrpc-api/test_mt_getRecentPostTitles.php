@@ -12,7 +12,6 @@ class TestXMLRPCServer_mt_getRecentPostTitles extends WP_XMLRPC_UnitTestCase {
 	}
 
 	function test_no_posts() {
-		$this->_delete_all_posts();
 		$this->make_user_by_role( 'author' );
 
 		$result = $this->myxmlrpcserver->mt_getRecentPostTitles( array( 1, 'author', 'author' ) );
@@ -32,6 +31,8 @@ class TestXMLRPCServer_mt_getRecentPostTitles extends WP_XMLRPC_UnitTestCase {
 
 	function test_date() {
 		$this->make_user_by_role( 'author' );
+
+		$this->factory->post->create();
 
 		$results = $this->myxmlrpcserver->mt_getRecentPostTitles( array( 1, 'author', 'author' ) );
 		$this->assertNotInstanceOf( 'IXR_Error', $results );
