@@ -1,11 +1,13 @@
 <?php
 
-class TestImageMetaFunctions extends WPTestCase {
+class TestImageMetaFunctions extends WP_UnitTestCase {
 	function setUp() {
-		$this->checkPHPExtension('gd');
-		$this->checkPHPExtension('exif');
-		if (!is_callable('wp_read_image_metadata'))
-			$this->markTestSkipped('wp_read_image_metadata() is not callable.');
+		if ( ! extension_loaded( 'gd' ) )
+			$this->markTestSkipped( 'The gd PHP extension is not loaded.' );
+		if ( ! extension_loaded( 'exif' ) )
+			$this->markTestSkipped( 'The exif PHP extension is not loaded.' );
+		if ( ! is_callable( 'wp_read_image_metadata' ) )
+			$this->markTestSkipped( 'wp_read_image_metadata() is not callable.' );
 		parent::setUp();
 	}
 
@@ -129,7 +131,7 @@ class TestImageMetaFunctions extends WPTestCase {
 	}
 }
 
-class TestImageSizeFunctions extends WpTestCase {
+class TestImageSizeFunctions extends WP_UnitTestCase {
 	function test_constrain_dims_zero() {
 		if (!is_callable('wp_constrain_dimensions'))
 			$this->markTestSkipped('wp_constrain_dimensions() is not callable.');
@@ -321,7 +323,7 @@ class TestImageSizeFunctions extends WpTestCase {
 
 }
 
-class TestImageResizeDimensions extends WPTestCase {
+class TestImageResizeDimensions extends WP_UnitTestCase {
 	function test_400x400_no_crop() {
 		// landscape: resize 640x480 to fit 400x400: 400x300
 		$out = image_resize_dimensions(640, 480, 400, 400, false);
@@ -446,11 +448,12 @@ class TestImageResizeDimensions extends WPTestCase {
 
 }
 
-class TestImageResize extends WPTestCase {
+class TestImageResize extends WP_UnitTestCase {
 	// image_resize( $file, $max_w, $max_h, $crop=false, $suffix=null, $dest_path=null, $jpeg_quality=75)
 
 	function setUp() {
-		$this->checkPHPExtension('gd');
+		if ( ! extension_loaded( 'gd' ) )
+			$this->markTestSkipped( 'The gd PHP extension is not loaded.' );
 		parent::setUp();
 	}
 
@@ -565,7 +568,7 @@ class TestImageResize extends WPTestCase {
 
 }
 
-class TestIsImageFunctions extends WPTestCase {
+class TestIsImageFunctions extends WP_UnitTestCase {
 	function test_is_image_positive() {
 		// these are all image files recognized by php
 		$files = array(
