@@ -1,8 +1,8 @@
 <?php
-class Test_WP_Theme extends _WPEmptyBlog {
+class Test_WP_Theme extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		$this->theme_root = realpath(DIR_TESTROOT.'/'.DIR_TESTDATA.'/themedir1');
+		$this->theme_root = realpath( DIR_TESTDATA . '/themedir1' );
 
 		$this->orig_theme_dir = $GLOBALS['wp_theme_directories'];
 		$GLOBALS['wp_theme_directories'] = array( $this->theme_root );
