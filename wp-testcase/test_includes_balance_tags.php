@@ -1,6 +1,6 @@
 <?php
 
-class TestBalanceTags extends WPTestCase {
+class TestBalanceTags extends WP_UnitTestCase {
 
 	// These are single/self-closing tags that WP has traditionally recognized.
 	var $basic_single_tags = array( 'br', 'hr', 'img', 'input' );
