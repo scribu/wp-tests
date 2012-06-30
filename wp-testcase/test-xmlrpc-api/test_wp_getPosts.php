@@ -100,6 +100,8 @@ class TestXMLRPCServer_wp_getPosts extends WP_XMLRPC_UnitTestCase {
 		$this->assertNotInstanceOf( 'IXR_Error', $results3 );
 		$this->assertEquals( 1, count( $results3 ) );
 		$this->assertEquals( $post->ID, $results3[0]['post_id'] );
+
+		_unregister_post_type( $cpt_name );
 	}
 
 	function test_fields() {
