@@ -1,6 +1,9 @@
 <?php
 
-class TestOption extends WPTestCase {
+/**
+ * @group options
+ */
+class TestOption extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
@@ -77,7 +80,10 @@ class TestOption extends WPTestCase {
 	}
 }
 
-class TestSiteOption extends WPTestCase {
+/**
+ * @group options
+ */
+class TestSiteOption extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
@@ -174,7 +180,10 @@ class TestSiteOption extends WPTestCase {
 	}
 }
 
-class TestTransient extends WPTestCase {
+/**
+ * @group options
+ */
+class TestTransient extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
@@ -213,7 +222,10 @@ class TestTransient extends WPTestCase {
 	}
 }
 
-class TestSiteTransient extends WPTestCase {
+/**
+ * @group options
+ */
+class TestSiteTransient extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
@@ -252,7 +264,10 @@ class TestSiteTransient extends WPTestCase {
 	}
 }
 
-class TestBlogOption extends WPTestCase {
+/**
+ * @group options
+ */
+class TestBlogOption extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
