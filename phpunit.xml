@@ -1,5 +1,5 @@
 <phpunit
-        bootstrap="boostrap.php"
+        bootstrap="bootstrap.php"
         backupGlobals="false"
         colors="true"
         >
