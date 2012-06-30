@@ -1,8 +1,6 @@
 <?php
 
-class TestIncludesFile extends WPTestCase {
-
-// function wp_unique_filename( $dir, $name, $ext, $unique_filename_callback = NULL )
+class TestIncludesFile extends WP_UnitTestCase {
 
 	function setUp() {
 		$this->dir = dirname(tempnam('/tmp', 'foo'));
