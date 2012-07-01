@@ -1,9 +1,6 @@
 <?php
 
-/*
-From http://wordpress.svn.dragonu.net/unittest/wp-unittest/UnitTests/
-*/
-abstract class _WPFormattingTest extends WP_UnitTestCase {
+abstract class WP_Formatting_UnitTestCase extends WP_UnitTestCase {
     function file_test($name, $callback) {
         $input = $this->get_testdata($name . ".input.txt");
         $output = $this->get_testdata($name . ".output.txt");
@@ -37,7 +34,7 @@ abstract class _WPFormattingTest extends WP_UnitTestCase {
 /**
  * @group formatting
  */
-class Test_Seems_UTF8 extends _WPFormattingTest {
+class Test_Seems_UTF8 extends WP_Formatting_UnitTestCase {
 	/*
 	 * `seems_utf8` returns true for utf-8 strings, false otherwise.
 	 */
@@ -60,10 +57,10 @@ class Test_Seems_UTF8 extends _WPFormattingTest {
     }
 }
 
-/*
+/**
  * @group formatting
  */
-class Test_UTF8_URI_Encode extends _WPFormattingTest {
+class Test_UTF8_URI_Encode extends WP_Formatting_UnitTestCase {
     /*
     Non-ASCII UTF-8 characters should be percent encoded. Spaces etc.
     are dealt with elsewhere.
@@ -86,10 +83,10 @@ class Test_UTF8_URI_Encode extends _WPFormattingTest {
     
 }
 
-/*
+/**
  * @group formatting
  */
-class Test_WP_ISO_Descrambler extends _WPFormattingTest {
+class Test_WP_ISO_Descrambler extends WP_Formatting_UnitTestCase {
 	/*
 	 * Decodes text in RFC2047 "Q"-encoding, e.g.
 	 * =?iso-8859-1?q?this=20is=20some=20text?=
@@ -99,10 +96,10 @@ class Test_WP_ISO_Descrambler extends _WPFormattingTest {
     }
 }
 
-/*
+/**
  * @group formatting
  */
-class Test_Ent2NCR extends _WPFormattingTest {
+class Test_Ent2NCR extends WP_Formatting_UnitTestCase {
     function test_converts_named_entities_to_numeric_character_references() {
         $data = $this->get_testdata("entities.txt");
         foreach ($data as $datum) {
