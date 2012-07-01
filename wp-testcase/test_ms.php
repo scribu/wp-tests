@@ -9,7 +9,6 @@ if ( is_multisite() ) :
  */
 class WPTestMS extends WP_UnitTestCase {
 
-	const test_blogs = 4;
 	protected $plugin_hook_count = 0;
 
 	function setUp() {
@@ -23,7 +22,7 @@ class WPTestMS extends WP_UnitTestCase {
 	function test_create_and_delete_blog() {
 		global $wpdb, $current_site;
 
-		$blog_ids = $this->factory->blog->create_many( self::test_blogs );
+		$blog_ids = $this->factory->blog->create_many( 4 );
 		foreach ( $blog_ids as $blog_id ) {
 			$this->assertInternalType( 'int', $blog_id );
 			$prefix = $wpdb->get_blog_prefix( $blog_id );
@@ -41,7 +40,7 @@ class WPTestMS extends WP_UnitTestCase {
 
 		// update the blog count cache to use get_blog_count()
 		wp_update_network_counts(); 
-		$this->assertEquals( self::test_blogs + 1, (int) get_blog_count() );
+		$this->assertEquals( 4 + 1, (int) get_blog_count() );
 
 		$drop_tables = false;
 		// delete all blogs
