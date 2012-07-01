@@ -469,25 +469,20 @@ class WPTestIncludesPost extends WP_UnitTestCase {
 class WPTestAttachments extends WP_UnitTestCase {
 
 	function tearDown() {
-		parent::tearDown();
-		// restore system defaults
-		update_option('medium_size_w', '');
-		update_option('medium_size_h', '');
-		update_option('thumbnail_size_w', 150);
-		update_option('thumbnail_size_h', 150);
-
 		// Remove all uploads.
 		$uploads = wp_upload_dir(); 
 		foreach ( scandir( $uploads['basedir'] ) as $file )
 			_rmdir( $uploads['basedir'] . '/' . $file ); 
+
+		parent::tearDown();
 	}
 
 	function _make_attachment($upload, $parent_post_id=-1) {
 
 		$type = '';
-		if ( !empty($upload['type']) )
+		if ( !empty($upload['type']) ) {
 			$type = $upload['type'];
-		else {
+		} else {
 			$mime = wp_check_filetype( $upload['file'] );
 			if ($mime)
 				$type = $mime['type'];
@@ -548,9 +543,10 @@ class WPTestAttachments extends WP_UnitTestCase {
 
 	}
 
-	function test_insert_image_default_thumb() {
+	function test_insert_image_thumb_only() {
+		update_option( 'medium_size_w', 0 );
+		update_option( 'medium_size_h', 0 );
 
-		// this image is smaller than the thumbnail size so it won't have one
 		$filename = ( DIR_TESTDATA.'/images/a2-small.jpg' );
 		$contents = file_get_contents($filename);
 
@@ -591,11 +587,9 @@ class WPTestAttachments extends WP_UnitTestCase {
 	}
 
 	function test_insert_image_medium() {
+		update_option('medium_size_w', 400);
+		update_option('medium_size_h', 0);
 
-		update_option('medium_size_w', '400');
-		update_option('medium_size_h', '');
-
-		// this image is smaller than the thumbnail size so it won't have one
 		$filename = ( DIR_TESTDATA.'/images/2007-06-17DSC_4173.JPG' );
 		$contents = file_get_contents($filename);
 
@@ -636,11 +630,9 @@ class WPTestAttachments extends WP_UnitTestCase {
 
 
 	function test_insert_image_delete() {
+		update_option('medium_size_w', 400);
+		update_option('medium_size_h', 0);
 
-		update_option('medium_size_w', '400');
-		update_option('medium_size_h', '');
-
-		// this image is smaller than the thumbnail size so it won't have one
 		$filename = ( DIR_TESTDATA.'/images/2007-06-17DSC_4173.JPG' );
 		$contents = file_get_contents($filename);
 
