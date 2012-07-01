@@ -736,7 +736,7 @@ PS.  Not yet subscribed for update notifications?  <a href="%1$s" title="Subscri
 	 */	
 	public function test_skip_pre_elements() {
 		$this->knownWPBug( 19855 );
-		$code = file_get_contents( realpath( dirname( __FILE__ ) . '/../wp-testdata/formatting/sizzle.js' ) );
+		$code = file_get_contents( DIR_TESTDATA . '/formatting/sizzle.js' );
 		$code = str_replace( "\r", '', $code );
 		$code = htmlentities( $code );
 		

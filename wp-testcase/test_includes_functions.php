@@ -105,7 +105,7 @@ class TestFunctions extends WP_UnitTestCase {
 		   NB: there is a hardcoded dependency that the testing file is '.png'; however,
 		       this limitation is arbitary, so change it if you like.
 		*/
-		$testdir = realpath('.') . '/wp-testdata/images/';
+		$testdir = DIR_TESTDATA . '/images/';
 		$testimg = 'test-image.png';
 		$this->assertTrue( file_exists($testdir) );
 		$this->assertTrue( is_writable($testdir) );
