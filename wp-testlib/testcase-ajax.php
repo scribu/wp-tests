@@ -3,7 +3,7 @@
  * Ajax test cases
  *
  * @package    WordPress
- * @subpackage Unit Tests
+ * @subpackage UnitTests
  * @since      3.4.0
  */
 
@@ -11,7 +11,7 @@
  * Ajax test case class
  *
  * @package    WordPress
- * @subpackage Unit Tests
+ * @subpackage UnitTests
  * @since      3.4.0
  */
 abstract class WP_Ajax_UnitTestCase extends WP_UnitTestCase {

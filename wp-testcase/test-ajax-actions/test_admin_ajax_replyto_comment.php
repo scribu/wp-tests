@@ -9,9 +9,9 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * Testing ajax comment functionality
  *
  * @package    WordPress
- * @subpackage Unit Tests
+ * @subpackage UnitTests
  * @since      3.4.0
- * @group      Ajax
+ * @group      ajax
  */
 class TestAjaxCommentsReply extends WP_Ajax_UnitTestCase {
 
