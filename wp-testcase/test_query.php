@@ -306,6 +306,7 @@ class TestWPQueryVars extends _WPDataset1 {
 	}
 
 	function test_search_encoded_chars() {
+		$this->knownWPBug(13961);
 		$this->http('/search/F%C3%BCnf%2Bbar/');
 		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
 	}
