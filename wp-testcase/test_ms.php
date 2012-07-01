@@ -11,14 +11,6 @@ class WPTestMS extends WP_UnitTestCase {
 
 	protected $plugin_hook_count = 0;
 
-	function setUp() {
-		parent::setUp();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-	}
-
 	function test_create_and_delete_blog() {
 		global $wpdb, $current_site;
 
