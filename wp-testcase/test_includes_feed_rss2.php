@@ -1,16 +1,17 @@
 <?php
 
-include_once(DIR_TESTDATA . '/sample_blogs.php');
-
 // test the RSS 2.0 feed by generating a feed, parsing it, and checking that the
 // parsed contents match the contents of the posts stored in the database.  Since
 // we're using a real XML parser, this confirms that the feed is valid, well formed,
 // and contains the right stuff.
 
-class TestFeedRss2 extends _WPMediumBlog {
+class TestFeedRss2 extends WP_UnitTestCase {
 
 	function setUp() {
 		parent::setUp();
+
+		$this->factory->post->create_many( 25 );
+
 		$this->post_count = get_option('posts_per_rss');
 		$this->excerpt_only = get_option('rss_use_excerpt');
 		// this seems to break something
@@ -32,7 +33,7 @@ class TestFeedRss2 extends _WPMediumBlog {
 	}
 
 	function test_rss() {
-		$this->http('/feed/');
+		$this->go_to('/feed/');
 		$feed = $this->do_rss2();
 		$xml = xml_to_array($feed);
 
@@ -52,7 +53,7 @@ class TestFeedRss2 extends _WPMediumBlog {
 	}
 
 	function test_channel() {
-		$this->http('/feed/');
+		$this->go_to('/feed/');
 		$feed = $this->do_rss2();
 		$xml = xml_to_array($feed);
 
@@ -77,7 +78,7 @@ class TestFeedRss2 extends _WPMediumBlog {
 
 	function test_items() {
 		$this->knownUTBug(32);
-		$this->http('/feed/');
+		$this->go_to('/feed/');
 		$feed = $this->do_rss2();
 		$xml = xml_to_array($feed);
 
