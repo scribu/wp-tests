@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Get WPAjaxTestCase class
- */
-require_once( DIR_TESTCASE . '/test_admin_includes_ajax_actions.php' );
-
-/**
  * Admin ajax functions to be tested
  */
 include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
@@ -18,7 +13,7 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @since      3.4.0
  * @group      Ajax
  */
-class TestAjaxCommentsEdit extends WPAjaxTestCase {
+class TestAjaxCommentsEdit extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * A post with at least one comment
@@ -30,27 +25,10 @@ class TestAjaxCommentsEdit extends WPAjaxTestCase {
 	 * Set up the test fixture
 	 */
 	public function setUp() {
-		global $wpdb;
 		parent::setUp();
-		$posts = $wpdb->get_results( $wpdb->prepare("
-		SELECT
-			COUNT(c.comment_ID) AS comments,
-			p.ID AS post_ID
-		FROM
-			$wpdb->posts p
-			LEFT JOIN $wpdb->comments c ON c.comment_post_ID = p.ID
-		WHERE
-			p.post_status = 'publish'
-			AND p.post_type = 'post'
-		GROUP BY
-			p.ID
-		") );
-		foreach ( (array) $posts as $tmp ) {
-			if ( null === $this->_comment_post && $tmp->comments > 0 ) {
-				$this->_comment_post = get_post( $tmp->post_ID );
-				break;
-			}
-		}
+		$post_id = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post_id, 5 );
+		$this->_comment_post = get_post( $post_id );
 	}
 
 	/**

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Get WPAjaxTestCase class
- */
-require_once( DIR_TESTCASE . '/test_admin_includes_ajax_actions.php' );
-
-/**
  * Admin ajax functions to be tested
  */
 include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
@@ -18,7 +13,26 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @since      3.4.0
  * @group      Ajax
  */
-class TestAjaxTagSearch extends WPAjaxTestCase {
+class TestAjaxTagSearch extends WP_Ajax_UnitTestCase {
+
+	/**
+	 * List of terms to insert on setup
+	 * @var array
+	 */
+	private $_terms = array(
+		'chattels', 'depo', 'energumen', 'figuriste', 'habergeon', 'impropriation'
+	);
+
+	/**
+	 * Setup
+	 * @todo use a term factory
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		foreach ( $this->_terms as $term )
+			wp_insert_term( $term, 'post_tag' );
+	}
 
 	/**
 	 * Test as an admin

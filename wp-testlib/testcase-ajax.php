@@ -8,41 +8,13 @@
  */
 
 /**
- * Sample blog data
- */
-include_once(DIR_TESTDATA . '/sample_blogs.php');
-
-/**
- * Exception for cases of wp_die()
- * This means there was an error (no output, and a call to wp_die)
- *
- * @package    WordPress
- * @subpackage Unit Tests
- * @since      3.4.0
- */
-class WPAjaxDieStopException extends Exception {}
-
-/**
- * Exception for cases of wp_die()
- * This means execution of the ajax function should be halted, but the unit
- * test can continue.  The function finished normally and there was not an
- * error (output happened, but wp_die was called to end execution)  This is
- * used with WP_Ajax_Response::send
- *
- * @package    WordPress
- * @subpackage Unit Tests
- * @since      3.4.0
- */
-class WPAjaxDieContinueException extends Exception {}
-
-/**
  * Ajax test case class
  *
  * @package    WordPress
  * @subpackage Unit Tests
  * @since      3.4.0
  */
-class WPAjaxTestCase extends _WPDataset2 {
+abstract class WP_Ajax_UnitTestCase extends WP_UnitTestCase {
 	
 	/**
 	 * Last AJAX response.  This is set via echo -or- wp_die.
@@ -105,6 +77,10 @@ class WPAjaxTestCase extends _WPDataset2 {
 		// Suppress warnings from "Cannot modify header information - headers already sent by"
 		$this->_error_level = error_reporting();
 		error_reporting( $this->_error_level & ~E_WARNING );
+
+		// Make some posts
+		$this->factory->post->create_many( 5 );
+		$this->factory->comment->create( 5 );
 	}
 	
 	/**
@@ -176,7 +152,7 @@ class WPAjaxTestCase extends _WPDataset2 {
 	 */
 	protected function _setRole( $role ) {
 		$post = $_POST;
-		$user_id = $this->_make_user( $role );
+		$user_id = $this->factory->user->create( array( 'role' => $role ) );
 		wp_set_current_user( $user_id );
 		$_POST = array_merge($_POST, $post);
 	}
@@ -190,6 +166,7 @@ class WPAjaxTestCase extends _WPDataset2 {
 	protected function _handleAjax($action) {
 		
 		// Start output buffering
+		ini_set( 'implicit_flush', false );
 		ob_start();
 
 		// Build the request

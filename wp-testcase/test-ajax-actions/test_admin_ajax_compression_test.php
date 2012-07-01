@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Get WPAjaxTestCase class
- */
-require_once( DIR_TESTCASE . '/test_admin_includes_ajax_actions.php' );
-
-/**
  * Admin ajax functions to be tested
  */
 include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
@@ -18,14 +13,12 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @since      3.4.0
  * @group      Ajax
  */
-class TestAjaxCompressionTest extends WPAjaxTestCase {
+class TestAjaxCompressionTest extends WP_Ajax_UnitTestCase {
 	
 	/**
 	 * Test as a logged out user
 	 */
 	public function test_logged_out() {
-
-		// Become an administrator
 		$this->logout();
 
 		// Set up a default request

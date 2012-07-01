@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Get WPAjaxTestCase class
- */
-require_once( DIR_TESTCASE . '/test_admin_includes_ajax_actions.php' );
-
-/**
  * Admin ajax functions to be tested
  */
 include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
@@ -18,7 +13,7 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @since      3.4.0
  * @group      Ajax
  */
-class TestAjaxSaveDraft extends WPAjaxTestCase {
+class TestAjaxSaveDraft extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * Post
@@ -32,10 +27,8 @@ class TestAjaxSaveDraft extends WPAjaxTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$tmp = get_posts( array(
-		    'post_status' => 'draft'
-		) );
-		$this->_post = $tmp[0];
+		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$this->_post = get_post( $post_id );
 	}
 
 	/**

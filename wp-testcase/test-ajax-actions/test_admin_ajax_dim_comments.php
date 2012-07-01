@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Get WPAjaxTestCase class
- */
-require_once( DIR_TESTCASE . '/test_admin_includes_ajax_actions.php' );
-
-/**
  * Admin ajax functions to be tested
  */
 include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
@@ -18,7 +13,7 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @since      3.4.0
  * @group      Ajax
  */
-class TestAjaxCommentsDim extends WPAjaxTestCase {
+class TestAjaxCommentsDim extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * List of comments
@@ -30,18 +25,10 @@ class TestAjaxCommentsDim extends WPAjaxTestCase {
 	 * Set up the test fixture
 	 */
 	public function setUp() {
-		parent::setUp();	
-		$this->_comments = get_comments(array(
-			'status'  => 'all',
-			'search'  => '',
-			'user_id' => '',
-			'offset'  => 1,
-			'number'  => 20,
-			'post_id' => 0,
-			'type'    => '',
-			'orderby' => '',
-			'order'   => ''
-		));
+		parent::setUp();
+		$post_id = $this->factory->post->create();
+		$this->_comments = $this->factory->comment->create_post_comments( $post_id, 15 );
+		$this->_comments = array_map( 'get_comment', $this->_comments );
 	}
 
 	/**

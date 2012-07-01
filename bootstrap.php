@@ -53,5 +53,6 @@ _delete_all_posts();
 
 require dirname( __FILE__ ) . '/wp-testlib/testcase.php';
 require dirname( __FILE__ ) . '/wp-testlib/testcase-xmlrpc.php';
+require dirname( __FILE__ ) . '/wp-testlib/testcase-ajax.php';
 require dirname( __FILE__ ) . '/wp-testlib/exceptions.php';
 require dirname( __FILE__ ) . '/wp-testlib/utils.php';
