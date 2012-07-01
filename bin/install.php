@@ -29,10 +29,10 @@ $wpdb->suppress_errors();
 $installed = $wpdb->get_var( "SELECT option_value FROM $wpdb->options WHERE option_name = 'siteurl'" );
 $wpdb->suppress_errors( false );
 
-$hash = get_option( 'db_version' ) . ' ' . sha1( file_get_contents( $config_file_path ) );
+$hash = get_option( 'db_version' ) . ' ' . sha1_file( $config_file_path );
 
 if ( $installed && file_exists( WP_TESTS_VERSION_FILE ) && file_get_contents( WP_TESTS_VERSION_FILE ) == $hash )
-		return;
+	return;
 
 $wpdb->query( 'SET storage_engine = INNODB;' );
 $wpdb->query( 'DROP DATABASE IF EXISTS '.DB_NAME.";" );
