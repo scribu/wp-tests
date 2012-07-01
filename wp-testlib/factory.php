@@ -5,6 +5,8 @@ class WP_UnitTest_Factory {
 		$this->post = new WP_UnitTest_Factory_For_Post( $this );
 		$this->comment = new WP_UnitTest_Factory_For_Comment( $this );
 		$this->user = new WP_UnitTest_Factory_For_User( $this );
+		if ( is_multisite() )
+			$this->blog = new WP_UnitTest_Factory_For_Blog( $this );
 	}
 }
 
@@ -37,7 +39,7 @@ class WP_UnitTest_Factory_For_User extends WP_UnitTest_Factory_For_Thing {
 		parent::__construct( $factory );
 		$this->default_generation_definitions = array(
 			'user_login' => new WP_UnitTest_Generator_Sequence( 'User %s' ),
-			'user_pass' => 'a',
+			'user_pass' => 'password',
 			'user_email' => new WP_UnitTest_Generator_Sequence( 'user_%s@example.org' ),
 		);
 	}
@@ -78,6 +80,27 @@ class WP_UnitTest_Factory_For_Comment extends WP_UnitTest_Factory_For_Thing {
 	}
 }
 
+class WP_UnitTest_Factory_For_Blog extends WP_UnitTest_Factory_For_Thing {
+
+	function __construct( $factory = null ) {
+		global $current_site;
+		parent::__construct( $factory );
+		$this->default_generation_definitions = array(
+			'domain' => $current_site->domain,
+			'path' => new WP_UnitTest_Generator_Sequence( 'testpath%s' ),
+			'title' => new WP_UnitTest_Generator_Sequence( 'Site %s' ),
+			'site_id' => $current_site->id,
+		);
+	}
+
+	function create_object( $args ) {
+		$meta = isset( $args['meta'] ) ? $args['meta'] : array();
+		$user_id = isset( $args['user_id'] ) ? $args['user_id'] : get_current_user_id();
+		return wpmu_create_blog( $args['domain'], $args['path'], $args['title'], $user_id, $meta, $args['site_id'] );
+	}
+
+	function update_object( $blog_id, $fields ) {}
+}
 
 abstract class WP_UnitTest_Factory_For_Thing {
 
