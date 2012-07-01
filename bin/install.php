@@ -26,36 +26,36 @@ require_once ABSPATH . '/wp-includes/wp-db.php';
 define( 'WP_TESTS_VERSION_FILE', ABSPATH . '.wp-tests-version' );
 
 $wpdb->suppress_errors();
-$wpdb->hide_errors();
 $installed = $wpdb->get_var( "SELECT option_value FROM $wpdb->options WHERE option_name = 'siteurl'" );
+$wpdb->suppress_errors( false );
 
-if ( $installed && file_exists( WP_TESTS_VERSION_FILE ) ) {
-	$installed_version_hash = file_get_contents( WP_TESTS_VERSION_FILE );
-	if ( $installed_version_hash == test_version_check_hash() ) {
+$hash = get_option( 'db_version' ) . ' ' . sha1( file_get_contents( $config_file_path ) );
+
+if ( $installed && file_exists( WP_TESTS_VERSION_FILE ) && file_get_contents( WP_TESTS_VERSION_FILE ) == $hash )
 		return;
-	}
-}
+
 $wpdb->query( 'SET storage_engine = INNODB;' );
 $wpdb->query( 'DROP DATABASE IF EXISTS '.DB_NAME.";" );
 $wpdb->query( 'CREATE DATABASE '.DB_NAME.";" );
 $wpdb->select( DB_NAME, $wpdb->dbh );
 
 echo "Installing…" . PHP_EOL;
-wp_install( WP_TESTS_TITLE, 'admin', WP_TESTS_EMAIL, true, '', 'a' );
+wp_install( WP_TESTS_TITLE, 'admin', WP_TESTS_EMAIL, true, null, 'password' );
 
-if ( defined('WP_ALLOW_MULTISITE') && WP_ALLOW_MULTISITE ) {
-	echo "Installing network…" .PHP_EOL;
+if ( defined( 'WP_TESTS_MULTISITE' ) && WP_TESTS_MULTISITE ) {
+	echo "Installing network…" . PHP_EOL;
 
 	define( 'WP_INSTALLING_NETWORK', true );
-	//wp_set_wpdb_vars();
-	// We need to create references to ms global tables to enable Network.
+
+	// We need to create references to ms global tables.
 	foreach ( $wpdb->tables( 'ms_global' ) as $table => $prefixed_table )
 		$wpdb->$table = $prefixed_table;
+
+	$title = WP_TESTS_TITLE . ' Network';
+	$subdomain_install = false;
+
 	install_network();
-	$result = populate_network(1, WP_TESTS_DOMAIN, WP_TESTS_EMAIL, WP_TESTS_NETWORK_TITLE, '/', WP_TESTS_SUBDOMAIN_INSTALL);
-
-	system( WP_PHP_BINARY . ' ' . escapeshellarg( dirname( __FILE__ ) . '/ms-install.php' ) . ' ' . escapeshellarg( $config_file_path ) );
-
+	populate_network( 1, WP_TESTS_DOMAIN, WP_TESTS_EMAIL, $title, '/', $subdomain_install );
 }
 
-file_put_contents( WP_TESTS_VERSION_FILE, test_version_check_hash() );
+file_put_contents( WP_TESTS_VERSION_FILE, $hash );

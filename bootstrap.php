@@ -30,6 +30,16 @@ $PHP_SELF = $GLOBALS['PHP_SELF'] = $_SERVER['PHP_SELF'] = '/index.php';
 
 system( WP_PHP_BINARY . ' ' . escapeshellarg( dirname( __FILE__ ) . '/bin/install.php' ) . ' ' . escapeshellarg( $config_file_path ) );
 
+if ( defined( 'WP_TESTS_MULTISITE' ) && WP_TESTS_MULTISITE ) {
+	define( 'MULTISITE', true );
+	define( 'SUBDOMAIN_INSTALL', false );
+	define( 'DOMAIN_CURRENT_SITE', WP_TESTS_DOMAIN );
+	define( 'PATH_CURRENT_SITE', '/' );
+	define( 'SITE_ID_CURRENT_SITE', 1 );
+	define( 'BLOG_ID_CURRENT_SITE', 1 );
+	$GLOBALS['base'] = '/';
+}
+
 require dirname( __FILE__ ) . '/wp-testlib/functions.php';
 
 // Preset WordPress options defined in bootstrap file.
