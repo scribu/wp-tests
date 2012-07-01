@@ -19,6 +19,8 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 	function tearDown() {
 		global $wpdb;
 		$wpdb->query( 'ROLLBACK' );
+		remove_filter( 'dbdelta_create_queries', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 	}
 
 	function clean_up_global_scope() {
@@ -43,10 +45,22 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 		global $wpdb;
 		$wpdb->query( 'SET autocommit = 0;' );
 		$wpdb->query( 'START TRANSACTION;' );
+		add_filter( 'dbdelta_create_queries', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
+
+	function _create_temporary_tables( $queries ) {
+		return str_replace( 'CREATE TABLE', 'CREATE TEMPORARY TABLE', $queries );
+	}
+
+	function _drop_temporary_tables( $query ) {
+		if ( 'DROP TABLE' === substr( $query, 0, 10 ) )
+			return 'DROP TEMPORARY TABLE ' . substr( $query, 10 );
+		return $query;
 	}
 
 	function assertWPError( $actual, $message = '' ) {
-		$this->assertTrue( is_wp_error( $actual ), $message );
+		$this->assertInstanceOf( 'WP_Error', $actual, $message );
 	}
 
 	function assertEqualFields( $object, $fields ) {
