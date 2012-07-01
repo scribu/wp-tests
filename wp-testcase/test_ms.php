@@ -1,13 +1,16 @@
 <?php
 
-// A set of unit tests for WordPress MultiSite
-
 if ( is_multisite() ) :
 
-$plugin_hook = 0;
-define('TEST_BLOGS_COUNT', 10);
+/**
+ * A set of unit tests for WordPress Multisite
+ *
+ * @group multisite
+ */
+class WPTestMS extends WP_UnitTestCase {
 
-class WPTestMS extends _WPEmptyBlog {
+	const test_blogs = 4;
+	protected $plugin_hook_count = 0;
 
 	function setUp() {
 		parent::setUp();
@@ -20,35 +23,25 @@ class WPTestMS extends _WPEmptyBlog {
 	function test_create_and_delete_blog() {
 		global $wpdb, $current_site;
 
-		// initialise the users
-		$user1_id = $this->_make_user('administrator');
-		$user2_id = $this->_make_user('administrator');
-		$user1 = new WP_User($user1_id);
-		$user2 = new WP_User($user2_id);
-		$blog_ids = array();
-
-		for ( $i=1; $i <= TEST_BLOGS_COUNT; $i++ ) {
-			$id = ( $i & 1 ) ? $user1_id : $user2_id;
-			$blog_id = wpmu_create_blog( $current_site->domain, 'path'.$i, "Title".$i, $id );
+		$blog_ids = $this->factory->blog->create_many( self::test_blogs );
+		foreach ( $blog_ids as $blog_id ) {
 			$this->assertInternalType( 'int', $blog_id );
-
 			$prefix = $wpdb->get_blog_prefix( $blog_id );
+
 			foreach ( $wpdb->tables( 'blog', false ) as $table ) {
 				$table_fields = $wpdb->get_results( "DESCRIBE $prefix$table;" );
 				$this->assertNotEmpty( $table_fields );
-				$result = $wpdb->get_results( "SELECT * FROM $prefix$table LIMIT 1");
+				$result = $wpdb->get_results( "SELECT * FROM $prefix$table LIMIT 1" );
 				if ( 'commentmeta' == $table )
 					$this->assertEmpty( $result );
 				else
 					$this->assertNotEmpty( $result );
 			}
-
-			$blog_ids[] = $blog_id;
 		}
 
 		// update the blog count cache to use get_blog_count()
 		wp_update_network_counts(); 
-		$this->assertEquals( TEST_BLOGS_COUNT + 1, (int) get_blog_count() );
+		$this->assertEquals( self::test_blogs + 1, (int) get_blog_count() );
 
 		$drop_tables = false;
 		// delete all blogs
@@ -63,13 +56,13 @@ class WPTestMS extends _WPEmptyBlog {
 				if ( $drop_tables )
 					$this->assertEmpty( $table_fields );
 				else
-					$this->assertNotEmpty( $table_fields );
+					$this->assertNotEmpty( $table_fields, $prefix . $table );
 			}
 		}
 
 		// update the blog count cache to use get_blog_count()
 		wp_update_network_counts(); 
-		$this->assertEquals( 1 , get_blog_count() );
+		$this->assertEquals( 1, get_blog_count() );
 	}
 
 	function test_get_blogs_of_user() {
@@ -78,14 +71,11 @@ class WPTestMS extends _WPEmptyBlog {
 		// Logged out users don't have blogs.
 		$this->assertEquals( array(), get_blogs_of_user( 0 ) );
 
-		$user1_id = $this->_make_user('administrator');
+		$user1_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$blog_ids = $this->factory->blog->create_many( 10, array( 'user_id' => $user1_id ) );
 
-		$blog_ids = array();
-		for ( $i=1; $i <= 10; $i++ ) {
-			$blog_id = wpmu_create_blog( $current_site->domain, 'testpath'.$i, "testTitle".$i, $user1_id );
+		foreach ( $blog_ids as $blog_id )
 			$this->assertInternalType( 'int', $blog_id );
-			$blog_ids[] = $blog_id;
-		}
 
 		$blogs_of_user = array_keys( get_blogs_of_user( $user1_id, $all = false ) );
 		sort( $blogs_of_user );
@@ -102,15 +92,12 @@ class WPTestMS extends _WPEmptyBlog {
 		$user = new WP_User( $user1_id );
 		$this->assertFalse( $user->exists(), 'WP_User->exists' );
 		$this->assertEquals( array(), get_blogs_of_user( $user1_id ) );
-
-		foreach ( $blog_ids as $blog_id ) 
-			wpmu_delete_blog( $blog_id );
 	}
 
 	function test_is_blog_user() {
 		global $current_site, $wpdb;
 
-		$user1_id = $this->_make_user('administrator');
+		$user1_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		$old_current = get_current_user_id();
 		wp_set_current_user( $user1_id );
@@ -120,28 +107,21 @@ class WPTestMS extends _WPEmptyBlog {
 
 		$blog_ids = array();
 
-		for ( $i=1; $i <= 5; $i++ ) {
-			$blog_id = wpmu_create_blog( $current_site->domain, 'testpath'.$i, "testTitle".$i, $user1_id );
-			$this->assertInternalType( 'int', $blog_id );
-			$blog_ids[] = $blog_id;
-			$this->assertTrue( is_blog_user( $blog_id ) );
-		}
-
+		$blog_ids = $this->factory->blog->create_many( 5 );
 		foreach ( $blog_ids as $blog_id ) {
+			$this->assertInternalType( 'int', $blog_id );
+			$this->assertTrue( is_blog_user( $blog_id ) );
 			$this->assertTrue( remove_user_from_blog( $user1_id, $blog_id ) );
 			$this->assertFalse( is_blog_user( $blog_id ) );
 		}
 
 		wp_set_current_user( $old_current );
-
-		foreach ( $blog_ids as $blog_id ) 
-			wpmu_delete_blog( $blog_id );
 	}
 
 	function test_is_user_member_of_blog() {
 		global $current_site, $wpdb;
 
-		$user1_id = $this->_make_user('administrator');
+		$user1_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		$old_current = get_current_user_id();
 		wp_set_current_user( $user1_id );
@@ -152,16 +132,10 @@ class WPTestMS extends _WPEmptyBlog {
 		$this->assertTrue( is_user_member_of_blog( $user1_id ) );
 		$this->assertTrue( is_user_member_of_blog( $user1_id, $wpdb->blogid ) );
 
-		$blog_ids = array();
-
-		for ( $i=1; $i <= 5; $i++ ) {
-			$blog_id = wpmu_create_blog( $current_site->domain, 'testpath'.$i, "testTitle".$i, $user1_id );
-			$this->assertInternalType( 'int', $blog_id );
-			$blog_ids[] = $blog_id;
-			$this->assertTrue( is_user_member_of_blog( $user1_id, $blog_id ) );
-		}
-
+		$blog_ids = $this->factory->blog->create_many( 5 );
 		foreach ( $blog_ids as $blog_id ) {
+			$this->assertInternalType( 'int', $blog_id );
+			$this->assertTrue( is_user_member_of_blog( $user1_id, $blog_id ) );
 			$this->assertTrue( remove_user_from_blog( $user1_id, $blog_id ) );
 			$this->assertFalse( is_user_member_of_blog( $user1_id, $blog_id ) );
 		}
@@ -172,9 +146,6 @@ class WPTestMS extends _WPEmptyBlog {
 		$this->assertFalse( is_user_member_of_blog( $user1_id ), 'is_user_member_of_blog' );
 
 		wp_set_current_user( $old_current );
-
-		foreach ( $blog_ids as $blog_id ) 
-			wpmu_delete_blog( $blog_id );
 	}
 
 	function test_active_network_plugins() {
@@ -185,7 +156,7 @@ class WPTestMS extends _WPEmptyBlog {
 		$active_plugins = wp_get_active_network_plugins();
 		$this->assertEquals( Array(), $active_plugins );
 
-		add_action( 'deactivated_plugin', 'helper_deactivate_hook', 10, 2);
+		add_action( 'deactivated_plugin', array( $this, '_helper_deactivate_hook' ) );
 
 		// activate the plugin sitewide
 		activate_plugin($path, '', $network_wide = true);
@@ -197,13 +168,16 @@ class WPTestMS extends _WPEmptyBlog {
 		$active_plugins = wp_get_active_network_plugins();
 		$this->assertEquals( Array(), $active_plugins );
 
-		global $plugin_hook;
-		$this->assertEquals( 1, $plugin_hook ); // testing actions and silent mode
+		$this->assertEquals( 1, $this->plugin_hook_count ); // testing actions and silent mode
 
 		activate_plugin($path, '', $network_wide = true);
 		deactivate_plugins($path, true); // silent
 
-		$this->assertEquals( 1, $plugin_hook ); // testing actions and silent mode
+		$this->assertEquals( 1, $this->plugin_hook_count ); // testing actions and silent mode
+	}
+
+	function _helper_deactivate_hook() {
+		$this->plugin_hook_count++;
 	}
 
 	function test_get_user_count() {
@@ -211,7 +185,7 @@ class WPTestMS extends _WPEmptyBlog {
 		wp_update_network_counts();
 		$start_count = get_user_count();
 
-		$this->_make_user('administrator');
+		$this->factory->user->create( array( 'role' => 'administrator' ) );
 
 		$count = get_user_count(); // No change, cache not refreshed
 		$this->assertEquals( $start_count, $count );
@@ -253,15 +227,14 @@ class WPTestMS extends _WPEmptyBlog {
 		$dashboard_blog = get_dashboard_blog();
 		$this->assertEquals( 1, $dashboard_blog->blog_id );
 
-		$user_id = $this->_make_user('administrator');
-		$blog_id = wpmu_create_blog( $current_site->domain, 'testpath999', "testTitle999", $user_id );
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$blog_id = $this->factory->blog->create( array( 'user_id' => $user_id ) );
 		$this->assertInternalType( 'int', $blog_id );
 
 		// set the dashboard blog to another one
 		update_site_option( 'dashboard_blog', $blog_id );
 		$dashboard_blog = get_dashboard_blog();
 		$this->assertEquals( $blog_id, $dashboard_blog->blog_id );
-		wpmu_delete_blog( $blog_id );
 	}
 
 	function test_wpmu_log_new_registrations() {
@@ -298,6 +271,15 @@ class WPTestMS extends _WPEmptyBlog {
 		update_site_option('upload_space_check_disabled', false);
 		$this->assertFalse( upload_is_user_over_quota( $echo ) );
 		$this->assertTrue( is_upload_space_available() );
+
+		if ( ! file_exists( BLOGSUPLOADDIR ) )
+			$this->markTestSkipped( 'This test is broken when blogs.dir does not exist. ');
+
+		/*
+		This is broken when blogs.dir does not exist, as get_upload_space_available()
+		simply returns the value of blog_upload_space (converted to bytes), which would
+		be negative but still not false. When blogs.dir does exist, < 0 is returned as 0.
+		*/
 
 		update_site_option( 'blog_upload_space', -1 );
 		$this->assertTrue( upload_is_user_over_quota( $echo ) );
@@ -336,22 +318,20 @@ class WPTestMS extends _WPEmptyBlog {
 		$this->assertEquals( $current_site->domain, $blog->domain );
 		$this->assertEquals( '/', $blog->path );
 
-		$user_id = $this->_make_user('administrator');
-		$blog_id = wpmu_create_blog( $current_site->domain, '/test_blogname', "Test Title", $user_id );
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$blog_id = $this->factory->blog->create( array( 'user_id' => $user_id, 'path' => '/test_blogname', 'title' => 'Test Title' ) );
 		$this->assertInternalType( 'int', $blog_id );
 
 		$this->assertEquals( 'http://' . DOMAIN_CURRENT_SITE . PATH_CURRENT_SITE . 'test_blogname/', get_blogaddress_by_name('test_blogname') );
 
 		$this->assertEquals( $blog_id, get_id_from_blogname('test_blogname') );
-
-		wpmu_delete_blog( $blog_id );
 	}
 
 	function test_update_blog_details() {
 		global $current_site;
 
-		$user_id = $this->_make_user('administrator');
-		$blog_id = wpmu_create_blog( $current_site->domain, 'test_blogpath', "Test Title", $user_id );
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$blog_id = $this->factory->blog->create( array( 'user_id' => $user_id, 'path' => '/test_blogpath', 'title' => 'Test Title' ) );
 		$this->assertInternalType( 'int', $blog_id );
 
 		$result = update_blog_details( $blog_id, array('domain' => 'example.com', 'path' => 'my_path/') );
@@ -377,14 +357,6 @@ class WPTestMS extends _WPEmptyBlog {
 		$this->assertEquals( '1', $blog->spam );
 		$this->assertFalse( $result );
 	}
-}
-
-/*
-Helper for plugin testing, helpful with silent mode testing
-*/
-function helper_deactivate_hook($plugin, $network_wide) {
-	global $plugin_hook;
-	$plugin_hook++;
 }
 
 endif;
