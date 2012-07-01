@@ -2,67 +2,63 @@
 
 // test the output of post template tags etc
 
-class _WPTestSinglePost extends _WPEmptyBlog {
-
-	var $post_title = NULL;
-	var $post_content = NULL;
-
-	var $the_title = NULL;
-	var $the_content = NULL;
-
-	function _do_post() {
-		$post = array(
-			'post_author' => $this->author->ID,
-			'post_status' => 'publish',
-			'post_content' => $this->post_content,
-			'post_title' => $this->post_title,
-		);
-
-		// insert a post
-		$this->post_id = $this->post_ids[] = wp_insert_post($post);
-
-		// pretend we're on the single permlink page for that post
-		$out = wp_get_single_post($this->post_id);
-		$this->http(get_permalink($this->post_id));
-
-		$this->assertTrue(is_single());
-		$this->assertTrue(have_posts());
-		$this->assertNull(the_post());
-	}
-
-
-}
-
-class WPTestPostMoreVB extends _WPTestSinglePost {
+/**
+ * @group post
+ * @group formatting
+ */
+class WP_Test_Post_Output extends WP_UnitTestCase {
 
 	function setUp() {
+		parent::setUp();
+		add_shortcode( 'dumptag', array( $this, '_shortcode_dumptag' ) );
+		add_shortcode( 'paragraph', array( $this, '_shortcode_paragraph' ) );
+	}
 
-		$this->post_content =<<<EOF
+	function tearDown() {
+		global $shortcode_tags;
+		unset( $shortcode_tags['dumptag'], $shortcode_tags['paragraph'] );
+		parent::tearDown();
+	}
+
+	function _shortcode_dumptag( $atts ) {
+		$out = '';
+		foreach ($atts as $k=>$v)
+			$out .= "$k = $v\n";
+		return $out;
+	}
+
+	function _shortcode_paragraph( $atts, $content ) {
+		extract(shortcode_atts(array(
+			'class' => 'graf',
+		), $atts));
+		return "<p class='$class'>$content</p>\n";
+	}
+
+	function test_the_content() {
+		$post_content = <<<EOF
 <i>This is the excerpt.</i>
 <!--more-->
 This is the <b>body</b>.
 EOF;
 
-		parent::setUp();
-	}
+		$post_id = $this->factory->post->create( compact( 'post_content' ) );
 
-	function test_the_content() {
-		$this->_do_post();
-		$the_content =<<<EOF
+		$expected = <<<EOF
 <p><i>This is the excerpt.</i><br />
-<span id="more-{$this->post_id}"></span><br />
+<span id="more-{$post_id}"></span><br />
 This is the <b>body</b>.</p>
 EOF;
 
-		$this->assertEquals(strip_ws($the_content), strip_ws(get_echo('the_content')));
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_single() );
+		$this->assertTrue( have_posts() );
+		$this->assertNull( the_post() );
+
+		$this->assertEquals( strip_ws( $expected ), strip_ws( get_echo( 'the_content' ) ) );
 	}
 
-}
-
-class WPTestShortcodeOutput1 extends _WPTestSinglePost {
-	function setUp() {
-
-		$this->post_content =<<<EOF
+	function test_the_content_shortcode() {
+		$post_content = <<<EOF
 [dumptag foo="bar" baz="123"]
 
 [dumptag foo=123 baz=bar]
@@ -71,11 +67,6 @@ class WPTestShortcodeOutput1 extends _WPTestSinglePost {
 
 EOF;
 
-		parent::setUp();
-	}
-
-	function test_the_content() {
-		$this->_do_post();
 		$expected =<<<EOF
 foo = bar
 baz = 123
@@ -85,14 +76,17 @@ baz = bar
 
 EOF;
 
-		$this->assertEquals(strip_ws($expected), strip_ws(get_echo('the_content')));
+		$post_id = $this->factory->post->create( compact( 'post_content' ) );
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_single() );
+		$this->assertTrue( have_posts() );
+		$this->assertNull( the_post() );
+
+		$this->assertEquals( strip_ws( $expected ), strip_ws( get_echo( 'the_content' ) ) );
 	}
-}
 
-class WPTestShortcodeOutputParagraph extends _WPTestSinglePost {
-	function setUp() {
-
-		$this->post_content =<<<EOF
+	function test_the_content_shortcode_paragraph() {
+		$post_content = <<<EOF
 Graf by itself:
 
 [paragraph]my graf[/paragraph]
@@ -106,12 +100,7 @@ A graf with a single EOL first:
 
 EOF;
 
-		parent::setUp();
-	}
-
-	function test_the_content() {
-		$this->_do_post();
-		$expected =<<<EOF
+		$expected = <<<EOF
 <p>Graf by itself:</p>
 <p class='graf'>my graf</p>
 
@@ -125,11 +114,21 @@ EOF;
 
 EOF;
 
-		$this->assertEquals(strip_ws($expected), strip_ws(get_echo('the_content')));
+		$post_id = $this->factory->post->create( compact( 'post_content' ) );
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_single() );
+		$this->assertTrue( have_posts() );
+		$this->assertNull( the_post() );
+
+		$this->assertEquals( strip_ws( $expected ), strip_ws( get_echo( 'the_content' ) ) );
 	}
 }
 
-class WPTestGalleryPost extends _WPDataset1 {
+/**
+ * @group media
+ * @group gallery
+ */
+class WPTestGalleryPost extends WP_UnitTestCase { // _WPDataset1
 	function setUp() {
 		$this->knownUTBug(30);
 		parent::setUp();
@@ -280,54 +279,58 @@ EOF;
 
 }
 
-
-
-class WPTestAttributeFiltering extends _WPTestSinglePost {
+/**
+ * @group post
+ * @group formatting
+ */
+class WPTestAttributeFiltering extends WP_UnitTestCase {
 	function setUp() {
+		parent::setUp();
 		kses_init_filters();
+	}
+
+	function tearDown() {
+		kses_remove_filters();
+		parent::tearDown();
+	}
+
+	function test_the_content_attribute_filtering() {
 		// http://bpr3.org/?p=87
 		// the title attribute should make it through unfiltered
-		$this->post_content =<<<EOF
+		$post_content = <<<EOF
 <span class="Z3988" title="ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.aulast=Mariat&rft.aufirst=Denis&rft. au=Denis+Mariat&rft.au=Sead+Taourit&rft.au=G%C3%A9rard+Gu%C3%A9rin& rft.title=Genetics+Selection+Evolution&rft.atitle=&rft.date=2003&rft. volume=35&rft.issue=1&rft.spage=119&rft.epage=133&rft.genre=article& rft.id=info:DOI/10.1051%2Fgse%3A2002039"></span>Mariat, D., Taourit, S., GuÃ©rin, G. (2003). . <span style="font-style: italic;">Genetics Selection Evolution, 35</span>(1), 119-133. DOI: <a rev="review" href= "http://dx.doi.org/10.1051/gse:2002039">10.1051/gse:2002039</a>
-
 EOF;
 
-		parent::setUp();
-	}
-
-	function test_the_content() {
-		$this->_do_post();
-		$expected =<<<EOF
+		$expected = <<<EOF
 <p><span class="Z3988" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.aulast=Mariat&amp;rft.aufirst=Denis&amp;rft. au=Denis+Mariat&amp;rft.au=Sead+Taourit&amp;rft.au=G%C3%A9rard+Gu%C3%A9rin&amp; rft.title=Genetics+Selection+Evolution&amp;rft.atitle=&amp;rft.date=2003&amp;rft. volume=35&amp;rft.issue=1&amp;rft.spage=119&amp;rft.epage=133&amp;rft.genre=article&amp; rft.id=info:DOI/10.1051%2Fgse%3A2002039"></span>Mariat, D., Taourit, S., GuÃ©rin, G. (2003). . <span style="font-style: italic">Genetics Selection Evolution, 35</span>(1), 119-133. DOI: <a rev="review" href="http://dx.doi.org/10.1051/gse:2002039">10.1051/gse:2002039</a></p>
-
 EOF;
 
-		$this->assertEquals(strip_ws($expected), strip_ws(get_echo('the_content')));
+		$post_id = $this->factory->post->create( compact( 'post_content' ) );
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_single() );
+		$this->assertTrue( have_posts() );
+		$this->assertNull( the_post() );
+
+		$this->assertEquals( strip_ws( $expected ), strip_ws( get_echo( 'the_content' ) ) );
 	}
-}
 
-class WPTestAttributeColon extends _WPTestSinglePost {
-	function setUp() {
-
+	function test_the_content_attribute_value_with_colon() {
 		// http://bpr3.org/?p=87
 		// the title attribute should make it through unfiltered
-		$this->post_content =<<<EOF
+		$post_content = <<<EOF
 <span title="My friends: Alice, Bob and Carol">foo</span>
-
 EOF;
 
-		parent::setUp();
-	}
-
-	function test_the_content() {
-		$this->_do_post();
-		$expected =<<<EOF
+		$expected = <<<EOF
 <p><span title="My friends: Alice, Bob and Carol">foo</span></p>
-
 EOF;
 
-		$this->assertEquals(strip_ws($expected), strip_ws(get_echo('the_content')));
+		$post_id = $this->factory->post->create( compact( 'post_content' ) );
+		$this->go_to( get_permalink( $post_id ) );
+		$this->assertTrue( is_single() );
+		$this->assertTrue( have_posts() );
+		$this->assertNull( the_post() );
+
+		$this->assertEquals( strip_ws( $expected ), strip_ws( get_echo( 'the_content' ) ) );
 	}
 }
-
-?>
