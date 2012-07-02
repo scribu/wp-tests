@@ -12,6 +12,10 @@ class TestOption extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	function __return_foo() {
+		return 'foo';	
+	}
+
 	function test_the_basics() {
 		$key = rand_str();
 		$key2 = rand_str();
@@ -38,28 +42,24 @@ class TestOption extends WP_UnitTestCase {
 	}
 
 	function test_default_filter() {
-		$return_foo = function ( $value ) {
-			return 'foo';
-		};
-
 		$random = rand_str();
 
 		$this->assertFalse( get_option( 'doesnotexist' ) );
 
 		// Default filter overrides $default arg.
-		add_filter( 'default_option_doesnotexist', $return_foo );
+		add_filter( 'default_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( 'foo', get_option( 'doesnotexist', 'bar' ) );
 
 		// Remove the filter and the $default arg is honored.
-		remove_filter( 'default_option_doesnotexist', $return_foo );
+		remove_filter( 'default_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( 'bar', get_option( 'doesnotexist', 'bar' ) );
 
 		// Once the option exists, the $default arg and the default filter are ignored.
 		add_option( 'doesnotexist', $random );
 		$this->assertEquals( $random, get_option( 'doesnotexist', 'foo' ) );
-		add_filter( 'default_option_doesnotexist', $return_foo );
+		add_filter( 'default_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( $random, get_option( 'doesnotexist', 'foo' ) );
-		remove_filter( 'default_option_doesnotexist', $return_foo );
+		remove_filter( 'default_option_doesnotexist', array( $this, '__return_foo' ) );
 
 		// Cleanup
 		$this->assertTrue( delete_option( 'doesnotexist' ) );
@@ -84,12 +84,8 @@ class TestOption extends WP_UnitTestCase {
  * @group options
  */
 class TestSiteOption extends WP_UnitTestCase {
-	function setUp() {
-		parent::setUp();
-	}
-
-	function tearDown() {
-		parent::tearDown();
+	function __return_foo() {
+		return 'foo';	
 	}
 
 	function test_the_basics() {
@@ -118,28 +114,24 @@ class TestSiteOption extends WP_UnitTestCase {
 	}
 
 	function test_default_filter() {
-		$return_foo = function ( $value ) {
-			return 'foo';
-		};
-
 		$random = rand_str();
 
 		$this->assertFalse( get_site_option( 'doesnotexist' ) );
 
 		// Default filter overrides $default arg.
-		add_filter( 'default_site_option_doesnotexist', $return_foo );
+		add_filter( 'default_site_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( 'foo', get_site_option( 'doesnotexist', 'bar' ) );
 
 		// Remove the filter and the $default arg is honored.
-		remove_filter( 'default_site_option_doesnotexist', $return_foo );
+		remove_filter( 'default_site_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( 'bar', get_site_option( 'doesnotexist', 'bar' ) );
 
 		// Once the option exists, the $default arg and the default filter are ignored.
 		add_site_option( 'doesnotexist', $random );
 		$this->assertEquals( $random, get_site_option( 'doesnotexist', 'foo' ) );
-		add_filter( 'default_site_option_doesnotexist', $return_foo );
+		add_filter( 'default_site_option_doesnotexist', array( $this, '__return_foo' ) );
 		$this->assertEquals( $random, get_site_option( 'doesnotexist', 'foo' ) );
-		remove_filter( 'default_site_option_doesnotexist', $return_foo );
+		remove_filter( 'default_site_option_doesnotexist', array( $this, '__return_foo' ) );
 
 		// Cleanup
 		$this->assertTrue( delete_site_option( 'doesnotexist' ) );
