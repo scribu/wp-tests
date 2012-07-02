@@ -21,30 +21,6 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		create_initial_taxonomies();
 		$GLOBALS['wp_rewrite']->init();
 		flush_rewrite_rules();
-
-		$this->post_ids[] = $post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
-		$this->factory->comment->create_post_comments( $post_id, 2 );
-
-		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
-		$this->page_ids[] = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
-		$post_ids = $this->factory->post->create_many( 15, array( 'post_date' => '2007-09-04 00:00:00', 'post_content' => 'This content includes "test"', 'post_author' => $user_id ) );
-		foreach ( $post_ids as $post_id ) {
-			$this->factory->comment->create_post_comments( $post_id, 2 );
-			$this->factory->term->add_post_terms( $post_id, 'tag-a', 'post_tag' );
-		}
-		$this->post_ids = array_merge( $this->post_ids, $post_ids );
-
-		$this->factory->post->create( array( 'import_id' => 8, 'post_type' => 'attachment' ) );
-		$this->post_ids[] = $this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00', 'post_title' => 'a-post-with-multiple-pages', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
-
-		$this->post_ids[] = $post_id = $this->factory->post->create();
-		$cat_id = $this->factory->term->create( array( 'name' => 'cat-a', 'taxonomy' => 'category' ) );
-		$this->factory->term->add_post_terms( $post_id, $cat_id, 'category' );
-
-		$this->page_ids[] = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'lorem-ipsum' ) );
-		$this->page_ids[] = $post_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
-		$this->page_ids[] = $post_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $post_id ) );
-		$this->page_ids[] = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $post_id ) );
 	}
 
 	function tearDown() {
@@ -112,46 +88,57 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	}
 
 	function test_permalink() {
-		$this->go_to( get_permalink( get_page_by_path( 'hello-world', OBJECT, 'post' ) ) );
+		$post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
+		$this->go_to( get_permalink( $post_id ) );
 		$this->assertQueryTrue('is_single', 'is_singular');
 	}
 
 	function test_post_comments_feed() {
-		$this->go_to( get_post_comments_feed_link( get_page_by_path( 'hello-world', OBJECT, 'post' )->ID ) );
+		$post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
+		// Comments aren't needed for this test to pass.
+		// $this->factory->comment->create_post_comments( $post_id, 2 );
+		$this->go_to( get_post_comments_feed_link( $post_id ) );
 		$this->assertQueryTrue('is_feed', 'is_single', 'is_singular', 'is_comment_feed');
 	}
 
 	function test_page() {
-		$page_id = get_page_by_path( 'about' );
-		$this->go_to(get_permalink($page_id));
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about' ) );
+		$this->go_to( get_permalink( $page_id ) );
 		$this->assertQueryTrue('is_page','is_singular');
 	}
 
 	function test_parent_page() {
-		$page_id = get_page_by_path( 'parent-page' );
-		$this->go_to(get_permalink($page_id));
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$this->go_to( get_permalink( $page_id ) );
 
 		$this->assertQueryTrue('is_page','is_singular');
 	}
 
 	function test_child_page_1() {
-		$page_id = get_page_by_path( 'parent-page/child-page-1' );
-		$this->go_to(get_permalink($page_id));
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$this->go_to( get_permalink( $page_id ) );
 
 		$this->assertQueryTrue('is_page','is_singular');
 	}
 
 	function test_child_page_2() {
-		$page_id = get_page_by_path( 'parent-page/child-page-1/child-page-2' );
-		$this->go_to(get_permalink($page_id));
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
+		$this->go_to( get_permalink( $page_id ) );
 
 		$this->assertQueryTrue('is_page','is_singular');
 	}
 
 	// '(about)/trackback/?$' => 'index.php?pagename=$matches[1]&tb=1'
 	function test_page_trackback() {
-		foreach ($this->page_ids as $page_id) {
-			$url = get_permalink($page_id);
+		$page_ids = array();
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
+		foreach ( $page_ids as $page_id ) {
+			$url = get_permalink( $page_id );
 			$this->go_to("{$url}trackback/");
 
 			// make sure the correct wp_query flags are set
@@ -165,8 +152,15 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	//'(about)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
 	function test_page_feed() {
-		foreach ($this->page_ids as $page_id) {
-			$url = get_permalink($page_id);
+		$page_ids = array();
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
+		foreach ( $page_ids as $page_id ) {
+			// Comments aren't needed for this test to pass.
+			// $this->factory->comment->create_post_comments( $page_id, 2 );
+
+			$url = get_permalink( $page_id );
 			$this->go_to("{$url}feed/");
 
 			// make sure the correct wp_query flags are set
@@ -181,8 +175,15 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '(about)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
 	function test_page_feed_atom() {
-		foreach ($this->page_ids as $page_id) {
-			$url = get_permalink($page_id);
+		$page_ids = array();
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
+		foreach ( $page_ids as $page_id ) {
+			// Comments aren't needed for this test to pass.
+			// $this->factory->comment->create_post_comments( $page_id, 2 );
+
+			$url = get_permalink( $page_id );
 			$this->go_to("{$url}feed/atom/");
 
 			// make sure the correct wp_query flags are set
@@ -196,27 +197,44 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '(about)/page/?([0-9]{1,})/?$' => 'index.php?pagename=$matches[1]&paged=$matches[2]'
 	function test_page_page_2() {
-		foreach ($this->page_ids as $page_id) {
-			$url = get_permalink($page_id);
-			$this->go_to("{$url}page/2/");
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
+		$this->go_to("/about/page/2/");
 
-			// make sure the correct wp_query flags are set
-			$this->assertQueryTrue('is_page', 'is_singular', 'is_paged');
+		// make sure the correct wp_query flags are set
+		$this->assertQueryTrue('is_page', 'is_singular', 'is_paged');
 
-			// make sure the correct page was fetched
-			global $wp_query;
-			$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
-		}
+		// make sure the correct page was fetched
+		global $wp_query;
+		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 	}
 
+	// '(about)/page/?([0-9]{1,})/?$' => 'index.php?pagename=$matches[1]&paged=$matches[2]'
+	function test_page_page_2_no_slash() {
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
+		$this->go_to("/about/page2/");
+
+		// make sure the correct wp_query flags are set
+		$this->assertQueryTrue('is_page', 'is_singular', 'is_paged');
+
+		// make sure the correct page was fetched
+		global $wp_query;
+		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
+	}
+	
 	// FIXME: what is this for?
 	// '(about)(/[0-9]+)?/?$' => 'index.php?pagename=$matches[1]&page=$matches[2]'
-	function test_page_page_2_short() {
-		//return $this->markTestSkipped();
-		// identical to /about/page/2/ ?
+	function test_pagination_of_posts_page() {
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_for_posts', $page_id );
+
 		$this->go_to('/about/2/');
 
-		$this->assertQueryTrue('is_page', 'is_singular');
+		$this->assertQueryTrue( 'is_home', 'is_posts_page' );
+
+		// make sure the correct page was fetched
+		global $wp_query;
+		$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 	}
 
 	// FIXME: no tests for these yet
@@ -228,6 +246,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
 	// '(feed|rdf|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]',
 	function test_main_feed_2() {
+		$this->factory->post->create(); // @test_404
 		$feeds = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 
 		// long version
@@ -245,6 +264,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	}
 
 	function test_main_feed() {
+		$this->factory->post->create(); // @test_404
 		$types = array('rss2', 'rss', 'atom');
 		foreach ($types as $type) {
 			$this->go_to(get_feed_link($type));
@@ -254,7 +274,8 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// 'page/?([0-9]{1,})/?$' => 'index.php?&paged=$matches[1]',
 	function test_paged() {
-		for ($i=2; $i<4; $i++) {
+		$this->factory->post->create_many( 15 );
+		for ( $i = 2; $i <= 3; $i++ ) {
 			$this->go_to("/page/{$i}/");
 			$this->assertQueryTrue('is_home', 'is_paged');
 		}
@@ -263,8 +284,11 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'comments/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
 	// 'comments/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?&feed=$matches[1]&withcomments=1',
 	function test_main_comments_feed() {
+		$post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
+		$this->factory->comment->create_post_comments( $post_id, 2 );
+
 		// check the url as generated by get_post_comments_feed_link()
-		$this->go_to( get_post_comments_feed_link( get_page_by_path( 'hello-world', OBJECT, 'post' )->ID ) );
+		$this->go_to( get_post_comments_feed_link( $post_id ) );
 		$this->assertQueryTrue('is_feed', 'is_single', 'is_singular', 'is_comment_feed');
 
 		// check the long form
@@ -282,13 +306,6 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		}
 
 	}
-
-	// 'comments/page/?([0-9]{1,})/?$' => 'index.php?&paged=$matches[1]',
-	function test_comments_page() {
-		$this->go_to('/comments/page/2/');
-		$this->assertQueryTrue('is_home', 'is_paged');
-	}
-
 
 	// 'search/(.+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
 	// 'search/(.+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?s=$matches[1]&feed=$matches[2]',
@@ -310,6 +327,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// 'search/(.+)/page/?([0-9]{1,})/?$' => 'index.php?s=$matches[1]&paged=$matches[2]',
 	function test_search_paged() {
+		$this->factory->post->create_many( 10, array( 'post_title' => 'test' ) );
 		$this->go_to('/search/test/page/2/');
 		$this->assertQueryTrue('is_search', 'is_paged');
 	}
@@ -321,7 +339,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	}
 
 	function test_search_encoded_chars() {
-		$this->knownWPBug(13961);
+		// $this->knownWPBug(13961);
 		$this->go_to('/search/F%C3%BCnf%2Bbar/');
 		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
 	}
@@ -329,6 +347,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'category/(.+?)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	// 'category/(.+?)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?category_name=$matches[1]&feed=$matches[2]',
 	function test_category_feed() {
+		$this->factory->term->create( array( 'name' => 'cat-a', 'taxonomy' => 'category' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -346,12 +365,14 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// 'category/(.+?)/page/?([0-9]{1,})/?$' => 'index.php?category_name=$matches[1]&paged=$matches[2]',
 	function test_category_paged() {
+		$this->factory->post->create_many( 10 );
 		$this->go_to('/category/uncategorized/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_category', 'is_paged');
 	}
 
 	// 'category/(.+?)/?$' => 'index.php?category_name=$matches[1]',
 	function test_category() {
+		$this->factory->term->create( array( 'name' => 'cat-a', 'taxonomy' => 'category' ) );
 		$this->go_to('/category/cat-a/');
 		$this->assertQueryTrue('is_archive', 'is_category');
 	}
@@ -359,6 +380,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'tag/(.+?)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
 	// 'tag/(.+?)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?tag=$matches[1]&feed=$matches[2]',
 	function test_tag_feed() {
+		$this->factory->term->create( array( 'name' => 'tag-a', 'taxonomy' => 'post_tag' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -376,13 +398,17 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// 'tag/(.+?)/page/?([0-9]{1,})/?$' => 'index.php?tag=$matches[1]&paged=$matches[2]',
 	function test_tag_paged() {
-		$this->markTestSkipped(); // tag-a doesn't have enough posts -> 404
+		$post_ids = $this->factory->post->create_many( 10 );
+		foreach ( $post_ids as $post_id )
+			$this->factory->term->add_post_terms( $post_id, 'tag-a', 'post_tag' );
+		// $this->markTestSkipped(); // tag-a doesn't have enough posts -> 404
 		$this->go_to('/tag/tag-a/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_tag', 'is_paged');
 	}
 
 	// 'tag/(.+?)/?$' => 'index.php?tag=$matches[1]',
 	function test_tag() {
+		$this->factory->term->create( array( 'name' => 'tag-a', 'taxonomy' => 'post_tag' ) );
 		$this->go_to('/tag/tag-a/');
 		$this->assertQueryTrue('is_archive', 'is_tag');
 	}
@@ -390,6 +416,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'author/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?author_name=$matches[1]&feed=$matches[2]',
 	// 'author/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?author_name=$matches[1]&feed=$matches[2]',
 	function test_author_feed() {
+		$this->factory->user->create( array( 'user_login' => 'user-a' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -407,12 +434,17 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// 'author/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?author_name=$matches[1]&paged=$matches[2]',
 	function test_author_paged() {
+		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
+		$this->factory->post->create_many( 10, array( 'post_author' => $user_id ) );
 		$this->go_to('/author/user-a/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_author', 'is_paged');
 	}
 
 	// 'author/([^/]+)/?$' => 'index.php?author_name=$matches[1]',
 	function test_author() {
+		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
+		// A post isn't needed for this test to pass.
+		// $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->go_to('/author/user-a/');
 		$this->assertQueryTrue('is_archive', 'is_author');
 	}
@@ -420,6 +452,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]',
 	function test_ymd_feed() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -437,12 +470,14 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
 	function test_ymd_paged() {
+		$this->factory->post->create_many( 10, array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/09/04/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_day', 'is_date', 'is_paged');
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]',
 	function test_ymd() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/09/04/');
 		$this->assertQueryTrue('is_archive', 'is_day', 'is_date');
 	}
@@ -450,6 +485,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// '([0-9]{4})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
 	// '([0-9]{4})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]',
 	function test_ym_feed() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -467,12 +503,14 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '([0-9]{4})/([0-9]{1,2})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]',
 	function test_ym_paged() {
+		$this->factory->post->create_many( 10, array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/09/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_date', 'is_month', 'is_paged');
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]',
 	function test_ym() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/09/');
 		$this->assertQueryTrue('is_archive', 'is_date', 'is_month');
 	}
@@ -480,6 +518,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// '([0-9]{4})/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
 	// '([0-9]{4})/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&feed=$matches[2]',
 	function test_y_feed() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		// check the long form
 		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
 		foreach ($types as $type) {
@@ -497,60 +536,54 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '([0-9]{4})/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&paged=$matches[2]',
 	function test_y_paged() {
+		$this->factory->post->create_many( 10, array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_date', 'is_year', 'is_paged');
 	}
 
 	// '([0-9]{4})/?$' => 'index.php?year=$matches[1]',
 	function test_y() {
+		$this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00' ) );
 		$this->go_to('/2007/');
 		$this->assertQueryTrue('is_archive', 'is_date', 'is_year');
 	}
 
-
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/trackback/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&tb=1',
 	function test_post_trackback() {
-		foreach ( $this->post_ids as $post_id ) {
-			$permalink = get_permalink( $post_id );
-			$this->go_to("{$permalink}trackback/");
-			$this->assertQueryTrue('is_single', 'is_singular', 'is_trackback');
-		}
+		$post_id = $this->factory->post->create();
+		$permalink = get_permalink( $post_id );
+		$this->go_to("{$permalink}trackback/");
+		$this->assertQueryTrue('is_single', 'is_singular', 'is_trackback');
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&feed=$matches[5]',
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&feed=$matches[5]',
 	function test_post_comment_feed() {
-		foreach ( $this->post_ids as $post_id ) {
-			$permalink = get_permalink( $post_id );
+		$post_id = $this->factory->post->create();
+		$permalink = get_permalink( $post_id );
 
-			$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
-			foreach ($types as $type) {
-					$this->go_to("{$permalink}feed/{$type}");
-					$this->assertQueryTrue('is_single', 'is_singular', 'is_feed', 'is_comment_feed');
-			}
-
-			// check the short form
-			$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
-			foreach ($types as $type) {
-					$this->go_to("{$permalink}{$type}");
-					$this->assertQueryTrue('is_single', 'is_singular', 'is_feed', 'is_comment_feed');
-			}
-
+		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
+		foreach ($types as $type) {
+				$this->go_to("{$permalink}feed/{$type}");
+				$this->assertQueryTrue('is_single', 'is_singular', 'is_feed', 'is_comment_feed');
 		}
-	}
 
-	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&paged=$matches[5]',
-	function test_post_paged_long() {
-		$this->markTestSkipped(); // @todo post doesn't exist in Data Set 1, plus /page/x isn't for single posts
-		// the long version
-		$this->go_to('/2007/09/04/a-post-with-multiple-pages/page/2/');
-		// should is_paged be true also?
-		$this->assertQueryTrue('is_single', 'is_singular');
+		// check the short form
+		$types = array('feed', 'rdf', 'rss', 'rss2', 'atom');
+		foreach ($types as $type) {
+				$this->go_to("{$permalink}{$type}");
+				$this->assertQueryTrue('is_single', 'is_singular', 'is_feed', 'is_comment_feed');
+		}
 	}
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)(/[0-9]+)?/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&page=$matches[5]',
 	function test_post_paged_short() {
-		$this->markTestSkipped(); // @todo post doesn't exist in Data Set 1
+		$this->factory->post->create( array(
+			'post_date' => '2007-09-04 00:00:00',
+			'post_title' => 'a-post-with-multiple-pages',
+			'post_content' => 'Page 1 <!--nextpage--> Page 2'
+		) );
+		// $this->markTestSkipped(); // @todo post doesn't exist in Data Set 1
 		// and the short version
 		$this->go_to('/2007/09/04/a-post-with-multiple-pages/2/');
 		// should is_paged be true also?
@@ -560,10 +593,10 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/?$' => 'index.php?attachment=$matches[1]',
 	function test_post_attachment() {
-		$this->markTestSkipped(); // @todo ID 8 is a page in Data Set 1
-		$permalink = get_attachment_link(8);
+		$post_id = $this->factory->post->create( array( 'post_type' => 'attachment' ) );
+		$permalink = get_attachment_link( $post_id );
 		$this->go_to($permalink);
-		$this->assertQueryTrue('is_attachment', 'is_singular');
+		$this->assertQueryTrue('is_single', 'is_attachment', 'is_singular');
 	}
 
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/([^/]+)/trackback/?$' => 'index.php?attachment=$matches[1]&tb=1',
