@@ -7,42 +7,91 @@
  *
  */
 
-class WP_Canonical extends _WPDataset2 {
+class WP_Test_Canonical extends WP_UnitTestCase {
 
 	// This can be defined in a subclass of this class which contains it's own data() method, those tests will be run against the specified permastruct
 	var $structure = '/%year%/%monthnum%/%day%/%postname%/';
 
-	function SetUp() {
-		parent::SetUp();
+	var $old_current_user;
+	var $author_id;
+	var $post_ids;
+	var $term_ids;
 
-		update_option('permalink_structure', $this->structure);
-		update_option('comments_per_page', 5);
+	function setUp() {
+		parent::setUp();
 
-		global $wp_rewrite;
-		$wp_rewrite->set_permalink_structure($this->structure);
+		update_option( 'comments_per_page', 5 );
+		update_option( 'posts_per_page', 5 );
+
+		update_option( 'permalink_structure', $this->structure );
 		create_initial_taxonomies();
+		$GLOBALS['wp_rewrite']->init();
+		flush_rewrite_rules();
 
-		$wp_rewrite->flush_rules();
+		$this->old_current_user = get_current_user_id();
+		$this->author_id = $this->factory->user->create( array( 'user_login' => 'canonical-author' ) );
+		wp_set_current_user( $this->author_id );
+
+		// Already created by install defaults:
+		// $this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'uncategorized' ) );
+		
+		$this->term_ids = array();
+
+		$this->factory->post->create( array( 'import_id' => 587, 'post_title' => 'post-format-test-audio', 'post_date' => '2008-06-02' ) );
+		$post_id = $this->factory->post->create( array( 'post_title' => 'post-format-test-gallery', 'post_date' => '2008-06-10' ) );
+		$this->factory->post->create( array( 'import_id' => 611, 'post_type' => 'attachment', 'post_title' => 'canola2', 'post_parent' => $post_id ) );
+
+		$this->factory->post->create( array(
+			'post_title' => 'images-test',
+			'post_date' => '2008-09-03',
+			'post_content' => 'Page 1 <!--nextpage--> Page 2 <!--nextpage--> Page 3'
+		) );
+
+		$post_id = $this->factory->post->create( array( 'import_id' => 149, 'post_title' => 'comment-test', 'post_date' => '2008-03-03' ) );
+		$this->factory->comment->create_post_comments( $post_id, 15 );
+
+		$this->factory->post->create( array( 'post_date' => '2008-09-05' ) );
+		
+		$this->factory->post->create( array( 'import_id' => 123 ) );
+		$this->factory->post->create( array( 'import_id' => 1 ) );
+		$this->factory->post->create( array( 'import_id' => 358 ) );
+		
+		$this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'sample-page' ) );
+		$this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$this->factory->post->create(
+			array( 'import_id' => 144, 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $post_id,
+		) );
+
+		$this->term_ids['/category/parent/'] = $this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'parent' ) );
+		$this->term_ids['/category/parent/child-1/'] = $this->factory->term->create( array(
+			'taxonomy' => 'category', 'name' => 'child-1', 'parent' => $this->term_ids['/category/parent/'],
+		) );
+		$this->term_ids['/category/parent/child-1/child-2/'] = $this->factory->term->create( array(
+			'taxonomy' => 'category', 'name' => 'child-2', 'parent' => $this->term_ids['/category/parent/child-1/'],
+		) );
+
+		$this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'cat-a' ) );
+		$this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'cat-b' ) );
+		
+		$this->factory->term->create( array( 'name' => 'post-formats' ) );
 	}
 
 	function tearDown() {
 		parent::tearDown();
+		wp_set_current_user( $this->old_current_user );
 
-		delete_option('permalink_structure');
-
-		global $wp_rewrite;
-		$wp_rewrite->set_permalink_structure('');
-		$wp_rewrite->flush_rules();
-
-		$_GET = array();
+		$GLOBALS['wp_rewrite']->init();
 	}
 
 	// URL's are relative to the site "front", ie. /category/uncategorized/ instead of http://site.../category..
 	// Return url's are full url's with the prepended home.
 	function get_canonical($test_url) {
-		$can_url = redirect_canonical( get_option('home') . $test_url, false);
-		if ( empty($can_url) )
-			return get_option('home') . $test_url; // No redirect will take place for this request
+		$test_url = home_url( $test_url );
+
+		$can_url = redirect_canonical( $test_url, false );
+		if ( ! $can_url )
+			return $test_url; // No redirect will take place for this request
 
 		return $can_url;
 	}
@@ -55,7 +104,7 @@ class WP_Canonical extends _WPDataset2 {
 			$this->knownWPBug($ticket);
 
 		$ticket_ref = ($ticket > 0) ? 'Ticket #' . $ticket : null;
-
+		
 		if ( is_string($expected) )
 			$expected = array('url' => $expected);
 		elseif ( is_array($expected) && !isset($expected['url']) && !isset($expected['qv']) )
@@ -64,7 +113,14 @@ class WP_Canonical extends _WPDataset2 {
 		if ( !isset($expected['url']) && !isset($expected['qv']) )
 			$this->markTestSkipped('No valid expected output was provided');
 
-		$this->http( get_option('home') . $test_url );
+		if ( false !== strpos( $test_url, '%d' ) ) {
+			if ( false !== strpos( $test_url, '/?author=%d' ) )
+				$test_url = sprintf( $test_url, $this->author_id );
+			if ( false !== strpos( $test_url, '?cat=%d' ) )
+				$test_url = sprintf( $test_url, $this->term_ids[ $expected['url'] ] );
+		}
+
+		$this->go_to( home_url( $test_url ) );
 
 		// Does the redirect match what's expected?
 		$can_url = $this->get_canonical( $test_url );
@@ -74,27 +130,26 @@ class WP_Canonical extends _WPDataset2 {
 		if ( isset($expected['url']) )
 			$this->assertEquals( $expected['url'], $parsed_can_url['path'] . (!empty($parsed_can_url['query']) ? '?' . $parsed_can_url['query'] : ''), $ticket_ref );
 
-		if ( isset($expected['qv']) ) {
+		if ( ! isset($expected['qv']) )
+			return;
 
-			// "make" that the request and check the query is correct
-			$this->http( $can_url );
+		// "make" that the request and check the query is correct
+		$this->go_to( $can_url );
 
-			// Are all query vars accounted for, And correct?
-			global $wp;
+		// Are all query vars accounted for, And correct?
+		global $wp;
 
-			$query_vars = array_diff($wp->query_vars, $wp->extra_query_vars);
-			if ( !empty($parsed_can_url['query']) ) {
-				parse_str($parsed_can_url['query'], $_qv);
+		$query_vars = array_diff($wp->query_vars, $wp->extra_query_vars);
+		if ( !empty($parsed_can_url['query']) ) {
+			parse_str($parsed_can_url['query'], $_qv);
 
-				// $_qv should not contain any elements which are set in $query_vars already (ie. $_GET vars should not be present in the Rewrite)
-				$this->assertEquals( array(), array_intersect( $query_vars, $_qv ), 'Query vars are duplicated from the Rewrite into $_GET; ' . $ticket_ref );
+			// $_qv should not contain any elements which are set in $query_vars already (ie. $_GET vars should not be present in the Rewrite)
+			$this->assertEquals( array(), array_intersect( $query_vars, $_qv ), 'Query vars are duplicated from the Rewrite into $_GET; ' . $ticket_ref );
 
-				$query_vars = array_merge($query_vars, $_qv);
-			}
+			$query_vars = array_merge($query_vars, $_qv);
+		}
 
-			$this->assertEquals( $expected['qv'], $query_vars );
-		} //isset $expected['qv']
-
+		$this->assertEquals( $expected['qv'], $query_vars );
 	}
 
 	function data() {
@@ -110,9 +165,10 @@ class WP_Canonical extends _WPDataset2 {
 		// Please Note: A few test cases are commented out below, Look at the test case following it, in most cases it's simple showing 2 options for the "proper" redirect.
 		return array(
 			// Categories
-			array( '?cat=32', '/category/parent/', 15256 ),
-			array( '?cat=50', '/category/parent/child-1/', 15256 ),
-			array( '?cat=51', '/category/parent/child-1/child-2/' ), // no children
+
+			array( '?cat=%d', '/category/parent/', 15256 ),
+			array( '?cat=%d', '/category/parent/child-1/', 15256 ),
+			array( '?cat=%d', '/category/parent/child-1/child-2/' ), // no children
 			array( '/category/uncategorized/', array( 'url' => '/category/uncategorized/', 'qv' => array( 'category_name' => 'uncategorized' ) ) ),
 			array( '/category/uncategorized/page/2/', array( 'url' => '/category/uncategorized/page/2/', 'qv' => array( 'category_name' => 'uncategorized', 'paged' => 2) ) ),
 			array( '/category/uncategorized/?paged=2', array( 'url' => '/category/uncategorized/page/2/', 'qv' => array( 'category_name' => 'uncategorized', 'paged' => 2) ) ),
@@ -183,11 +239,11 @@ class WP_Canonical extends _WPDataset2 {
 			array( '/?year=2008', '/2008/'),
 
 			// Authors
-			array( '/?author=3', '/author/chip-bennett/' ),
-//			array( '/?author=3&year=2008', '/2008/?author=3'),
-			array( '/?author=3&year=2008', '/author/chip-bennett/?year=2008', 17661 ),
-//			array( '/author/chip-bennett/?year=2008', '/2008/?author=3'), //Either or, see previous testcase.
-			array( '/author/chip-bennett/?year=2008', '/author/chip-bennett/?year=2008', 17661 ),
+			array( '/?author=%d', '/author/canonical-author/' ),
+//			array( '/?author=%d&year=2008', '/2008/?author=3'),
+			array( '/?author=%d&year=2008', '/author/canonical-author/?year=2008', 17661 ),
+//			array( '/author/canonical-author/?year=2008', '/2008/?author=3'), //Either or, see previous testcase.
+			array( '/author/canonical-author/?year=2008', '/author/canonical-author/?year=2008', 17661 ),
 
 			// Feeds
 			array( '/?feed=atom', '/feed/atom/' ),
@@ -212,40 +268,19 @@ class WP_Canonical extends _WPDataset2 {
 			array( '//2008////', '/2008/' ),
 
 			// Todo: Endpoints (feeds, trackbacks, etc), More fuzzed mixed query variables, comment paging, Home page (Static)
-
 		);
 	}
 }
 
-class WP_Canonical_PageOnFront extends WP_Canonical {
-	var $special_pages = array();
-
-	function SetUp() {
+class WP_Canonical_PageOnFront extends WP_Test_Canonical {
+	function setUp() {
+		parent::setUp();
 		global $wp_rewrite;
-		parent::SetUp();
-		$this->special_pages['blog' ] = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'blog-page'  ) );
-		$this->special_pages['front'] = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'front-page' ) );
 		update_option( 'show_on_front', 'page' );
-		update_option( 'page_for_posts', $this->special_pages['blog'] );
-		update_option( 'page_on_front', $this->special_pages['front'] );
-		$wp_rewrite->flush_rules();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-		update_option( 'show_on_front', 'posts' );
-		
-		delete_option( 'page_for_posts' );
-		delete_option( 'page_on_front' );
-		delete_option( 'permalink_structure' );
-
-		foreach ( $this->special_pages as $p )
-			wp_delete_post( $p );
-		global $wp_rewrite;
-		$wp_rewrite->set_permalink_structure('');
-		$wp_rewrite->flush_rules();
-
-		$_GET = array();
+		update_option( 'page_for_posts', $this->factory->post->create( array( 'post_title' => 'blog-page', 'post_type' => 'page' ) ) );
+		update_option( 'page_on_front', $this->factory->post->create( array( 'post_title' => 'front-page', 'post_type' => 'page' ) ) );
+		$wp_rewrite->init();
+		flush_rewrite_rules();
 	}
 
 	function data() {
@@ -258,8 +293,8 @@ class WP_Canonical_PageOnFront extends WP_Canonical {
 		 * [3]: (optional) The ticket the test refers to, Can be skipped if unknown.
 		 */
 		 return array(
-			 // Check against an odd redirect: #20385
-			 array( '/page/2/', '/page/2/' ),
+			 // Check against an odd redirect
+			 array( '/page/2/', '/page/2/', 20385 ),
 			 // The page designated as the front page should redirect to the front of the site
 			 array( '/front-page/', '/' ),
 			 array( '/blog-page/?paged=2', '/blog-page/page/2/' ),
@@ -267,10 +302,10 @@ class WP_Canonical_PageOnFront extends WP_Canonical {
 	}
 }
 
-class WP_Canonical_CustomRules extends WP_Canonical {
-	function SetUp() {
+class WP_Canonical_CustomRules extends WP_Test_Canonical {
+	function setUp() {
+		parent::setUp();
 		global $wp_rewrite;
-		parent::SetUp();
 		// Add a custom Rewrite rule to test category redirections.
 		$wp_rewrite->add_rule('ccr/(.+?)/sort/(asc|desc)', 'index.php?category_name=$matches[1]&order=$matches[2]', 'top'); // ccr = Custom_Cat_Rule
 		$wp_rewrite->flush_rules();
@@ -294,7 +329,7 @@ class WP_Canonical_CustomRules extends WP_Canonical {
 	}
 }
 
-class WP_Canonical_NoRewrite extends WP_Canonical {
+class WP_Canonical_NoRewrite extends WP_Test_Canonical {
 
 	var $structure = '';
 
