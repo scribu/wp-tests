@@ -13,7 +13,7 @@ class TestFunctions extends WP_UnitTestCase {
 	function test_wp_parse_args_array()  {
 		// arrays
 		$a = array();
-		$this->assertEquals(array(), wp_parse_args($x));
+		$this->assertEquals(array(), wp_parse_args($a));
 		$b = array('_baba' => 5, 'yZ' => 'baba', 'a' => array(5, 111, 'x'));
 		$this->assertEquals(array('_baba' => 5, 'yZ' => 'baba', 'a' => array(5, 111, 'x')), wp_parse_args($b));
 	}
