@@ -27,7 +27,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
 		$this->page_ids[] = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'about', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
-		$post_ids = $this->factory->post->create_many( 15, array( 'post_date' => '2007-09-04', 'post_content' => 'This content includes "test"', 'post_author' => $user_id ) );
+		$post_ids = $this->factory->post->create_many( 15, array( 'post_date' => '2007-09-04 00:00:00', 'post_content' => 'This content includes "test"', 'post_author' => $user_id ) );
 		foreach ( $post_ids as $post_id ) {
 			$this->factory->comment->create_post_comments( $post_id, 2 );
 			$this->factory->term->add_post_terms( $post_id, 'tag-a', 'post_tag' );
@@ -35,7 +35,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		$this->post_ids = array_merge( $this->post_ids, $post_ids );
 
 		$this->factory->post->create( array( 'import_id' => 8, 'post_type' => 'attachment' ) );
-		$this->post_ids[] = $this->factory->post->create( array( 'post_date' => '2007-09-04', 'post_title' => 'a-post-with-multiple-pages', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
+		$this->post_ids[] = $this->factory->post->create( array( 'post_date' => '2007-09-04 00:00:00', 'post_title' => 'a-post-with-multiple-pages', 'post_content' => 'Page 1 <!--nextpage--> Page 2' ) );
 
 		$this->post_ids[] = $post_id = $this->factory->post->create();
 		$cat_id = $this->factory->term->create( array( 'name' => 'cat-a', 'taxonomy' => 'category' ) );
