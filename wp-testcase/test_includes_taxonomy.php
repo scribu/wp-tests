@@ -373,6 +373,7 @@ class TestTermAPI extends WP_UnitTestCase {
 
 		$a_term = get_term( $a['term_id'], $this->taxonomy );
 		$b_term = get_term( $b['term_id'], $this->taxonomy );
+		$c_term = get_term( $c['term_id'], $this->taxonomy );
 		$d_term = get_term( $d['term_id'], $this->taxonomy );
 
 		// a unique slug gets unchanged
