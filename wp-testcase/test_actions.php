@@ -240,7 +240,9 @@ class WPTestActions extends WP_UnitTestCase {
 	}
 
 	function test_action_closure() {
-		$this->checkAtLeastPHPVersion('5.3');
+		if ( version_compare( PHP_VERSION, '5.3', '<' ) )
+			$this->markTestSkipped( 'Closures are a PHP 5.3 feature.' );
+
 		$this->knownWPBug(10493);
 
 		$tag = rand_str();

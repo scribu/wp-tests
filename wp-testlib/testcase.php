@@ -75,12 +75,6 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( preg_replace( '/\s*/', '', $expected ), preg_replace( '/\s*/', '', $actual ) );
 	}
 
-	function checkAtLeastPHPVersion( $version ) {
-		if ( version_compare( PHP_VERSION, $version, '<' ) ) {
-			$this->markTestSkipped();
-		}
-	}
-
 	function go_to( $url ) {
 		// note: the WP and WP_Query classes like to silently fetch parameters
 		// from all over the place (globals, GET, etc), which makes it tricky
@@ -143,19 +137,10 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Skips the current test if there is open WordPress MU ticket with id $ticket_id
-	 */
-	function knownMUBug( $ticket_id ) {
-		if ( ! TracTickets::isTracTicketClosed ( 'http://trac.mu.wordpress.org', $ticket_id ) ) {
-			$this->markTestSkipped( sprintf( 'WordPress MU Ticket #%d is not fixed', $ticket_id ) );
-		}
-	}
-
-	/**
 	 * Skips the current test if there is open plugin ticket with id $ticket_id
 	 */
 	function knownPluginBug( $ticket_id ) {
-		if ( ! TracTickets::isTracTicketClosed( 'http://dev.wp-plugins.org', $ticket_id ) ) {
+		if ( ! TracTickets::isTracTicketClosed( 'http://plugins.trac.wordpress.org', $ticket_id ) ) {
 			$this->markTestSkipped( sprintf( 'WordPress Plugin Ticket #%d is not fixed', $ticket_id ) );
 		}
 	}
