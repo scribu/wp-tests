@@ -37,20 +37,20 @@ class WP_Test_Canonical extends WP_UnitTestCase {
 		
 		$this->term_ids = array();
 
-		$this->factory->post->create( array( 'import_id' => 587, 'post_title' => 'post-format-test-audio', 'post_date' => '2008-06-02' ) );
-		$post_id = $this->factory->post->create( array( 'post_title' => 'post-format-test-gallery', 'post_date' => '2008-06-10' ) );
+		$this->factory->post->create( array( 'import_id' => 587, 'post_title' => 'post-format-test-audio', 'post_date' => '2008-06-02 00:00:00' ) );
+		$post_id = $this->factory->post->create( array( 'post_title' => 'post-format-test-gallery', 'post_date' => '2008-06-10 00:00:00' ) );
 		$this->factory->post->create( array( 'import_id' => 611, 'post_type' => 'attachment', 'post_title' => 'canola2', 'post_parent' => $post_id ) );
 
 		$this->factory->post->create( array(
 			'post_title' => 'images-test',
-			'post_date' => '2008-09-03',
+			'post_date' => '2008-09-03 00:00:00',
 			'post_content' => 'Page 1 <!--nextpage--> Page 2 <!--nextpage--> Page 3'
 		) );
 
-		$post_id = $this->factory->post->create( array( 'import_id' => 149, 'post_title' => 'comment-test', 'post_date' => '2008-03-03' ) );
+		$post_id = $this->factory->post->create( array( 'import_id' => 149, 'post_title' => 'comment-test', 'post_date' => '2008-03-03 00:00:00' ) );
 		$this->factory->comment->create_post_comments( $post_id, 15 );
 
-		$this->factory->post->create( array( 'post_date' => '2008-09-05' ) );
+		$this->factory->post->create( array( 'post_date' => '2008-09-05 00:00:00' ) );
 		
 		$this->factory->post->create( array( 'import_id' => 123 ) );
 		$this->factory->post->create( array( 'import_id' => 1 ) );
