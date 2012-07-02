@@ -7,7 +7,6 @@
         <!-- Default test suite to run all tests -->
         <testsuite>
             <directory suffix=".php">wp-testcase</directory>
-            <exclude>/Users/nacin/Sites/unit-tests-svn/trunk/wp-testcase/test_query_results.php</exclude>
         </testsuite>
     </testsuites>
 </phpunit>
