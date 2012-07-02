@@ -43,7 +43,7 @@ class WPTestScreen extends WP_UnitTestCase {
 			$screen = (object) $screen;
 			$hook = parse_url( $hook_name );
 
-			if ( $hook['query'] ) {
+			if ( ! empty( $hook['query'] ) ) {
 				$args = wp_parse_args( $hook['query'] );
 				if ( isset( $args['taxonomy'] ) )
 					$GLOBALS['taxnow'] = $_GET['taxonomy'] = $_POST['taxonomy'] = $_REQUEST['taxonomy'] = $args['taxonomy'];
@@ -72,7 +72,7 @@ class WPTestScreen extends WP_UnitTestCase {
 
 			// With convert_to_screen(), the hook_suffix should return the exact $current_screen.
 			// But, convert_to_screen() cannot figure out ?taxonomy and ?post_type.
-			if ( ! $hook['query'] )
+			if ( empty( $hook['query'] ) )
 				$this->assertSame( $current_screen, convert_to_screen( $GLOBALS['hook_suffix'] ), $hook_name );
 		}
 	}
