@@ -4,7 +4,7 @@
  */
 class TestShortcode extends WP_UnitTestCase {
 
-	protected $shortcodes = array( 'footag', 'bartag', 'baztag', 'dumptag', 'paragraph' );
+	protected $shortcodes = array( 'footag', 'bartag', 'baztag', 'dumptag' );
 
 	function setUp() {
 		parent::setUp();
@@ -52,14 +52,6 @@ class TestShortcode extends WP_UnitTestCase {
 		foreach ($atts as $k=>$v)
 			$out .= "$k = $v\n";
 		return $out;
-	}
-
-	// testing p-wrapping of shortcode output
-	function _shortcode_paragraph( $atts ) {
-		extract(shortcode_atts(array(
-			'class' => 'graf',
-		), $atts));
-		return "<p class='$class'>$content</p>\n";
 	}
 
 	function _shortcode_tag($atts, $content=NULL, $tagname=NULL) {
