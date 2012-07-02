@@ -30,7 +30,7 @@ abstract class WP_Import_UnitTestCase extends WP_UnitTestCase {
 		assert('!empty($file)');
 		assert('is_file($file)');
 
-		$authors = $mapping = array();
+		$authors = $mapping = $new = array();
 		$i = 0;
 
 		// each user is either mapped to a given ID, mapped to a new user
@@ -232,7 +232,7 @@ class WXRParserTest extends WP_Import_UnitTestCase {
 		$result = $parser->parse( $file );
 
 		$post = $result['posts'][0];
-		$this->assertEquals( 'Content with nested <![CDATA[ tags ]]> :)', $post['post_content'], $message );
+		$this->assertEquals( 'Content with nested <![CDATA[ tags ]]> :)', $post['post_content'] );
 		foreach ( $post['postmeta'] as $meta ) {
 			switch ( $meta['key'] ) {
 				case 'Plain string': $value = 'Foo'; break;
@@ -240,7 +240,7 @@ class WXRParserTest extends WP_Import_UnitTestCase {
 				case 'Alot of CDATA': $value = 'This has <![CDATA[ opening and ]]> closing <![CDATA[ tags like this: ]]>'; break;
 				default: $this->fail( 'Unknown postmeta (' . $meta['key'] . ') was parsed out by' . $p );
 			}
-			$this->assertEquals( $value, $meta['value'], $message );
+			$this->assertEquals( $value, $meta['value'] );
 		}
 	}
 
@@ -489,14 +489,14 @@ class TestImportWP_PostMeta extends WP_Import_UnitTestCase {
 	}
 
 	function test_serialized_postmeta_no_cdata() {
-		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-no-cdata.xml', array( 'johncoswell' => false ) );
+		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-no-cdata.xml', array( 'johncoswell' => 'john' ) );
 		$expected['special_post_title'] = 'A special title';
 		$expected['is_calendar'] = '';
 		$this->assertEquals( $expected, get_post_meta( 122, 'post-options', true ) );
 	}
 
 	function test_utw_postmeta() {
-		$this->_import_wp( DIR_TESTDATA . '/export/test-utw-post-meta-import.xml', array( 'johncoswell' => false ) );
+		$this->_import_wp( DIR_TESTDATA . '/export/test-utw-post-meta-import.xml', array( 'johncoswell' => 'john' ) );
 
 		$classy = new StdClass();
 		$classy->tag =  "album";
@@ -560,7 +560,7 @@ class TestImportWP_PostMetaCDATA extends WP_Import_UnitTestCase {
 
 	// #9633
 	function test_serialized_postmeta_with_cdata() {
-		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-with-cdata.xml', array( 'johncoswell' => false ) );
+		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-with-cdata.xml', array( 'johncoswell' => 'johncoswell' ) );
 
 		//HTML in the CDATA should work with old WordPress version
 		$this->assertEquals( '<pre>some html</pre>', get_post_meta( 10, 'contains-html', true ) );
@@ -572,7 +572,7 @@ class TestImportWP_PostMetaCDATA extends WP_Import_UnitTestCase {
 
 	// #11574
 	function test_serialized_postmeta_with_evil_stuff_in_cdata() {
-		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-with-cdata.xml', array( 'johncoswell' => false ) );
+		$this->_import_wp( DIR_TESTDATA . '/export/test-serialized-postmeta-with-cdata.xml', array( 'johncoswell' => 'johncoswell' ) );
 		// evil content in the CDATA
 		$this->assertEquals( '<wp:meta_value>evil</wp:meta_value>', get_post_meta( 10, 'evil', true ) );
 	}
