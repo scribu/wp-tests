@@ -5,6 +5,7 @@ class WP_UnitTest_Factory {
 		$this->post = new WP_UnitTest_Factory_For_Post( $this );
 		$this->comment = new WP_UnitTest_Factory_For_Comment( $this );
 		$this->user = new WP_UnitTest_Factory_For_User( $this );
+		$this->term = new WP_UnitTest_Factory_For_Term( $this );
 		if ( is_multisite() )
 			$this->blog = new WP_UnitTest_Factory_For_Blog( $this );
 	}
@@ -100,6 +101,35 @@ class WP_UnitTest_Factory_For_Blog extends WP_UnitTest_Factory_For_Thing {
 	}
 
 	function update_object( $blog_id, $fields ) {}
+}
+
+
+class WP_UnitTest_Factory_For_Term extends WP_UnitTest_Factory_For_Thing {
+
+	function __construct( $factory = null ) {
+		parent::__construct( $factory );
+		$this->default_generation_definitions = array(
+			'name' => new WP_UnitTest_Generator_Sequence( 'Term %s' ),
+			'taxonomy' => 'post_tag',
+			'description' => new WP_UnitTest_Generator_Sequence( 'Term description %s' ),
+		);
+	}
+
+	function create_object( $args ) {
+		$term_id_pair = wp_insert_term( $args['name'], $args['taxonomy'], $args );
+		return $term_id_pair['term_id'];
+	}
+
+	function update_object( $term, $fields ) {
+		if ( is_object( $term ) )
+			$taxonomy = $term->taxonomy;
+		elseif ( isset( $fields['taxonomy'] ) )
+			$taxonomy = $fields['taxonomy'];
+		else
+			$taxonomy = 'post_tag';
+		$term_id_pair = wp_update_term( $term, $taxonomy, $fields );
+		return $term_id_pair['term_id'];
+	}
 }
 
 abstract class WP_UnitTest_Factory_For_Thing {
