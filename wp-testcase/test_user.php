@@ -216,7 +216,7 @@ class TestWPUser extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 19265
+	 * ticket 19265
 	 */
 	function test_user_level_property_back_compat() {
 		$roles = array(
@@ -380,7 +380,7 @@ class TestWPUser extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 19595
+	 * ticket 19595
 	 */
 	function test_global_userdata() {
 		global $userdata, $wpdb;
@@ -397,7 +397,7 @@ class TestWPUser extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 19769
+	 * ticket 19769
 	 */
 	function test_global_userdata_is_null_when_logged_out() {
 		global $userdata;

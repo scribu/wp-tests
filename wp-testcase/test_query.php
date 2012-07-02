@@ -32,11 +32,6 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		$GLOBALS['wp_rewrite']->init();
 	}
 
-	function _all_post_ids( $type='post' ) {
-		global $wpdb;
-		return $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s and post_status='publish'", $type ) );
-	}
-
 	/**
 	 * Check each of the WP_Query is_* functions/properties against expected boolean value.
 	 *
@@ -99,8 +94,14 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	function test_post_comments_feed() {
 		$post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
-		// Comments aren't needed for this test to pass.
-		// $this->factory->comment->create_post_comments( $post_id, 2 );
+		$this->factory->comment->create_post_comments( $post_id, 2 );
+		$this->go_to( get_post_comments_feed_link( $post_id ) );
+		$this->assertQueryTrue('is_feed', 'is_single', 'is_singular', 'is_comment_feed');
+	}
+
+
+	function test_post_comments_feed_with_no_comments() {
+		$post_id = $this->factory->post->create( array( 'post_title' => 'hello-world' ) );
 		$this->go_to( get_post_comments_feed_link( $post_id ) );
 		$this->assertQueryTrue('is_feed', 'is_single', 'is_singular', 'is_comment_feed');
 	}
@@ -161,9 +162,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
 		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
 		foreach ( $page_ids as $page_id ) {
-			// Comments aren't needed for this test to pass.
-			// $this->factory->comment->create_post_comments( $page_id, 2 );
-
+			$this->factory->comment->create_post_comments( $page_id, 2 );
 			$url = get_permalink( $page_id );
 			$this->go_to("{$url}feed/");
 
@@ -174,7 +173,24 @@ class TestWPQueryVars extends WP_UnitTestCase {
 			global $wp_query;
 			$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
 		}
+	}
 
+	function test_page_feed_with_no_comments() {
+		$page_ids = array();
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'parent-page' ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
+		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
+		foreach ( $page_ids as $page_id ) {
+			$url = get_permalink( $page_id );
+			$this->go_to("{$url}feed/");
+
+			// make sure the correct wp_query flags are set
+			$this->assertQueryTrue('is_page', 'is_singular', 'is_feed', 'is_comment_feed');
+
+			// make sure the correct page was fetched
+			global $wp_query;
+			$this->assertEquals( $page_id, $wp_query->get_queried_object()->ID );
+		}
 	}
 
 	// '(about)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?pagename=$matches[1]&feed=$matches[2]'
@@ -184,8 +200,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-1', 'post_parent' => $page_id ) );
 		$page_ids[] = $page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'child-page-2', 'post_parent' => $page_id ) );
 		foreach ( $page_ids as $page_id ) {
-			// Comments aren't needed for this test to pass.
-			// $this->factory->comment->create_post_comments( $page_id, 2 );
+			$this->factory->comment->create_post_comments( $page_id, 2 );
 
 			$url = get_permalink( $page_id );
 			$this->go_to("{$url}feed/atom/");
@@ -343,7 +358,7 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	}
 
 	function test_search_encoded_chars() {
-		// $this->knownWPBug(13961);
+		$this->knownWPBug(13961);
 		$this->go_to('/search/F%C3%BCnf%2Bbar/');
 		$this->assertEquals( get_query_var( 's' ), 'Fünf+bar' );
 	}
@@ -405,7 +420,6 @@ class TestWPQueryVars extends WP_UnitTestCase {
 		$post_ids = $this->factory->post->create_many( 10 );
 		foreach ( $post_ids as $post_id )
 			$this->factory->term->add_post_terms( $post_id, 'tag-a', 'post_tag' );
-		// $this->markTestSkipped(); // tag-a doesn't have enough posts -> 404
 		$this->go_to('/tag/tag-a/page/2/');
 		$this->assertQueryTrue('is_archive', 'is_tag', 'is_paged');
 	}
@@ -447,8 +461,13 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// 'author/([^/]+)/?$' => 'index.php?author_name=$matches[1]',
 	function test_author() {
 		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
-		// A post isn't needed for this test to pass.
-		// $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$this->factory->post->create( array( 'post_author' => $user_id ) );
+		$this->go_to('/author/user-a/');
+		$this->assertQueryTrue('is_archive', 'is_author');
+	}
+
+	function test_author_with_no_posts() {
+		$user_id = $this->factory->user->create( array( 'user_login' => 'user-a' ) );
 		$this->go_to('/author/user-a/');
 		$this->assertQueryTrue('is_archive', 'is_author');
 	}
@@ -587,8 +606,6 @@ class TestWPQueryVars extends WP_UnitTestCase {
 			'post_title' => 'a-post-with-multiple-pages',
 			'post_content' => 'Page 1 <!--nextpage--> Page 2'
 		) );
-		// $this->markTestSkipped(); // @todo post doesn't exist in Data Set 1
-		// and the short version
 		$this->go_to('/2007/09/04/a-post-with-multiple-pages/2/');
 		// should is_paged be true also?
 		$this->assertQueryTrue('is_single', 'is_singular');

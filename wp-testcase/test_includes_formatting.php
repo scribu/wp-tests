@@ -314,7 +314,7 @@ class TestMakeClickable extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @ticket 16892
+	 * ticket 16892
 	 */
 	function test_no_segfault() {
 		if ( version_compare( $GLOBALS['wp_version'], '3.1.1', '<' ) )
