@@ -1,10 +1,14 @@
 <?php
 
-// test the is_*() functions in query.php across the URL structure
-
-// this exercises both query.php and rewrite.php: urls are fed through the rewrite code,
-// then we test the effects of each url on the wp_query object.
-
+/**
+ * Test the is_*() functions in query.php across the URL structure
+ *
+ * This exercises both query.php and rewrite.php: urls are fed through the rewrite code,
+ * then we test the effects of each url on the wp_query object.
+ *
+ * @group query
+ * @group rewrite
+ */
 class TestWPQueryVars extends WP_UnitTestCase {
 
 	protected $page_ids;
@@ -608,6 +612,10 @@ class TestWPQueryVars extends WP_UnitTestCase {
 	// '[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}/[^/]+/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?attachment=$matches[1]&feed=$matches[2]',
 }
 
+/**
+ * @group query
+ * @group rewrite
+ */
 class TestWPQueryVerbosePageRules extends TestWPQueryVars {
 	function setUp() {
 		parent::setUp();
