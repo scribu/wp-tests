@@ -130,6 +130,10 @@ class WP_UnitTest_Factory_For_Term extends WP_UnitTest_Factory_For_Thing {
 		$term_id_pair = wp_update_term( $term, $taxonomy, $fields );
 		return $term_id_pair['term_id'];
 	}
+
+	function add_post_terms( $post_id, $terms, $taxonomy, $append = true ) {
+		return wp_set_post_terms( $post_id, $terms, $taxonomy, $append );
+	}
 }
 
 abstract class WP_UnitTest_Factory_For_Thing {
