@@ -75,7 +75,6 @@ abstract class WP_Ajax_UnitTestCase extends WP_UnitTestCase {
 
 		// Make some posts
 		$this->factory->post->create_many( 5 );
-		$this->factory->comment->create( 5 );
 	}
 	
 	/**
