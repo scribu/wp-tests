@@ -51,22 +51,17 @@ abstract class WP_Ajax_UnitTestCase extends WP_UnitTestCase {
 	);
 
 	/**
-	 * Constructor.
-	 * Register all of the ajax actions
-	 */
-	public function __construct() {
-		parent::__construct();
-		foreach ( array_merge( $this->_core_actions_get, $this->_core_actions_post ) as $action )
-			if ( function_exists( 'wp_ajax_' . str_replace( '-', '_', $action ) ) )
-				add_action( 'wp_ajax_' . $action, 'wp_ajax_' . str_replace( '-', '_', $action ), 1 );
-	}
-
-	/**
 	 * Set up the test fixture.
 	 * Override wp_die(), pretend to be ajax, and suppres E_WARNINGs
 	 */
 	public function setUp() {
 		parent::setUp();
+
+		// Register the core actions
+		foreach ( array_merge( $this->_core_actions_get, $this->_core_actions_post ) as $action )
+			if ( function_exists( 'wp_ajax_' . str_replace( '-', '_', $action ) ) )
+				add_action( 'wp_ajax_' . $action, 'wp_ajax_' . str_replace( '-', '_', $action ), 1 );
+
 		add_filter( 'wp_die_ajax_handler', array( $this, 'getDieHandler' ), 1, 1 );
 		if ( !defined( 'DOING_AJAX' ) )
 			define( 'DOING_AJAX', true );

@@ -12,6 +12,7 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @subpackage UnitTests
  * @since      3.4.0
  * @group      ajax
+ * @runTestsInSeparateProcesses
  */
 class TestAjaxCompressionTest extends WP_Ajax_UnitTestCase {
 	

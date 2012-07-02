@@ -12,6 +12,7 @@ include_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
  * @subpackage UnitTests
  * @since      3.4.0
  * @group      ajax
+ * @runTestsInSeparateProcesses
  */
 class TestAjaxSaveDraft extends WP_Ajax_UnitTestCase {
 
@@ -20,7 +21,6 @@ class TestAjaxSaveDraft extends WP_Ajax_UnitTestCase {
 	 * @var mixed
 	 */
 	protected $_post = null;
-	
 	
 	/**
 	 * Set up the test fixture
