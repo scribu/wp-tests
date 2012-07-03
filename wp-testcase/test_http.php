@@ -15,7 +15,8 @@
  * @group http
  */
 abstract class WP_HTTP_UnitTestCase extends WP_UnitTestCase {
-	var $redirection_script = 'http://tools.dd32.id.au/redirect/'; // You can use your own version here, You can find it in wp-testdata/WPHTTP-testcase-redirection-script.php
+	// You can use your own version of wp-testdata/WPHTTP-testcase-redirection-script.php here.
+	var $redirection_script = 'http://api.wordpress.org/core/tests/1.0/redirection.php';
 
 	function setUp() {
 
