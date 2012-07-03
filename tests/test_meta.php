@@ -1,6 +1,10 @@
 <?php
 
-// just make sure the test framework is working
+/**
+ * just make sure the test framework is working
+ *
+ * @group testsuite
+ */
 class WPTestMeta extends WP_UnitTestCase {
 	var $val;
 
@@ -41,7 +45,11 @@ class WPTestMeta extends WP_UnitTestCase {
 
 }
 
-// test helper utility functions
+/**
+ * test helper utility functions
+ *
+ * @group testsuite
+ */
 class WPTestUtils extends WP_UnitTestCase {
 
 	function test_strip_ws() {

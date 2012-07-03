@@ -4,7 +4,7 @@
 // these tests don't care what code is responsible for filtering or how it is called, just that it happens when a post is saved.
 
 /**
- * @group posts
+ * @group post
  */
 class TestPostFiltering extends WP_UnitTestCase {
 	function setUp() {

@@ -1,10 +1,13 @@
 <?php
 
-// test the RSS 2.0 feed by generating a feed, parsing it, and checking that the
-// parsed contents match the contents of the posts stored in the database.  Since
-// we're using a real XML parser, this confirms that the feed is valid, well formed,
-// and contains the right stuff.
-
+/**
+ * test the RSS 2.0 feed by generating a feed, parsing it, and checking that the
+ * parsed contents match the contents of the posts stored in the database.  Since
+ * we're using a real XML parser, this confirms that the feed is valid, well formed,
+ * and contains the right stuff.
+ *
+ * @group feed
+ */
 class TestFeedRss2 extends WP_UnitTestCase {
 
 	function setUp() {

@@ -1,12 +1,13 @@
 <?php
-
-/*
+/**
  * Tests Canonical redirections.
  *
  * In the process of doing so, it also tests WP, WP_Rewrite and WP_Query, A fail here may show a bug in any one of these areas.
  *
+ * @group canonical
+ * @group rewrite
+ * @group query
  */
-
 class WP_Test_Canonical extends WP_UnitTestCase {
 
 	// This can be defined in a subclass of this class which contains it's own data() method, those tests will be run against the specified permastruct
@@ -272,6 +273,11 @@ class WP_Test_Canonical extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group canonical
+ * @group rewrite
+ * @group query
+ */
 class WP_Canonical_PageOnFront extends WP_Test_Canonical {
 	function setUp() {
 		parent::setUp();
@@ -302,6 +308,11 @@ class WP_Canonical_PageOnFront extends WP_Test_Canonical {
 	}
 }
 
+/**
+ * @group canonical
+ * @group rewrite
+ * @group query
+ */
 class WP_Canonical_CustomRules extends WP_Test_Canonical {
 	function setUp() {
 		parent::setUp();
@@ -329,6 +340,11 @@ class WP_Canonical_CustomRules extends WP_Test_Canonical {
 	}
 }
 
+/**
+ * @group canonical
+ * @group rewrite
+ * @group query
+ */
 class WP_Canonical_NoRewrite extends WP_Test_Canonical {
 
 	var $structure = '';

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @group image
+ * @group media
+ * @group upload
+ */
 class TestImageMetaFunctions extends WP_UnitTestCase {
 	function setUp() {
 		if ( ! extension_loaded( 'gd' ) )
@@ -131,6 +136,11 @@ class TestImageMetaFunctions extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group image
+ * @group media
+ * @group upload
+ */
 class TestImageSizeFunctions extends WP_UnitTestCase {
 	function test_constrain_dims_zero() {
 		if (!is_callable('wp_constrain_dimensions'))
@@ -323,6 +333,11 @@ class TestImageSizeFunctions extends WP_UnitTestCase {
 
 }
 
+/**
+ * @group image
+ * @group media
+ * @group upload
+ */
 class TestImageResizeDimensions extends WP_UnitTestCase {
 	function test_400x400_no_crop() {
 		// landscape: resize 640x480 to fit 400x400: 400x300
@@ -448,6 +463,11 @@ class TestImageResizeDimensions extends WP_UnitTestCase {
 
 }
 
+/**
+ * @group image
+ * @group media
+ * @group upload
+ */
 class TestImageResize extends WP_UnitTestCase {
 	// image_resize( $file, $max_w, $max_h, $crop=false, $suffix=null, $dest_path=null, $jpeg_quality=75)
 
@@ -568,6 +588,11 @@ class TestImageResize extends WP_UnitTestCase {
 
 }
 
+/**
+ * @group image
+ * @group media
+ * @group upload
+ */
 class TestIsImageFunctions extends WP_UnitTestCase {
 	function test_is_image_positive() {
 		// these are all image files recognized by php

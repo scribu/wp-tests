@@ -1,7 +1,10 @@
 <?php
 
-// test wp-includes/post.php
-
+/**
+ * test wp-includes/post.php
+ *
+ * @group post
+ */
 class WPTestIncludesPost extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
@@ -466,6 +469,11 @@ class WPTestIncludesPost extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group post
+ * @group media
+ * @group upload
+ */
 class WPTestAttachments extends WP_UnitTestCase {
 
 	function tearDown() {
@@ -665,6 +673,10 @@ class WPTestAttachments extends WP_UnitTestCase {
 
 }
 
+/**
+ * @group post
+ * @group meta
+ */
 class WPTestPostMeta extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
@@ -905,6 +917,9 @@ class WPTestPostMeta extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group post
+ */
 class WPTestPostTypes extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();

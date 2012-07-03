@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group functions.php
+ */
 class TestFunctions extends WP_UnitTestCase {
 	function test_wp_parse_args_object() {
 		$x = new MockClass;
@@ -241,7 +244,9 @@ class TestFunctions extends WP_UnitTestCase {
 }
 
 /**
- * Test wp_filter_object_list(), wp_list_filter(), wp_list_pluck()
+ * Test wp_filter_object_list(), wp_list_filter(), wp_list_pluck().
+ *
+ * @group functions.php
  */
 class TestListFilter extends WP_UnitTestCase {
 	var $object_list = array();
@@ -425,6 +430,10 @@ class TestHTTPFunctions extends WP_UnitTestCase {
 	}
 }
 
+/**
+ * @group themes
+ * @group plugins
+ */
 class Test_WP_File_Headers extends WP_UnitTestCase {
 	function test_get_file_data() {
 		$theme_headers = array(

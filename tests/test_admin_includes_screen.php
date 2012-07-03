@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group admin
+ */
 class WPTestScreen extends WP_UnitTestCase {
 	var $core_screens = array(
 		'index.php' => array( 'base' => 'dashboard', 'id' => 'dashboard' ),

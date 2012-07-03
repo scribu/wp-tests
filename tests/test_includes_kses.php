@@ -1,8 +1,10 @@
 <?php
-/*
+/**
  * Some simple test cases for KSES post content filtering
+ *
+ * @group formatting
+ * @group kses
  */
-
 class Test_wp_filter_post_kses extends WP_UnitTestCase {
 	function test_wp_filter_post_kses_address() {
 		global $allowedposttags;

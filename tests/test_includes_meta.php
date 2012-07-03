@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @group meta
+ */
 class WPTestIncludesMeta extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
