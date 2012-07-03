@@ -1,8 +1,12 @@
 <?php
 
-// Test various query vars and make sure the WP_Query class selects the correct posts.
-// We're testing against a known data set, so we can check that specific posts are included in the output.
-
+/**
+ *
+ * Test various query vars and make sure the WP_Query class selects the correct posts.
+ * We're testing against a known data set, so we can check that specific posts are included in the output.
+ *
+ * @group query
+ */
 class TestWPQueryPosts extends WP_UnitTestCase {
 	protected $q;
 
