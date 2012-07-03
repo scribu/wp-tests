@@ -601,12 +601,12 @@ class TestWPQueryVars extends WP_UnitTestCase {
 
 	// '([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/([^/]+)(/[0-9]+)?/?$' => 'index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&name=$matches[4]&page=$matches[5]',
 	function test_post_paged_short() {
-		$this->factory->post->create( array(
+		$post_id = $this->factory->post->create( array(
 			'post_date' => '2007-09-04 00:00:00',
 			'post_title' => 'a-post-with-multiple-pages',
 			'post_content' => 'Page 1 <!--nextpage--> Page 2'
 		) );
-		$this->go_to('/2007/09/04/a-post-with-multiple-pages/2/');
+		$this->go_to( get_permalink( $post_id ) . '2/' );
 		// should is_paged be true also?
 		$this->assertQueryTrue('is_single', 'is_singular');
 
@@ -637,7 +637,7 @@ class TestWPQueryVerbosePageRules extends TestWPQueryVars {
 	function setUp() {
 		parent::setUp();
 		global $wp_rewrite;
-		update_option( 'permalink_structure', '/%author%/%year%/%postname%/' );
+		update_option( 'permalink_structure', '/%category%/%year%/%postname%/' );
 		create_initial_taxonomies();
 		$GLOBALS['wp_rewrite']->init();
 		flush_rewrite_rules();
