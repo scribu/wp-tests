@@ -24,6 +24,12 @@ require_once $config_file_path;
 
 define( 'DIR_TESTDATA', dirname( __FILE__ ) . '/wp-testdata' );
 
+if ( ! defined( 'WP_TESTS_FORCE_KNOWN_BUGS' ) )
+	define( 'WP_TESTS_FORCE_KNOWN_BUGS', false );
+
+// Cron tries to make an HTTP request to the blog, which always fails, because tests are run in CLI mode only
+define( 'DISABLE_WP_CRON', true );
+
 $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 $_SERVER['HTTP_HOST'] = WP_TESTS_DOMAIN;
 $PHP_SELF = $GLOBALS['PHP_SELF'] = $_SERVER['PHP_SELF'] = '/index.php';

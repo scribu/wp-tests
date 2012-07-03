@@ -3,9 +3,18 @@
 /* Path to the WordPress codebase you'd like to test. Add a backslash in the end. */
 define( 'ABSPATH', dirname( __FILE__ ) . '/wordpress/' );
 
+// Test with multisite enabled: (previously -m)
+// define( 'WP_TESTS_MULTISITE', true );
+
+// Force known bugs: (previously -f)
+// define( 'WP_TESTS_FORCE_KNOWN_BUGS', true );
+
+// Test with WordPress debug mode on (previously -d)
+// define( 'WP_DEBUG', true );
+
 // ** MySQL settings ** //
 
-// these will be used by the copy of wordpress being tested.
+// This configuration file will be used by the copy of WordPress being tested.
 // wordpress/wp-config.php will be ignored.
 
 // WARNING WARNING WARNING!
@@ -31,11 +40,6 @@ define ( 'WPLANG', '' );
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );
 define( 'WP_TESTS_TITLE', 'Test Blog' );
-
-define( 'WP_TESTS_MULTISITE', false );
- 
-/* Cron tries to make an HTTP request to the blog, which always fails, because tests are run in CLI mode only */
-define( 'DISABLE_WP_CRON', true );
 
 $table_prefix  = 'wp_';
 
