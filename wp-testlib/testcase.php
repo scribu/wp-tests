@@ -149,8 +149,8 @@ class WP_UnitTestCase extends PHPUnit_Framework_TestCase {
 	 * Define constants after including files.
 	 */
 	function prepareTemplate( $template ) {
-		parent::prepareTemplate();
 		$template->setVar( array( 'constants' => '' ) );
 		$template->setVar( array( 'wp_constants' => PHPUnit_Util_GlobalState::getConstantsAsString() ) );
+		parent::prepareTemplate( $template );
 	}
 }
