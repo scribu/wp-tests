@@ -253,49 +253,6 @@ EOF;
 		$this->assertEquals( '', $this->content );
 	}
 
-/*
-enabled = the shortcode works as normal (default)
-strip = the shortcode will be parsed and removed.  e.g. '[shortcode foo="bar"]' produces ''.  '[shortcode]foo[/shortcode]' produces 'foo'.
-faux = the shortcode will be abbreviated.  e.g. '[shortcode foo="bar"]' products '[shortcode]'.  '[shortocde]foo[/shortcode]' produces '[shortcode]'
-disabled = the shortcode is not parsed at all.  e.g. '[shortcode foo="bar"]' products '[shortcode foo="bar"]'
-*/
-
-	function test_shortcodes_enabled() {
-		if ( !is_callable('set_all_shortcode_status') )
-			$this->markTestSkipped();
-		set_all_shortcode_status('enabled');
-		$out = do_shortcode("[baztag]foo is [footag foo='bar'][/baztag]");
-		$expected = 'content = foo is foo = bar';
-		$this->assertEquals( $expected, $out );
-	}
-
-	function test_shortcodes_disabled() {
-		if ( !is_callable('set_all_shortcode_status') )
-			$this->markTestSkipped();
-		set_all_shortcode_status('disabled');
-		$out = do_shortcode("[baztag]foo is [footag foo='bar'][/baztag]");
-		$expected = $out;
-		$this->assertEquals( $expected, $out );
-	}
-
-	function test_shortcodes_strip() {
-		if ( !is_callable('set_all_shortcode_status') )
-			$this->markTestSkipped();
-		set_all_shortcode_status('strip');
-		$out = do_shortcode("[baztag]foo is [footag foo='bar'][/baztag]");
-		$expected = 'foo is ';
-		$this->assertEquals( $expected, $out );
-	}
-
-	function test_shortcodes_faux() {
-		if ( !is_callable('set_all_shortcode_status') )
-			$this->markTestSkipped();
-		set_all_shortcode_status('faux');
-		$out = do_shortcode("[baztag]foo is [footag foo='bar'][/baztag]");
-		$expected = '[baztag]';
-		$this->assertEquals( $expected, $out );
-	}
-
 	function test_shortcode_unautop() {
 		// a blank line is added at the end, so test with it already there
 		$test_string = <<<EOF
