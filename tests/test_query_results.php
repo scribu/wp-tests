@@ -3,29 +3,50 @@
 // Test various query vars and make sure the WP_Query class selects the correct posts.
 // We're testing against a known data set, so we can check that specific posts are included in the output.
 
-class TestWPQueryPosts extends _WPDataset1 {
+class TestWPQueryPosts extends WP_UnitTestCase {
+	protected $q;
+
 	function setUp() {
 		parent::setUp();
+
+		$cat_a = $this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'cat-a' ) );
+		$cat_b = $this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'cat-b' ) );
+		$cat_c = $this->factory->term->create( array( 'taxonomy' => 'category', 'name' => 'cat-c' ) );
+
+		$this->factory->post->create( array( 'post_title' => 'cats-a-b-c', 'post_date' => '2008-12-01 00:00:00', 'post_category' => array( $cat_a, $cat_b, $cat_c ) ) );
+		$this->factory->post->create( array( 'post_title' => 'cats-a-and-b', 'post_date' => '2009-01-01 00:00:00', 'post_category' => array( $cat_a, $cat_b ) ) );
+		$this->factory->post->create( array( 'post_title' => 'cats-b-and-c', 'post_date' => '2009-02-01 00:00:00', 'post_category' => array( $cat_b, $cat_c ) ) );
+		$this->factory->post->create( array( 'post_title' => 'cats-a-and-c', 'post_date' => '2009-03-01 00:00:00', 'post_category' => array( $cat_a, $cat_c ) ) );
+		$this->factory->post->create( array( 'post_title' => 'cat-a', 'post_date' => '2009-04-01 00:00:00', 'post_category' => array( $cat_a ) ) );		
+		$this->factory->post->create( array( 'post_title' => 'cat-b', 'post_date' => '2009-05-01 00:00:00', 'post_category' => array( $cat_b ) ) );
+		$this->factory->post->create( array( 'post_title' => 'cat-c', 'post_date' => '2009-06-01 00:00:00', 'post_category' => array( $cat_c ) ) );
+		$this->factory->post->create( array( 'post_title' => 'lorem-ipsum', 'post_date' => '2009-07-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'comment-test', 'post_date' => '2009-08-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'one-trackback', 'post_date' => '2009-09-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'many-trackbacks', 'post_date' => '2009-10-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'no-comments', 'post_date' => '2009-10-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'one-comment', 'post_date' => '2009-11-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'contributor-post-approved', 'post_date' => '2009-12-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'embedded-video', 'post_date' => '2010-01-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'simple-markup-test', 'post_date' => '2010-02-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'raw-html-code', 'post_date' => '2010-03-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tags-a-b-c', 'tags_input' => array( 'tag-a', 'tag-b', 'tag-c' ), 'post_date' => '2010-04-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tag-a', 'tags_input' => array( 'tag-a' ), 'post_date' => '2010-05-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tag-b', 'tags_input' => array( 'tag-b' ), 'post_date' => '2010-06-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tag-c', 'tags_input' => array( 'tag-c' ), 'post_date' => '2010-07-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tags-a-and-b', 'tags_input' => array( 'tag-a', 'tag-b' ), 'post_date' => '2010-08-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tags-b-and-c', 'tags_input' => array( 'tag-b', 'tag-c' ), 'post_date' => '2010-09-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'tags-a-and-c', 'tags_input' => array( 'tag-a', 'tag-c' ), 'post_date' => '2010-10-01 00:00:00' ) );
+
+		unset( $this->q );
 		$this->q = new WP_Query();
-	}
-
-	function tearDown() {
-		parent::tearDown();
-		unset($this->q);
-	}
-
-	function post_slugs($posts) {
-		$out = array();
-		foreach ($posts as $post)
-			$out[] = $post->post_name;
-		return $out;
 	}
 
 	function test_query_default() {
 		$posts = $this->q->query('');
 
 		// the output should be the most recent 10 posts as listed here
-		$expected = array (
+		$expected = array(
 			0 => 'tags-a-and-c',
 			1 => 'tags-b-and-c',
 			2 => 'tags-a-and-b',
@@ -38,14 +59,14 @@ class TestWPQueryPosts extends _WPDataset1 {
 			9 => 'embedded-video',
 		);
 
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_tag_a() {
 		$posts = $this->q->query('tag=tag-a');
 
 		// there are 4 posts with Tag A
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertEquals( 'tags-a-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tags-a-and-b', $posts[1]->post_name );
 		$this->assertEquals( 'tag-a', $posts[2]->post_name );
@@ -56,7 +77,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query('tag=tag-b');
 
 		// there are 4 posts with Tag A
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertEquals( 'tags-b-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tags-a-and-b', $posts[1]->post_name );
 		$this->assertEquals( 'tag-b', $posts[2]->post_name );
@@ -68,7 +89,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query("tag_id={$tag[term_id]}");
 
 		// there are 4 posts with Tag A
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertEquals( 'tags-a-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tags-a-and-b', $posts[1]->post_name );
 		$this->assertEquals( 'tag-a', $posts[2]->post_name );
@@ -79,7 +100,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query("tag_slug__in[]=tag-b&tag_slug__in[]=tag-c");
 
 		// there are 4 posts with either Tag B or Tag C
-		$this->assertEquals( 6, count($posts) );
+		$this->assertCount( 6, $posts );
 		$this->assertEquals( 'tags-a-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tags-b-and-c', $posts[1]->post_name );
 		$this->assertEquals( 'tags-a-and-b', $posts[2]->post_name );
@@ -95,7 +116,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query("tag__in[]={$tag_a[term_id]}&tag__in[]={$tag_b[term_id]}");
 
 		// there are 6 posts with either Tag A or Tag B
-		$this->assertEquals( 6, count($posts) );
+		$this->assertCount( 6, $posts );
 		$this->assertEquals( 'tags-a-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tags-b-and-c', $posts[1]->post_name );
 		$this->assertEquals( 'tags-a-and-b', $posts[2]->post_name );
@@ -123,7 +144,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 			9 => 'many-trackbacks',
 		);
 
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_tag__in_but__not_in() {
@@ -132,7 +153,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query("tag__in[]={$tag_a[term_id]}&tag__not_in[]={$tag_b[term_id]}");
 
 		// there are 4 posts with Tag A, only 2 when we exclude Tag B
-		$this->assertEquals( 2, count($posts) );
+		$this->assertCount( 2, $posts );
 		$this->assertEquals( 'tags-a-and-c', $posts[0]->post_name );
 		$this->assertEquals( 'tag-a', $posts[1]->post_name );
 	}
@@ -143,7 +164,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query('category_name=cat-a');
 
 		// there are 4 posts with Cat A, we'll check for them by name
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertEquals( 'cat-a', $posts[0]->post_name );
 		$this->assertEquals( 'cats-a-and-c', $posts[1]->post_name );
 		$this->assertEquals( 'cats-a-and-b', $posts[2]->post_name );
@@ -155,7 +176,7 @@ class TestWPQueryPosts extends _WPDataset1 {
 		$posts = $this->q->query("cat=$cat");
 
 		// there are 4 posts with Cat B
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertEquals( 'cat-b', $posts[0]->post_name );
 		$this->assertEquals( 'cats-b-and-c', $posts[1]->post_name );
 		$this->assertEquals( 'cats-a-and-b', $posts[2]->post_name );
@@ -173,8 +194,8 @@ class TestWPQueryPosts extends _WPDataset1 {
 			4 => 'tag-b',
 		);
 
-		$this->assertEquals( 5, count($posts) );
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertCount( 5, $posts );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_offset() {
@@ -193,8 +214,8 @@ class TestWPQueryPosts extends _WPDataset1 {
 			9 => 'one-comment',
 		);
 
-		$this->assertEquals( 10, count($posts) );
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertCount( 10, $posts );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_paged() {
@@ -213,9 +234,9 @@ class TestWPQueryPosts extends _WPDataset1 {
 			9 => 'cat-a',
 		);
 
-		$this->assertEquals( 10, count($posts) );
+		$this->assertCount( 10, $posts );
 		$this->assertTrue( $this->q->is_paged() );
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_paged_and_posts_per_page() {
@@ -228,9 +249,9 @@ class TestWPQueryPosts extends _WPDataset1 {
 			3 => 'comment-test',
 		);
 
-		$this->assertEquals( 4, count($posts) );
+		$this->assertCount( 4, $posts );
 		$this->assertTrue( $this->q->is_paged() );
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 	function test_query_offset_and_paged() {
@@ -251,9 +272,9 @@ class TestWPQueryPosts extends _WPDataset1 {
 			9 => 'cats-a-and-b',
 		);
 
-		$this->assertEquals( 10, count($posts) );
+		$this->assertCount( 10, $posts );
 		$this->assertTrue( $this->q->is_paged() );
-		$this->assertEquals( $expected, $this->post_slugs($posts) );
+		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
 }
