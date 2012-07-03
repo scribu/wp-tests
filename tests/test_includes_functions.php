@@ -98,7 +98,7 @@ class TestFunctions extends WP_UnitTestCase {
 
 	function test_wp_unique_filename() {
 		/* this test requires:
-		   - that you have dir + file 'wp-testdata/images/test-image.png',
+		   - that you have dir + file 'data/images/test-image.png',
 		   - and that this dir is writeable
 		   - there is an image 'test-image.png' that will be used to test unique filenames
 

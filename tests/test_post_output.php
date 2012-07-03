@@ -140,7 +140,7 @@ class WPTestGalleryPost extends WP_UnitTestCase { // _WPDataset1
 	function test_the_content() {
 		// permalink page
 		$link = '/2008/04/01/simple-gallery-test/';
-		$this->http('/2008/04/01/simple-gallery-test/');
+		$this->go_to('/2008/04/01/simple-gallery-test/');
 		the_post();
 		// filtered output
 		$out = get_echo('the_content');
@@ -216,7 +216,7 @@ EOF;
 		wp_update_post($post);
 
 		// permalink page
-		$this->http('/2008/04/01/simple-gallery-test/');
+		$this->go_to('/2008/04/01/simple-gallery-test/');
 		the_post();
 		// filtered output
 		$out = get_echo('the_content');

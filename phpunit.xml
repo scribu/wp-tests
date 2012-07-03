@@ -6,9 +6,9 @@
     <testsuites>
         <!-- Default test suite to run all tests -->
         <testsuite>
-            <directory suffix=".php">wp-testcase</directory>
-            <file phpVersion="5.3.0" phpVersionOperator=">=">wp-testcase/test_actions_closures.php</file>
-            <exclude>wp-testcase/test_query_results.php</exclude>
+            <directory suffix=".php">tests</directory>
+            <file phpVersion="5.3.0">tests/test_actions_closures.php</file>
+            <exclude>tests/test_query_results.php</exclude>
         </testsuite>
     </testsuites>
 </phpunit>

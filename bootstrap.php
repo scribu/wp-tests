@@ -7,7 +7,7 @@ error_reporting( E_ALL & ~E_DEPRECATED & ~E_STRICT );
 
 require_once 'PHPUnit/Autoload.php';
 
-$config_file_path = dirname( __FILE__ ) . '/wp-config.php';
+$config_file_path = dirname( __FILE__ ) . '/wp-tests-config.php';
 
 /*
  * Globalize some WordPress variables, because PHPUnit loads this file inside a function
@@ -22,7 +22,7 @@ global $wpdb, $current_site, $current_blog, $wp_rewrite, $shortcode_tags, $wp;
 
 require_once $config_file_path;
 
-define( 'DIR_TESTDATA', dirname( __FILE__ ) . '/wp-testdata' );
+define( 'DIR_TESTDATA', dirname( __FILE__ ) . '/data' );
 
 if ( ! defined( 'WP_TESTS_FORCE_KNOWN_BUGS' ) )
 	define( 'WP_TESTS_FORCE_KNOWN_BUGS', false );
@@ -46,7 +46,7 @@ if ( defined( 'WP_TESTS_MULTISITE' ) && WP_TESTS_MULTISITE ) {
 	$GLOBALS['base'] = '/';
 }
 
-require dirname( __FILE__ ) . '/wp-testlib/functions.php';
+require dirname( __FILE__ ) . '/includes/functions.php';
 
 // Preset WordPress options defined in bootstrap file.
 // Used to activate themes, plugins, as well as  other settings.
@@ -67,8 +67,8 @@ require_once ABSPATH . '/wp-settings.php';
 // Delete any default posts & related data
 _delete_all_posts();
 
-require dirname( __FILE__ ) . '/wp-testlib/testcase.php';
-require dirname( __FILE__ ) . '/wp-testlib/testcase-xmlrpc.php';
-require dirname( __FILE__ ) . '/wp-testlib/testcase-ajax.php';
-require dirname( __FILE__ ) . '/wp-testlib/exceptions.php';
-require dirname( __FILE__ ) . '/wp-testlib/utils.php';
+require dirname( __FILE__ ) . '/includes/testcase.php';
+require dirname( __FILE__ ) . '/includes/testcase-xmlrpc.php';
+require dirname( __FILE__ ) . '/includes/testcase-ajax.php';
+require dirname( __FILE__ ) . '/includes/exceptions.php';
+require dirname( __FILE__ ) . '/includes/utils.php';

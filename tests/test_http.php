@@ -15,7 +15,7 @@
  * @group http
  */
 abstract class WP_HTTP_UnitTestCase extends WP_UnitTestCase {
-	// You can use your own version of wp-testdata/WPHTTP-testcase-redirection-script.php here.
+	// You can use your own version of data/WPHTTP-testcase-redirection-script.php here.
 	var $redirection_script = 'http://api.wordpress.org/core/tests/1.0/redirection.php';
 
 	function setUp() {
@@ -156,7 +156,7 @@ abstract class WP_HTTP_UnitTestCase extends WP_UnitTestCase {
 	}
 
 	function test_file_stream() {
-		$url = 'http://unit-tests.svn.wordpress.org/trunk/wp-testdata/images/2004-07-22-DSC_0007.jpg'; // we'll test against a file in the unit test data
+		$url = 'http://unit-tests.svn.wordpress.org/trunk/data/images/2004-07-22-DSC_0007.jpg'; // we'll test against a file in the unit test data
 		$size = 87348;
 		$res = wp_remote_request( $url, array( 'stream' => true, 'timeout' => 30 ) ); //Auto generate the filename.
 

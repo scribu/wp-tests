@@ -1,9 +1,5 @@
 <?php
 
-#include_once(DIR_TESTROOT.'/wp-testlib/wp-profiler.php');
-
-// need to include the importer as an external, so path may need to change...
-
 abstract class WP_Import_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Import a WXR file.

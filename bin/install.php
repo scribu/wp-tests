@@ -12,7 +12,7 @@ $config_dir = dirname( $config_file_path );
 
 define( 'WP_INSTALLING', true );
 require_once $config_file_path;
-require_once $config_dir . '/wp-testlib/functions.php';
+require_once $config_dir . '/includes/functions.php';
 
 $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 $_SERVER['HTTP_HOST'] = WP_TESTS_DOMAIN;
