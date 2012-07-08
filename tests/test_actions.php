@@ -218,7 +218,6 @@ class WPTestActions extends WP_UnitTestCase {
 	}
 
 	function test_action_keyed_array() {
-		$this->knownWPBug(11241);
 		$a = new MockAction();
 
 		$tag = rand_str();
