@@ -41,6 +41,4 @@ define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );
 define( 'WP_TESTS_TITLE', 'Test Blog' );
 
-$table_prefix  = 'wp_';
-
 define( 'WP_PHP_BINARY', 'php' );
