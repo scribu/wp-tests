@@ -217,6 +217,7 @@ class WPTestActions extends WP_UnitTestCase {
 		$this->assertFalse( empty($args[0][0]->foo) );
 	}
 
+	// See #11241
 	function test_action_keyed_array() {
 		$a = new MockAction();
 
