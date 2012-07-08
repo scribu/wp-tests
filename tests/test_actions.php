@@ -9,7 +9,7 @@ class WPTestActions extends WP_UnitTestCase {
 
 	function test_simple_action() {
 		$a = new MockAction();
-		$tag = rand_str();
+		$tag = 'test_action';
 
 		add_action($tag, array(&$a, 'action'));
 		do_action($tag);
