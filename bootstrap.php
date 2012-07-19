@@ -120,11 +120,15 @@ class WP_PHPUnit_TextUI_Command extends PHPUnit_TextUI_Command {
     }
 
 	static function ajaxTestsWereNotRun() {
-		echo PHP_EOL . 'By default, Ajax tests are not run. To execute these, use `phpunit --group ajax`' . PHP_EOL;
+		echo PHP_EOL . "\x1b[0m\x1b[30;43m\x1b[2K";
+		echo 'INFO: By default, Ajax tests are not run. To execute these, use `phpunit --group ajax`' . PHP_EOL;
+		echo "\x1b[0m\x1b[2K";
 	}
 
 	static function multisiteWasNotRun() {
-		echo PHP_EOL . 'To run the tests using multisite, use `phpunit -c multisite`' . PHP_EOL;
+		echo PHP_EOL . "\x1b[0m\x1b[30;43m\x1b[2K";
+		echo 'INFO: To run the tests using multisite, use `phpunit -c multisite`' . PHP_EOL;
+		echo "\x1b[0m\x1b[2K";
 	}
 }
 new WP_PHPUnit_TextUI_Command( $_SERVER['argv'] );
