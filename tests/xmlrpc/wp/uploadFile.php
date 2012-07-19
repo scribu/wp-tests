@@ -2,7 +2,6 @@
 
 /**
  * @group xmlrpc
- * @group marko
  */
 class Tests_XMLRPC_wp_uploadFile extends WP_XMLRPC_UnitTestCase {
 	function test_valid_attachment() {
