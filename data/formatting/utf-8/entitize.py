@@ -1,3 +1,6 @@
+# Generates entitized.txt from utf-8.txt.
+# Used by Test_Convert_UrlEncoded_To_Entities.
+
 import codecs
 import sys
 
@@ -10,7 +13,7 @@ def entitize(line):
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args and args[0] in ("-h", "--help"):
-        print "Usage: python entitize.py < utf8-lines.txt > entitized-lines.txt"
+        print "Usage: python entitize.py < utf-8.txt > entitized.txt"
         sys.exit(2)
 
     sys.stdin = codecs.getreader("utf-8")(sys.stdin)

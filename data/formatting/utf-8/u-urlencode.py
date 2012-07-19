@@ -1,3 +1,6 @@
+# Generates u-urlencoded.txt from utf-8.txt.
+# Used for Test_Convert_UrlEncoded_To_Entities.
+
 import codecs
 import sys
 
@@ -10,7 +13,7 @@ def uurlencode(line):
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args and args[0] in ("-h", "--help"):
-        print "Usage: python u-urlencode.py < utf8-lines.txt > u-urlencoded-lines.txt"
+        print "Usage: python u-urlencode.py < utf-8.txt > u-urlencoded.txt"
         sys.exit(2)
 
     sys.stdin = codecs.getreader("utf-8")(sys.stdin)

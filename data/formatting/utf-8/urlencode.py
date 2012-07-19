@@ -1,5 +1,5 @@
-# Generates test data for the utf8_uri_encode function in formatting.php
-# Pipe UTF-8 data to stdin and accept it from stdout
+# Generates urlencoded.txt from utf-8.txt.
+# Used for Test_UTF8_URI_Encode.
 
 import urllib, codecs, re
 import sys
@@ -22,7 +22,7 @@ def urlencode(line):
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args and args[0] in ("-h", "--help"):
-        print "Usage: python urlencode.py < utf8-lines.txt > utf8-urlencoded-lines.txt"
+        print "Usage: python urlencode.py < utf-8.txt > urlencoded.txt"
         sys.exit(2)
 
     sys.stdin = codecs.getreader("utf-8")(sys.stdin)
