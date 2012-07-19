@@ -2,53 +2,10 @@
 
 /**
  * @group pluggable
- */
-class TestAuthFunctions extends WP_UnitTestCase {
-	var $user_id;
-
-	function setUp() {
-		parent::setUp();
-		$this->user_id = $this->factory->user->create();
-	}
-
-	function test_auth_cookie_valid() {
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() + 3600, 'auth' );
-		$this->assertEquals( $this->user_id, wp_validate_auth_cookie( $cookie, 'auth' ) );
-	}
-
-	function test_auth_cookie_invalid() {
-		// 3600 or less and +3600 may occur in wp_validate_auth_cookie(),
-		// as an ajax test may have defined DOING_AJAX, failing the test.
-
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() - 7200, 'auth' );
-		$this->assertEquals( false, wp_validate_auth_cookie( $cookie, 'auth' ), 'expired cookie' );
-
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() + 3600, 'auth' );
-		$this->assertEquals( false, wp_validate_auth_cookie( $cookie, 'logged_in' ), 'wrong auth scheme' );
-
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() + 3600, 'auth' );
-		list($a, $b, $c) = explode('|', $cookie);
-		$cookie = $a . '|' . ($b + 1) . '|' . $c;
-		$this->assertEquals( false, wp_validate_auth_cookie( $this->user_id, 'auth' ), 'altered cookie' );
-	}
-
-	function test_auth_cookie_scheme() {
-		// arbitrary scheme name
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() + 3600, 'foo' );
-		$this->assertEquals( $this->user_id, wp_validate_auth_cookie( $cookie, 'foo' ) );
-
-		// wrong scheme name - should fail
-		$cookie = wp_generate_auth_cookie( $this->user_id, time() + 3600, 'foo' );
-		$this->assertEquals( false, wp_validate_auth_cookie( $cookie, 'bar' ) );
-	}
-}
-
-/**
- * @group pluggable
  * @group mail
  * @ticket UT47
  */
-class TestMailFunctions extends WP_UnitTestCase {
+class Tests_Mail extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 	}
@@ -252,20 +209,5 @@ Content-Transfer-Encoding: 8bit
 			$this->assertEquals('<address@tld.com>', $GLOBALS['phpmailer']->mock_sent[0]['to'][0][0]);
 		$this->assertEquals($message . "\n", $GLOBALS['phpmailer']->mock_sent[0]['body']);
 		unset( $_SERVER['SERVER_NAME'] );
-	}
-}
-
-/**
- * @group pluggable
- */
-class TestRedirectFunctions extends WP_UnitTestCase {
-	function test_wp_sanitize_redirect() {
-		$this->assertEquals('http://example.com/watchthelinefeedgo', wp_sanitize_redirect('http://example.com/watchthelinefeed%0Ago'));
-		$this->assertEquals('http://example.com/watchthelinefeedgo', wp_sanitize_redirect('http://example.com/watchthelinefeed%0ago'));
-		$this->assertEquals('http://example.com/watchthecarriagereturngo', wp_sanitize_redirect('http://example.com/watchthecarriagereturn%0Dgo'));
-		$this->assertEquals('http://example.com/watchthecarriagereturngo', wp_sanitize_redirect('http://example.com/watchthecarriagereturn%0dgo'));
-		//Nesting checks
-		$this->assertEquals('http://example.com/watchthecarriagereturngo', wp_sanitize_redirect('http://example.com/watchthecarriagereturn%0%0ddgo'));
-		$this->assertEquals('http://example.com/watchthecarriagereturngo', wp_sanitize_redirect('http://example.com/watchthecarriagereturn%0%0DDgo'));
 	}
 }
