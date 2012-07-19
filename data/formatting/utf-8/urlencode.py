@@ -1,5 +1,6 @@
-# Generates urlencoded.txt from utf-8.txt.
-# Used for Test_UTF8_URI_Encode.
+# Generates urlencoded.txt from utf-8.txt
+#
+# urlencoded.txt is used by Tests_Formatting_Utf8UriEncode
 
 import urllib, codecs, re
 import sys

@@ -1,5 +1,6 @@
-# Generates entitized.txt from utf-8.txt.
-# Used by Test_Convert_UrlEncoded_To_Entities.
+# Generates entitized.txt from utf-8.txt
+#
+# entitized.txt is used by Tests_Formatting_UrlEncodedToEntities
 
 import codecs
 import sys

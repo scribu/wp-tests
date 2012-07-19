@@ -1,5 +1,6 @@
-# Generates u-urlencoded.txt from utf-8.txt.
-# Used for Test_Convert_UrlEncoded_To_Entities.
+# Generates u-urlencoded.txt from utf-8.txt
+#
+# u-urlencoded.txt is used by Tests_Formatting_UrlEncodedToEntities
 
 import codecs
 import sys
