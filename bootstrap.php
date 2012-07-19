@@ -124,7 +124,7 @@ class WP_PHPUnit_TextUI_Command extends PHPUnit_TextUI_Command {
 	}
 
 	static function multisiteWasNotRun() {
-		echo PHP_EOL . 'To run the tests using multisite, use `phpunit -c multisite.xml`' . PHP_EOL;
+		echo PHP_EOL . 'To run the tests using multisite, use `phpunit -c multisite`' . PHP_EOL;
 	}
 }
 new WP_PHPUnit_TextUI_Command( $_SERVER['argv'] );
