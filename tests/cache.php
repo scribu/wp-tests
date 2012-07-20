@@ -215,8 +215,9 @@ class Tests_Cache extends WP_UnitTestCase {
 		$this->assertTrue( wp_cache_delete( $key ) );
 		$this->assertFalse( wp_cache_get( $key ) );
 
+		// wp_cache_delete() does not have a $force method.
 		// Delete returns (bool) true when key is not set and $force is true
-		$this->assertTrue( wp_cache_delete( $key, 'default', true ) );
-		$this->assertFalse( wp_cache_delete( $key, 'default') );
+		// $this->assertTrue( wp_cache_delete( $key, 'default', true ) );
+		// $this->assertFalse( wp_cache_delete( $key, 'default') );
 	}
 }
