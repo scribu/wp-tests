@@ -37,7 +37,7 @@ class Tests_Post_Objects extends WP_UnitTestCase {
 		$post = get_post( $id, ARRAY_A );
 
 		$this->assertEquals( $id, $post['ID'] );
-		$this->assertTrue( is_array( $post['ancestors'] ) );
+		$this->assertInternalType( 'array', $post['ancestors'] );
 		$this->assertEquals( 'raw', $post['filter'] );
 	}
 }
