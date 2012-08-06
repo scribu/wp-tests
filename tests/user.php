@@ -456,7 +456,8 @@ class Tests_User extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_User', $authordata );
 		$this->assertEquals( $authordata->ID, $user_id );
 
-		setup_postdata( get_post( $old_post_id ) );
+		if ( $old_post_id )
+			setup_postdata( get_post( $old_post_id ) );
 	}
 
 	function test_delete_user() {
