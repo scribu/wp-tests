@@ -8,21 +8,12 @@
 class Test_Comment_Query extends WP_UnitTestCase {
 	var $post_id;
 	var $comment_id;
-	var $comment_data;
 
 	function setUp() {
 		parent::setUp();
 
 		$this->post_id = $this->factory->post->create();
-
-		$this->comment_data = array(
-			'comment_post_ID' => $this->post_id,
-			'comment_author' => 'Test commenter',
-			'comment_author_url' => 'http://example.com/',
-			'comment_author_email' => 'example@example.com',
-			'comment_content' => rand_str( 100 ),
-		);
-		$this->comment_id = wp_insert_comment( $this->comment_data );
+		$this->comment_id = $this->factory->comment->create();
 	}
 
 	function test_get_comment_comment_approved_0() {
