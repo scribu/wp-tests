@@ -39,11 +39,5 @@ class Test_Comment_Query extends WP_UnitTestCase {
 		$result = $comments_approved_1[0];
 
 		$this->assertEquals( $this->comment_id, $result->comment_ID );
-		$this->assertEquals( 0, $result->comment_parent );
-		$this->assertEquals( $this->comment_data['comment_content'], $result->comment_content );
-		$this->assertEquals( $this->post_id, $result->comment_post_ID );
-		$this->assertEquals( $this->comment_data['comment_author'], $result->comment_author );
-		$this->assertEquals( $this->comment_data['comment_author_url'], $result->comment_author_url );
-		$this->assertEquals( $this->comment_data['comment_author_email'], $result->comment_author_email );
 	}
 }
