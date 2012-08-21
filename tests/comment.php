@@ -6,13 +6,11 @@
  * @group comment
  */
 class Test_Comment_Query extends WP_UnitTestCase {
-	var $post_id;
 	var $comment_id;
 
 	function setUp() {
 		parent::setUp();
 
-		$this->post_id = $this->factory->post->create();
 		$this->comment_id = $this->factory->comment->create();
 	}
 
