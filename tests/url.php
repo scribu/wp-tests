@@ -151,6 +151,8 @@ class Tests_URL extends WP_UnitTestCase {
 		$_SERVER['HTTPS'] = 'on';
 		$home = str_replace('http://', 'https://', $home);
 		$this->assertEquals( $home, home_url() );
+
+		$GLOBALS['current_screen'] = $screen;
 	}
 
 	function test_network_home_url_from_admin() {
@@ -174,6 +176,8 @@ class Tests_URL extends WP_UnitTestCase {
 		$_SERVER['HTTPS'] = 'on';
 		$home = str_replace('http://', 'https://', $home);
 		$this->assertEquals( $home, network_home_url() );
+
+		$GLOBALS['current_screen'] = $screen;
 	}
 
 	function test_set_url_scheme() {
