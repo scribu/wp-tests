@@ -14,6 +14,7 @@ class Tests_Formatting_SanitizeTrackbackUrls extends WP_UnitTestCase {
 
 	function breaks() {
 		return array(
+			array( "\r\n\t " ),
 			array( "\r" ),
 			array( "\n" ),
 			array( "\t" ),
