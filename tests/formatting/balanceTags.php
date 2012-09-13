@@ -72,14 +72,6 @@ class Tests_Formatting_BalanceTags extends WP_UnitTestCase {
 
 	/**
 	 * @ticket 1597
-	 * @dataProvider single_tags
-	 */
-	function test_closes_unknown_single_tags_followed_by_closing_tag( $tag ) {
-		$this->assertEquals( "<$tag></$tag>", balanceTags( "<$tag/></$tag>", true ) );
-	}
-
-	/**
-	 * @ticket 1597
 	 */
 	function test_closes_unknown_single_tags_with_closing_tag() {
 
