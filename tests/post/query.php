@@ -48,4 +48,65 @@ class Tests_Post_Query extends WP_UnitTestCase {
 	$post_ids = wp_list_pluck( $posts, 'ID' );
 	$this->assertEquals( array( $post_id, $post_id2, $post_id3, $post_id4 ), $post_ids );
     }
+
+    function test_meta_key_not_exists() {
+	$post_id = $this->factory->post->create();
+	add_post_meta( $post_id, 'foo', rand_str() );
+	$post_id2 = $this->factory->post->create();
+	add_post_meta( $post_id2, 'bar', rand_str() );
+	$post_id3 = $this->factory->post->create();
+	add_post_meta( $post_id3, 'bar', rand_str() );
+	$post_id4 = $this->factory->post->create();
+	add_post_meta( $post_id4, 'baz', rand_str() );
+	$post_id5 = $this->factory->post->create();
+	add_post_meta( $post_id5, 'foo', rand_str() );
+
+	$query = new WP_Query( array(
+	    'meta_query' => array(
+		array(
+		    'key' => 'foo',
+		    'compare' => 'NOT EXISTS',
+		),
+	    ),
+	) );
+
+	$posts = $query->get_posts();
+	$this->assertEquals( 3, count( $posts ) );
+
+	$query = new WP_Query( array(
+	    'meta_query' => array(
+		array(
+		    'key' => 'foo',
+		    'compare' => 'NOT EXISTS',
+		),
+	        array(
+		    'key' => 'bar',
+		    'compare' => 'NOT EXISTS',
+		),
+	    ),
+	) );
+
+	$posts = $query->get_posts();
+	$this->assertEquals( 1, count( $posts ) );
+
+	$query = new WP_Query( array(
+	    'meta_query' => array(
+		array(
+		    'key' => 'foo',
+		    'compare' => 'NOT EXISTS',
+		),
+	        array(
+		    'key' => 'bar',
+		    'compare' => 'NOT EXISTS',
+		),
+	        array(
+		    'key' => 'baz',
+		    'compare' => 'NOT EXISTS',
+		),
+	    )
+	) );
+
+	$posts = $query->get_posts();
+	$this->assertEquals( 0, count( $posts ) );
+    }
 }
