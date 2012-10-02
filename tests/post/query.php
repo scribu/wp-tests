@@ -49,6 +49,9 @@ class Tests_Post_Query extends WP_UnitTestCase {
 	$this->assertEquals( array( $post_id, $post_id2, $post_id3, $post_id4 ), $post_ids );
     }
 
+    /**
+     * @ticket 18158
+     */
     function test_meta_key_not_exists() {
 	$post_id = $this->factory->post->create();
 	add_post_meta( $post_id, 'foo', rand_str() );
@@ -108,5 +111,36 @@ class Tests_Post_Query extends WP_UnitTestCase {
 
 	$posts = $query->get_posts();
 	$this->assertEquals( 0, count( $posts ) );
+    }
+
+    /**
+     * @ticket 20604
+     */
+    function test_taxonomy_empty_or() {
+	// An empty tax query should return an empty array, not all posts.
+
+	$this->factory->post->create_many( 10 );
+
+	$query = new WP_Query( array(
+	    'fields'	=> 'ids',
+	    'tax_query' => array(
+		'relation' => 'OR',
+		array(
+			'taxonomy' => 'post_tag',
+			'field' => 'id',
+			'terms' => false,
+			'operator' => 'IN'
+		),
+		array(
+			'taxonomy' => 'category',
+			'field' => 'id',
+			'terms' => false,
+			'operator' => 'IN'
+		)
+	    )	
+	) );
+
+	$posts = $query->get_posts();
+	$this->assertEquals( 0 , count( $posts ) );
     }
 }
