@@ -286,8 +286,5 @@ class Tests_Post_Query extends WP_UnitTestCase {
 	$this->assertEquals( 5, count ( $posts ) );
 	$posts = wp_list_pluck( $posts, 'ID' );
 	$this->assertEquals( array( $post_id, $post_id3, $post_id4, $post_id5, $post_id6 ), $posts );
-
-	//$this->assertEquals( $post_id, $posts[0]->ID );
-	//debug_log( $posts );
     }
 }
