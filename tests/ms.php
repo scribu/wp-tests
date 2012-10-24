@@ -12,7 +12,7 @@ class Tests_MS extends WP_UnitTestCase {
 	protected $plugin_hook_count = 0;
 
 	function test_create_and_delete_blog() {
-		global $wpdb, $current_site;
+		global $wpdb;
 
 		$blog_ids = $this->factory->blog->create_many( 4 );
 		foreach ( $blog_ids as $blog_id ) {
@@ -93,8 +93,6 @@ class Tests_MS extends WP_UnitTestCase {
 	}
 
 	function test_get_blogs_of_user() {
-		global $current_site;
-
 		// Logged out users don't have blogs.
 		$this->assertEquals( array(), get_blogs_of_user( 0 ) );
 
@@ -134,7 +132,7 @@ class Tests_MS extends WP_UnitTestCase {
 	}
 
 	function test_is_blog_user() {
-		global $current_site, $wpdb;
+		global $wpdb;
 
 		$user1_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
@@ -158,7 +156,7 @@ class Tests_MS extends WP_UnitTestCase {
 	}
 
 	function test_is_user_member_of_blog() {
-		global $current_site, $wpdb;
+		global $wpdb;
 
 		$user1_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 
@@ -260,8 +258,6 @@ class Tests_MS extends WP_UnitTestCase {
 	}
 
 	function test_get_dashboard_blog() {
-		global $current_site;
-
 		// if there is no dashboard blog set, current blog is used
 		$dashboard_blog = get_dashboard_blog();
 		$this->assertEquals( 1, $dashboard_blog->blog_id );
@@ -376,7 +372,7 @@ class Tests_MS extends WP_UnitTestCase {
 	}
 
 	function test_update_blog_details() {
-		global $current_site, $test_action_counter;
+		global $test_action_counter;
 
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$blog_id = $this->factory->blog->create( array( 'user_id' => $user_id, 'path' => '/test_blogpath', 'title' => 'Test Title' ) );
