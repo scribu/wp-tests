@@ -7,7 +7,7 @@ error_reporting( E_ALL & ~E_DEPRECATED & ~E_STRICT );
 
 require_once 'PHPUnit/Autoload.php';
 
-$config_file_path = dirname( __FILE__ ) . '/wp-tests-config.php';
+$config_file_path = dirname( __FILE__ ) . '/../wp-tests-config.php';
 
 /*
  * Globalize some WordPress variables, because PHPUnit loads this file inside a function
@@ -42,7 +42,7 @@ $PHP_SELF = $GLOBALS['PHP_SELF'] = $_SERVER['PHP_SELF'] = '/index.php';
 
 $multisite = (int) ( defined( 'WP_TESTS_MULTISITE') && WP_TESTS_MULTISITE );
 
-system( WP_PHP_BINARY . ' ' . escapeshellarg( dirname( __FILE__ ) . '/bin/install.php' ) . ' ' . escapeshellarg( $config_file_path ) . ' ' . $multisite );
+system( WP_PHP_BINARY . ' ' . escapeshellarg( dirname( __FILE__ ) . '/install.php' ) . ' ' . escapeshellarg( $config_file_path ) . ' ' . $multisite );
 
 if ( $multisite ) {
 	echo "Running as multisite..." . PHP_EOL;
@@ -58,7 +58,7 @@ if ( $multisite ) {
 }
 unset( $multisite );
 
-require dirname( __FILE__ ) . '/includes/functions.php';
+require dirname( __FILE__ ) . '/functions.php';
 
 // Preset WordPress options defined in bootstrap file.
 // Used to activate themes, plugins, as well as  other settings.
@@ -79,11 +79,11 @@ require_once ABSPATH . '/wp-settings.php';
 // Delete any default posts & related data
 _delete_all_posts();
 
-require dirname( __FILE__ ) . '/includes/testcase.php';
-require dirname( __FILE__ ) . '/includes/testcase-xmlrpc.php';
-require dirname( __FILE__ ) . '/includes/testcase-ajax.php';
-require dirname( __FILE__ ) . '/includes/exceptions.php';
-require dirname( __FILE__ ) . '/includes/utils.php';
+require dirname( __FILE__ ) . '/testcase.php';
+require dirname( __FILE__ ) . '/testcase-xmlrpc.php';
+require dirname( __FILE__ ) . '/testcase-ajax.php';
+require dirname( __FILE__ ) . '/exceptions.php';
+require dirname( __FILE__ ) . '/utils.php';
 
 /**
  * A child class of the PHP test runner.
