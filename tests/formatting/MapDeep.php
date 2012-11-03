@@ -48,3 +48,4 @@ class Tests_Formatting_MapDeep extends WP_UnitTestCase {
 		return $value . 'baba';
 	}
 }
+
