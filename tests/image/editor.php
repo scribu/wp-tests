@@ -1,11 +1,14 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/base.php';
+
 /**
  * Test the WP_Image_Editor base class
  * @group image
  * @group media
  */
-class Tests_Image_Editor extends WP_UnitTestCase {
+class Tests_Image_Editor extends WP_Image_UnitTestCase {
+	public $editor_engine = 'WP_Image_Editor_Mock';
 
 	/**
 	 * Setup test fixture
@@ -15,22 +18,7 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 
 		include_once( DIR_TESTDATA . '/../includes/mock-image-editor.php' );
 
-		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
-	}
-
-	/**
-	 * Tear down test fixture
-	 */
-	public function tearDown() {
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
-	}
-
-	/**
-	 * Override the image_editor_instance filter with a mock
-	 * @return mixed
-	 */
-	public function image_editor_mock( $instance, $args ) {
-		return new WP_Image_Editor_Mock( $args['path'] );
+		parent::setUp();
 	}
 
 	/**
