@@ -8,12 +8,6 @@
 class Tests_Image_Editor extends WP_UnitTestCase {
 
 	/**
-	 * Image editor
-	 * @var WP_Image_Editor
-	 */
-	protected $editor = null;
-
-	/**
 	 * Setup test fixture
 	 */
 	public function setup() {
@@ -21,31 +15,30 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 
 		include_once( DIR_TESTDATA . '/../includes/mock-image-editor.php' );
 
-		// Mock up an abstract image editor based on WP_Image_Editor
-		// note: this *HAS* to start with 'WP_Image_Editor_'
-		$className = 'WP_Image_Editor_' . substr( md5( uniqid() ), -12 );
-		$this->editor = $this->getMockForAbstractClass( 'WP_Image_Editor', array(
-			'get_size',
-			'get_suffix'
-		), $className, false );
-
-		// Override the filters to set our own image editor
-		add_filter( 'wp_image_editor_class', array( $this, 'image_editor_class' ) );
+		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
 	}
 
 	/**
 	 * Tear down test fixture
 	 */
 	public function tearDown() {
-		remove_filter( 'wp_image_editor_class', array( $this, 'image_editor_class' ) );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
 	}
 
 	/**
-	 * Override the image_editor_class filter
+	 * Override the image_editor_instance filter
 	 * @return mixed
 	 */
-	public function image_editor_class() {
-		return get_class( $this->editor );
+	public function image_editor_instance( $instance, $args ) {
+		return $this->getMockForAbstractClass( 'WP_Image_Editor', array( $args['path'] ) );
+	}
+
+	/**
+	 * Override the image_editor_instance filter with a mock
+	 * @return mixed
+	 */
+	public function image_editor_mock( $instance, $args ) {
+		return new WP_Image_Editor_Mock( $args['path'] );
 	}
 
 	/**
@@ -53,11 +46,9 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 	 * @ticket 6821
 	 */
 	public function test_get_editor_load_returns_true() {
-
 		// Swap out the PHPUnit mock with our custom mock
-		$func = create_function( '', 'return "WP_Image_Editor_Mock";');
-		remove_filter( 'wp_image_editor_class', array( $this, 'image_editor_class' ) );
-		add_filter( 'wp_image_editor_class', $func );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
+		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 
 		// Set load() to return true
 		WP_Image_Editor_Mock::$load_return = true;
@@ -69,7 +60,7 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Image_Editor_Mock', $editor );
 
 		// Remove our custom Mock
-		remove_filter( 'wp_image_editor_class', $func );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 	}
 
 	/**
@@ -77,11 +68,8 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 	 * @ticket 6821
 	 */
 	public function test_get_editor_load_returns_false() {
-
-		// Swap out the PHPUnit mock with our custom mock
-		$func = create_function( '', 'return "WP_Image_Editor_Mock";');
-		remove_filter( 'wp_image_editor_class', array( $this, 'image_editor_class' ) );
-		add_filter( 'wp_image_editor_class', $func );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
+		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 
 		// Set load() to return true
 		WP_Image_Editor_Mock::$load_return = new WP_Error();
@@ -93,7 +81,7 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', $editor );
 
 		// Remove our custom Mock
-		remove_filter( 'wp_image_editor_class', $func );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 	}
 
 	/**
