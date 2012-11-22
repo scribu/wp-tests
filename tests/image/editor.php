@@ -15,22 +15,14 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 
 		include_once( DIR_TESTDATA . '/../includes/mock-image-editor.php' );
 
-		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
+		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 	}
 
 	/**
 	 * Tear down test fixture
 	 */
 	public function tearDown() {
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
-	}
-
-	/**
-	 * Override the image_editor_instance filter
-	 * @return mixed
-	 */
-	public function image_editor_instance( $instance, $args ) {
-		return $this->getMockForAbstractClass( 'WP_Image_Editor', array( $args['path'] ) );
+		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 	}
 
 	/**
@@ -46,21 +38,9 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 	 * @ticket 6821
 	 */
 	public function test_get_editor_load_returns_true() {
-		// Swap out the PHPUnit mock with our custom mock
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
-		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
-
-		// Set load() to return true
-		WP_Image_Editor_Mock::$load_return = true;
-
-		// Load an image
 		$editor = wp_get_image_editor( DIR_TESTDATA . '/images/canola.jpg' );
 
-		// Everything should work
 		$this->assertInstanceOf( 'WP_Image_Editor_Mock', $editor );
-
-		// Remove our custom Mock
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
 	}
 
 	/**
@@ -68,20 +48,13 @@ class Tests_Image_Editor extends WP_UnitTestCase {
 	 * @ticket 6821
 	 */
 	public function test_get_editor_load_returns_false() {
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_instance' ), 10, 2 );
-		add_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
-
-		// Set load() to return true
 		WP_Image_Editor_Mock::$load_return = new WP_Error();
 
-		// Load an image
 		$editor = wp_get_image_editor( DIR_TESTDATA . '/images/canola.jpg' );
 
-		// Everything should work
 		$this->assertInstanceOf( 'WP_Error', $editor );
 
-		// Remove our custom Mock
-		remove_filter( 'wp_image_editor_instance', array( $this, 'image_editor_mock' ), 10, 2 );
+		WP_Image_Editor_Mock::$load_return = true;
 	}
 
 	/**
