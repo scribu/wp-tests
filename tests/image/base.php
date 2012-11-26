@@ -13,22 +13,21 @@ abstract class WP_Image_UnitTestCase extends WP_UnitTestCase {
 			$this->markTestSkipped( sprintf('The image editor engine %s is not supported on this system', $this->editor_engine) );
 		}
 
-		add_filter( 'image_editor_instance', array( $this, 'setEngine' ), 10, 2 );
+		add_filter( 'image_editors', array( $this, 'setEngine' ), 10, 2 );
 	}
 
 	/**
 	 * Undo the image editor override
 	 */
 	public function tearDown() {
-		remove_filter( 'image_editor_instance', array( $this, 'setEngine' ), 10, 2 );
+		remove_filter( 'image_editors', array( $this, 'setEngine' ), 10, 2 );
 	}
 
 	/**
 	 * Override the image editor engine
 	 * @return string
 	 */
-	public function setEngine( $instance, $args ) {
-		$class = $this->editor_engine;
-		return new $class( $args['path'] );
+	public function setEngine( $editors ) {
+		return array( $this->editor_engine );
 	}
 }
