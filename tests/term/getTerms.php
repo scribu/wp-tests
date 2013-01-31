@@ -11,6 +11,7 @@ class Tests_Term_getTerms extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @ticket 23326
 	 */
 	function test_get_terms_cache() {
 		global $wpdb;
