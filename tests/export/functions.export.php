@@ -19,7 +19,7 @@ class Test_WP_Export_Functions extends WP_UnitTestCase {
 }
 
 class Test_WP_Export_Stub_Writer_Throws_Export_Exception {
-	function __construct( $xml_generator ) {
+	function __construct( $formatter ) {
 	}
 	function export() {
 		throw new WP_Export_Exception( 'baba' );
@@ -27,7 +27,7 @@ class Test_WP_Export_Stub_Writer_Throws_Export_Exception {
 }
 
 class Test_WP_Export_Stub_Writer_Throws_Other_Exception {
-	function __construct( $xml_generator ) {
+	function __construct( $formatter ) {
 	}
 	function export() {
 		throw new Exception( 'baba' );
