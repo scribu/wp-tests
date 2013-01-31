@@ -237,7 +237,7 @@ class Test_WP_Export_Query extends WP_UnitTestCase {
 	}
 
 	private static function get_term_ids( $terms ) {
-		return array_values( array_map( array( self, '_get_term_ids_cb' ), $terms ) );
+		return array_values( array_map( array( __CLASS__, '_get_term_ids_cb' ), $terms ) );
 	}
 
 	private static function _get_term_ids_cb( $c ) {
