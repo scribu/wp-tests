@@ -26,4 +26,11 @@ class Tests_Compat extends WP_UnitTestCase {
 		$this->assertEquals(array( 1 => '993003b95758e0ac2eba451a4c5877eb1bb7b92a'), unpack('H40', _hash_hmac('sha1', 'simple', 'key', true)));
 	}
 
+	function test_json_encode_decode() {
+		require_once( ABSPATH . WPINC . '/class-json.php' );
+		$json = new Services_JSON();
+		// Super basic test to verify Services_JSON is intact and working.
+		$this->assertEquals( '["foo"]', $json->encodeUnsafe( array( 'foo' ) ) );
+		$this->assertEquals( array( 'foo' ), $json->decode( '["foo"]' ) );
+	}
 }
