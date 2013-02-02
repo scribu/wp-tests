@@ -266,6 +266,8 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		$size = $image->get_size();
 		$this->assertEquals( 100, $size['height'] );
 		$this->assertEquals( 100, $size['width'] );
+
+		unlink( $file );
 	}
 
 	public function test_wp_crop_image_url() {
@@ -281,6 +283,8 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		$size = $image->get_size();
 		$this->assertEquals( 100, $size['height'] );
 		$this->assertEquals( 100, $size['width'] );
+
+		unlink( $file );
 	}
 
 	public function test_wp_crop_image_file_not_exist() {
