@@ -6,14 +6,15 @@
  * @group upload
  */
 class Tests_Image_Functions extends WP_UnitTestCase {
-
 	/**
 	 * Setup test fixture
 	 */
 	public function setup() {
-		require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
-		require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
-		require_once ABSPATH . WPINC . '/class-wp-image-editor-imagick.php';
+		require_once( ABSPATH . WPINC . '/class-wp-image-editor.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-image-editor-gd.php' );
+		require_once( ABSPATH . WPINC . '/class-wp-image-editor-imagick.php' );
+
+		include_once( DIR_TESTDATA . '/../includes/mock-image-editor.php' );
 	}
 
 	/**
@@ -297,5 +298,24 @@ class Tests_Image_Functions extends WP_UnitTestCase {
 		$file = wp_crop_image( 'http://asdftestblog1.files.wordpress.com/2008/04/canoladoesnotexist.jpg',
 							  0, 0, 100, 100, 100, 100 );
 		$this->assertInstanceOf( 'WP_Error', $file );
+	}
+
+	function mock_image_editor( $editors ) {
+		return array( 'WP_Image_Editor_Mock' );
+	}
+
+	/**
+	 * @ticket 23325
+	 */
+	public function test_wp_crop_image_error_on_saving() {
+		WP_Image_Editor_Mock::$save_return = new WP_Error();
+		add_filter( 'wp_image_editors', array( $this, 'mock_image_editor' ) );
+
+		$file = wp_crop_image( DIR_TESTDATA . '/images/canola.jpg',
+							  0, 0, 100, 100, 100, 100 );
+		$this->assertInstanceOf( 'WP_Error', $file );
+
+		remove_filter( 'wp_image_editors', array( $this, 'mock_image_editor' ) );
+		WP_Image_Editor_Mock::$save_return = array();
 	}
 }
