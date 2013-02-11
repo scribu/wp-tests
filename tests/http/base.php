@@ -138,6 +138,7 @@ abstract class WP_HTTP_UnitTestCase extends WP_UnitTestCase {
 	function test_location_header_on_200() {
 		// Prints PASS on initial load, FAIL if the client follows the specified redirection
 		$res = wp_remote_request( $this->redirection_script . '?200-location=true' );
+		$this->assertFalse( is_wp_error( $res ) );
 		$this->assertEquals( 'PASS', $res['body']);
 	}
 
