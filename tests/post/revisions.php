@@ -38,4 +38,31 @@ class Tests_Post_Revisions extends WP_UnitTestCase {
 		 //is post_meta correctly set to revision author
 		 $this->assertEquals( get_post_meta( $post_id, '_edit_last', true ), $author_user_id ); //after restoring user
 	}
+
+	/**
+	* @ticket 7392
+	* @ticket 9843
+	*/
+	function test_revision_dont_save_revision_if_unchanged() {
+		$post_id = $this->factory->post->create( array( 'post_title' => 'some-post', 'post_type' => 'post', 'post_content' => 'some_content' ) );
+
+		wp_update_post( array( 'post_content'	=> 'some updated content', 'ID' => $post_id ) );	//1st revision
+		$this->assertEquals( 1, count( wp_get_post_revisions( $post_id ) ) ); //should be 1 revision so far
+
+		//update the post
+		wp_update_post( array( 'post_content'	=> 'new update for some updated content', 'ID' => $post_id ) );	//2nd revision
+		$this->assertEquals( 2, count( wp_get_post_revisions( $post_id ) ) ); //should be 2 revision so far
+
+		//next try to save another identical update, tests for patch that prevents storing duplicates
+		wp_update_post( array( 'post_content'	=> 'new update for some updated content', 'ID' => $post_id ) );	//content unchanged, shouldn't save
+		$this->assertEquals( 2, count( wp_get_post_revisions( $post_id ) ) ); //should still be 2 revision
+
+		//next try to save another update, same content, but new ttile, should save revision
+		wp_update_post( array( 'post_title' => 'some-post-changed', 'post_content'	=> 'new update for some updated content', 'ID' => $post_id ) );
+		$this->assertEquals( 3, count( wp_get_post_revisions( $post_id ) ) ); //should  be 3 revision
+
+		//next try to save another identical update
+		wp_update_post( array( 'post_title' => 'some-post-changed', 'post_content'	=> 'new update for some updated content', 'ID' => $post_id ) );	//content unchanged, shouldn't save
+		$this->assertEquals( 3, count( wp_get_post_revisions( $post_id ) ) ); //should still be 3 revision
+	}
 }
