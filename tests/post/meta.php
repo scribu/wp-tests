@@ -219,7 +219,7 @@ class Tests_Post_Meta extends WP_UnitTestCase {
 		$data = "'quote and \slash";
 		$this->assertTrue( update_meta( $mid1, 'unique_update', addslashes( $data ) ) );
 		$meta = get_metadata_by_mid( 'post', $mid1 );
-		$this->assertEquals( $data, $meta->meta_value );
+		$this->assertEquals( addslashes( $data ), $meta->meta_value );
 	}
 
 	/**

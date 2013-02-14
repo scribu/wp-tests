@@ -124,9 +124,11 @@ class Tests_Meta extends WP_UnitTestCase {
 	function test_metadata_slashes() {
 		$key = rand_str();
 		$value = 'Test\\singleslash';
-		$expected = 'Testsingleslash';
+		$expected = 'Test\\singleslash';
 		$value2 = 'Test\\\\doubleslash';
-		$expected2 = 'Test\\doubleslash';
+		$expected2 = 'Test\\\\doubleslash';
+		$value3 = 'Test\oneslash';
+		$expected3 = 'Test\oneslash';
 		$this->assertFalse( metadata_exists( 'user', $this->author->ID, $key ) );
 		$this->assertFalse( delete_metadata( 'user', $this->author->ID, $key ) );
 		$this->assertSame( '', get_metadata( 'user', $this->author->ID, $key, true ) );
@@ -149,5 +151,15 @@ class Tests_Meta extends WP_UnitTestCase {
 		$this->assertSame( '', get_metadata( 'user', $this->author->ID, $key, true ) );
 		$this->assertInternalType( 'int', update_metadata( 'user', $this->author->ID, $key, $value2 ) );
 		$this->assertEquals( $expected2, get_metadata( 'user', $this->author->ID, $key, true ) );
+		$this->assertTrue( delete_metadata( 'user', $this->author->ID, $key ) );
+		$this->assertSame( '', get_metadata( 'user', $this->author->ID, $key, true ) );
+		$this->assertFalse( metadata_exists( 'user', $this->author->ID, $key ) );
+
+		$this->assertInternalType( 'int', add_metadata( 'user', $this->author->ID, $key, $value3 ) );
+		$this->assertEquals( $expected3, get_metadata( 'user', $this->author->ID, $key, true ) );
+		$this->assertTrue( delete_metadata( 'user', $this->author->ID, $key ) );
+		$this->assertSame( '', get_metadata( 'user', $this->author->ID, $key, true ) );
+		$this->assertInternalType( 'int', update_metadata( 'user', $this->author->ID, $key, $value3 ) );
+		$this->assertEquals( $expected3, get_metadata( 'user', $this->author->ID, $key, true ) );
 	}
 }

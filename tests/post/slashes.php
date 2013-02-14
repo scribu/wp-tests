@@ -40,7 +40,7 @@ class Tests_Post_Slashes extends WP_UnitTestCase {
 		$_POST['post_title'] = $this->slash_1;
 		$_POST['content'] = $this->slash_5;
 		$_POST['excerpt'] = $this->slash_7;
-		$_POST = add_magic_quotes( $_POST ); // the edit_post() function will strip slashes
+		$_POST = wp_slash( $_POST ); // the edit_post() function will strip slashes
 
 		$post_id = edit_post();
 		$post = get_post( $post_id );
@@ -54,7 +54,7 @@ class Tests_Post_Slashes extends WP_UnitTestCase {
 		$_POST['post_title'] = $this->slash_2;
 		$_POST['content'] = $this->slash_4;
 		$_POST['excerpt'] = $this->slash_6;
-		$_POST = add_magic_quotes( $_POST );
+		$_POST = wp_slash( $_POST );
 
 		$post_id = edit_post();
 		$post = get_post( $post_id );

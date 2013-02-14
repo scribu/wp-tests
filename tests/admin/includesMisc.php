@@ -6,9 +6,8 @@
 class Tests_Admin_includesMisc extends WP_UnitTestCase {
 	function test_shorten_url() {
 		$tests = array(
-			// strip slashes
-			'wordpress\.org/about/philosophy'
-				=> 'wordpress.org/about/philosophy', // strip slashes
+			'wordpress.org/about/philosophy'
+				=> 'wordpress.org/about/philosophy',
 			'http://wordpress.org/about/philosophy/'
 				=> 'wordpress.org/about/philosophy', // remove http, trailing slash
 			'http://www.wordpress.org/about/philosophy/'
