@@ -880,6 +880,27 @@ class Tests_MS extends WP_UnitTestCase {
 		restore_current_blog();
 		update_site_option( 'ms_files_rewriting', 0 );
 	}
+
+	/**
+	 * @ticket 23192
+	 */
+	function test_is_user_spammy() {
+		$user_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => 'testuser1',
+		) );
+
+		$spam_username = (string) $user_id;
+		$spam_user_id = $this->factory->user->create( array(
+			'role' => 'author',
+			'user_login' => $spam_username,
+		) );
+		update_user_status( $spam_user_id, 'spam', '1' );
+		
+		$this->assertTrue( is_user_spammy( $spam_username ) );
+		$this->assertFalse( is_user_spammy( 'testuser1' ) );
+	}
+
 }
 
 endif;
