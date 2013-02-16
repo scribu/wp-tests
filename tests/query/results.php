@@ -43,6 +43,14 @@ class Tests_Query_Results extends WP_UnitTestCase {
 		$this->factory->post->create( array( 'post_title' => 'tags-b-and-c', 'tags_input' => array( 'tag-b', 'tag-c' ), 'post_date' => '2010-09-01 00:00:00' ) );
 		$this->factory->post->create( array( 'post_title' => 'tags-a-and-c', 'tags_input' => array( 'tag-a', 'tag-c' ), 'post_date' => '2010-10-01 00:00:00' ) );
 
+		$this->parent_one = $this->factory->post->create( array( 'post_title' => 'parent-one', 'post_date' => '2007-01-01 00:00:00' ) );
+		$this->parent_two = $this->factory->post->create( array( 'post_title' => 'parent-two', 'post_date' => '2007-01-01 00:00:00' ) );
+		$this->parent_three = $this->factory->post->create( array( 'post_title' => 'parent-three', 'post_date' => '2007-01-01 00:00:00' ) );
+		$this->factory->post->create( array( 'post_title' => 'child-one', 'post_parent' => $this->parent_one, 'post_date' => '2007-01-01 00:00:01' ) );
+		$this->factory->post->create( array( 'post_title' => 'child-two', 'post_parent' => $this->parent_one, 'post_date' => '2007-01-01 00:00:02' ) );
+		$this->factory->post->create( array( 'post_title' => 'child-three', 'post_parent' => $this->parent_two, 'post_date' => '2007-01-01 00:00:03' ) );
+		$this->factory->post->create( array( 'post_title' => 'child-four', 'post_parent' => $this->parent_two, 'post_date' => '2007-01-01 00:00:04' ) );
+
 		unset( $this->q );
 		$this->q = new WP_Query();
 	}
@@ -294,4 +302,71 @@ class Tests_Query_Results extends WP_UnitTestCase {
 		$this->assertEquals( $expected, wp_list_pluck( $posts, 'post_name' ) );
 	}
 
+	/**
+	 * @ticket 11056
+	 */
+	function test_query_post_parent__in() {
+		// Query for first parent's children
+		$posts = $this->q->query( array(
+			'post_parent__in' => array( $this->parent_one ),
+			'orderby' => 'date',
+			'order' => 'asc',
+		) );
+
+		$this->assertEquals( array(
+			'child-one',
+			'child-two',
+		), wp_list_pluck( $posts, 'post_title' ) );
+
+		// Second parent's children
+		$posts = $this->q->query( array(
+			'post_parent__in' => array( $this->parent_two ),
+			'orderby' => 'date',
+			'order' => 'asc',
+		) );
+
+		$this->assertEquals( array(
+			'child-three',
+			'child-four',
+		), wp_list_pluck( $posts, 'post_title' ) );
+
+		// Both first and second parent's children
+		$posts = $this->q->query( array(
+			'post_parent__in' => array( $this->parent_one, $this->parent_two ),
+			'orderby' => 'date',
+			'order' => 'asc',
+		) );
+
+		$this->assertEquals( array(
+			'child-one',
+			'child-two',
+			'child-three',
+			'child-four',
+		), wp_list_pluck( $posts, 'post_title' ) );
+
+		// Third parent's children
+		$posts = $this->q->query( array(
+			'post_parent__in' => array( $this->parent_three ),
+		) );
+
+		$this->assertEquals( array(), wp_list_pluck( $posts, 'post_title' ) );
+	}
+
+	/**
+	 * @ticket 11056
+	 */
+	function test_query_orderby_post_parent__in() {
+		$posts = $this->q->query( array(
+			'post_parent__in' => array( $this->parent_two, $this->parent_one ),
+			'orderby' => 'post_parent__in',
+			'order' => 'asc',
+		) );
+
+		$this->assertEquals( array(
+			'child-three',
+			'child-four',
+			'child-one',
+			'child-two',
+		), wp_list_pluck( $posts, 'post_title' ) );
+	}
 }
