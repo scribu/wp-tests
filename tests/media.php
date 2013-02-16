@@ -143,4 +143,26 @@ CAP;
 		$this->assertEquals( 'image', $prepped['type'] );
 		$this->assertEquals( '', $prepped['subtype'] );
 	}
+
+	/**
+	 * @ticket 19067
+	 */
+	function test_wp_convert_bytes_to_hr() {
+		$kb = 1024;
+		$mb = $kb * 1024;
+		$gb = $mb * 1024;
+
+		// test if boundaries are correct
+		$this->assertEquals( '1GB', wp_convert_bytes_to_hr( $gb ) );
+		$this->assertEquals( '1MB', wp_convert_bytes_to_hr( $mb ) );
+		$this->assertEquals( '1kB', wp_convert_bytes_to_hr( $kb ) );
+
+		// now some values around
+		$this->assertEquals( '1.5009765625GB', wp_convert_bytes_to_hr( $gb + $gb / 2 + $mb ) );
+		$this->assertEquals( '1022.99902344MB', wp_convert_bytes_to_hr( $gb - $mb - $kb ) );
+
+		// edge
+		$this->assertEquals( 'NANB', wp_convert_bytes_to_hr( -1 ) );
+		$this->assertEquals( '0B', wp_convert_bytes_to_hr( 0 ) );
+	}
 }
